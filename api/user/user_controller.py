@@ -38,15 +38,30 @@ CORS(app)
 # if __name__ == "__main__":
 #     app.run(host="0.0.0.0", port=5001, debug=True)
 
-def get_user_by_email(email):
+def get_users_by_email(email):
     # Mock user data for testing
     mock_user_data = {
-        "UserProfile": {
-            "email": "test@example.com",
-            "password": "b2867617492e26c338ab49f72afabc984d798b59755a27e312b953716ae964d7",
-            "role": "admin",
-            "user_name": "Test User",
-            "user_address": "123 Test St, Test City"
-        }
+    "userprofile1": {
+        "email": "admin@example.com",
+        "password": "b2867617492e26c338ab49f72afabc984d798b59755a27e312b953716ae964d7",
+        "role": "admin",
+        "user_name": "Admin User",
+        "user_address": "123 Admin St, Admin City"
+    },
+    "userprofile2": {
+        "email": "client@example.com",
+        "password": "b2867617492e26c338ab49f72afabc984d798b59755a27e312b953716ae964d7",
+        "role": "client",
+        "user_name": "Client User",
+        "user_address": "456 Client Ave, Client City"
+    },
+    "userprofile3": {
+        "email": "operator@example.com",
+        "password": "b2867617492e26c338ab49f72afabc984d798b59755a27e312b953716ae964d7",
+        "role": "operator",
+        "user_name": "Operator User",
+        "user_address": "789 Operator Rd, Operator City"
     }
+}
+
     return mock_user_data
