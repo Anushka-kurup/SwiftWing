@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+/* Basic styling */
+.app-container {
+  padding: 20px;
+}
+
+.driver-section {
+  margin-bottom: 30px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
