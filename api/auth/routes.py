@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_jwt_auth import AuthJWT
 from . import services
+from .models import User
 from auth.services import AuthService
 
 router = APIRouter()
+
 
 @router.post('/login')
 def login(user: services.User, auth_service: AuthService = Depends(), Authorize: AuthJWT = Depends()):
@@ -26,3 +28,11 @@ def verify_client(auth_service: AuthService = Depends(), Authorize: AuthJWT = De
 def verify_operator(auth_service: AuthService = Depends(), Authorize: AuthJWT = Depends()):
    auth_service.verify_role("admin", Authorize)
    return True
+
+@router.post("/register")
+def register_user(user: User, auth_service: AuthService = Depends()):
+    # Store user data in DynamoDB
+    if auth_service.store_user_data(user):
+        return {"message": "User registered successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to register user")
