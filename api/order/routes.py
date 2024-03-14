@@ -10,7 +10,7 @@ order_service = OrderService()
 def create_order(order: Order):
     return order_service.create_order(order)
 
-@router.put("/update_order/", response_model=bool)
+@router.post("/update_order/", response_model=bool)
 def update_order(order_id: str, order: Order):
     return order_service.update_order(order_id, order)
 
@@ -27,3 +27,10 @@ def get_all_order():
     if order_list is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return order_list
+
+@router.delete("/delete_order/", response_model=bool)
+def delete_order(order_id: str):
+    status = order_service.delete_order(order_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return status
