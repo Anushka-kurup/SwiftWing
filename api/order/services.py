@@ -29,7 +29,9 @@ class OrderService:
                     'package_dimension': {'SS': order.package_dimension},
                     'special_handling_instruction': {'S': order.special_handling_instruction},
                     'time_constraint': {'S': time_constraint_str},
-                    'package_weight':{'S':order.package_weight}
+                    'package_weight':{'S':order.package_weight},
+                    'latitude':{'S':order.latitude},
+                    'longitude':{'S':order.longitude}
                 }
             )
             return True
@@ -50,7 +52,9 @@ class OrderService:
                     'package_dimension': {'SS': order.package_dimension},
                     'special_handling_instruction': {'S': order.special_handling_instruction},
                     'time_constraint': {'S': time_constraint_str},
-                    'package_weight':{'S':order.package_weight}
+                    'package_weight':{'S':order.package_weight},
+                    'latitude':{'S':order.latitude},
+                    'longitude':{'S':order.longitude}
                 }
             )
             return True
@@ -74,7 +78,9 @@ class OrderService:
                     package_dimension=item['package_dimension']['SS'],
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     time_constraint = item['time_constraint']['S'],
-                    package_weight = item['package_weight']['S']
+                    package_weight = item['package_weight']['S'],
+                    latitude = item['latitude']['S'],
+                    longitude = item['longitude']['S']
                 )
             else:
                 print("Error 404, Order ID " + order_id + " not found")
@@ -98,7 +104,9 @@ class OrderService:
                     package_dimension=item['package_dimension']['SS'],
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     time_constraint=item['time_constraint']['S'],
-                    package_weight=item['package_weight']['S']
+                    package_weight=item['package_weight']['S'],
+                    latitude = item['latitude']['S'],
+                    longitude = item['longitude']['S']
                 )
                 orders.append(order)
             return orders

@@ -10,3 +10,5 @@ class Order(BaseModel):
     package_weight: str
     time_constraint: datetime
     special_handling_instruction: str
+    latitude: str
+    longitude: str
