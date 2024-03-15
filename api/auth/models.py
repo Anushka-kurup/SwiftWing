@@ -5,7 +5,8 @@ from fastapi.responses import JSONResponse
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
-
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 

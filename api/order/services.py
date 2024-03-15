@@ -20,16 +20,19 @@ class OrderService:
         try:
             order_id = str(uuid.uuid4())
             time_constraint_str = order.time_constraint.isoformat()
+            package_dimension = [str(cur_measurement) for cur_measurement in order.package_dimension]
             self.dynamodb.put_item(
                 TableName=self.TABLE_NAME,
                 Item={
                     'order_id': {'S': order_id},
                     'pickup_location': {'S': order.pickup_location},
                     'destination': {'S': order.destination},
-                    'package_dimension': {'SS': order.package_dimension},
+                    'package_dimension': {'NS': package_dimension},
                     'special_handling_instruction': {'S': order.special_handling_instruction},
                     'time_constraint': {'S': time_constraint_str},
-                    'package_weight':{'S':order.package_weight}
+                    'package_weight':{'N':str(order.package_weight)},
+                    'latitude':{'N':str(order.latitude)},
+                    'longitude':{'N':str(order.longitude)}
                 }
             )
             return True
@@ -41,16 +44,19 @@ class OrderService:
         # Code to update order in the database
         try:
             time_constraint_str = order.time_constraint.isoformat()
+            package_dimension = [str(cur_measurement) for cur_measurement in order.package_dimension]
             self.dynamodb.put_item(
                 TableName=self.TABLE_NAME,
                 Item={
                     'order_id': {'S': order_id},
                     'pickup_location': {'S': order.pickup_location},
                     'destination': {'S': order.destination},
-                    'package_dimension': {'SS': order.package_dimension},
+                    'package_dimension': {'NS': package_dimension},
                     'special_handling_instruction': {'S': order.special_handling_instruction},
                     'time_constraint': {'S': time_constraint_str},
-                    'package_weight':{'S':order.package_weight}
+                    'package_weight':{'N':str(order.package_weight)},
+                    'latitude':{'N':str(order.latitude)},
+                    'longitude':{'N':str(order.longitude)}
                 }
             )
             return True
@@ -71,10 +77,12 @@ class OrderService:
                     order_id=item['order_id']['S'],
                     pickup_location=item['pickup_location']['S'],
                     destination=item['destination']['S'],
-                    package_dimension=item['package_dimension']['SS'],
+                    package_dimension=item['package_dimension']['NS'],
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     time_constraint = item['time_constraint']['S'],
-                    package_weight = item['package_weight']['S']
+                    package_weight = item['package_weight']['N'],
+                    latitude = item['latitude']['N'],
+                    longitude = item['longitude']['N']
                 )
             else:
                 print("Error 404, Order ID " + order_id + " not found")
@@ -95,10 +103,12 @@ class OrderService:
                     order_id=item['order_id']['S'],
                     pickup_location=item['pickup_location']['S'],
                     destination=item['destination']['S'],
-                    package_dimension=item['package_dimension']['SS'],
+                    package_dimension=item['package_dimension']['NS'],
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     time_constraint=item['time_constraint']['S'],
-                    package_weight=item['package_weight']['S']
+                    package_weight=item['package_weight']['N'],
+                    latitude = item['latitude']['N'],
+                    longitude = item['longitude']['N']
                 )
                 orders.append(order)
             return orders
