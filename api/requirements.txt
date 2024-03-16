@@ -9,3 +9,4 @@ flask-cors==3.1.1
 ortools==9.9.3963
 geopy==2.4.1
 scikit-learn==1.4.1
+fastapi_sessions==0.6.0

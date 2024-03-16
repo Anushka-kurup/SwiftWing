@@ -22,12 +22,18 @@ const statusMap = {
 } as const;
 
 export interface Order {
-  id: string;
-  customer: { name: string };
-  amount: number;
-  status: 'Received' | 'In_Progress' | 'Delivered'| 'Failed' | 'On_Hold' ;
+  order_id: string;
+  pickup_location: string;
+  destination: string;
+  package_dimension: number[];
+  package_weight: number;
+  time_constraint: Date;
+  special_handling_instruction: string;
+  latitude: number;
+  longitude: number;
   createdAt: Date;
-  deliveryAddress: string;
+  status: 'Received' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';
+  customer: string;
 }
 
 export interface LatestOrdersProps {
@@ -40,8 +46,8 @@ export function Orders({ orders = [], sx }: LatestOrdersProps): React.JSX.Elemen
     <Card sx={sx}>
       <CardHeader title="Group" />
       <Divider />
-      <Box sx={{ overflowX: 'auto' }}>
-        <Table sx={{ minWidth: 800 }}>
+      <Box >
+        <Table sx={{ Width: 500, overflowX: "scroll"}}>
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
@@ -49,6 +55,8 @@ export function Orders({ orders = [], sx }: LatestOrdersProps): React.JSX.Elemen
               <TableCell>Client</TableCell>
               <TableCell>Delivery Address</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Package Dimensions</TableCell>
+              <TableCell>Special Handling Instructions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -56,14 +64,16 @@ export function Orders({ orders = [], sx }: LatestOrdersProps): React.JSX.Elemen
               const { label, color } = statusMap[order.status] ?? { label: 'Unknown', color: 'default' };
 
               return (
-                <TableRow hover key={order.id}>
+                <TableRow hover key={order.order_id}>
                   <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
-                  <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.customer.name}</TableCell>
-                  <TableCell>{order.deliveryAddress}</TableCell>
+                  <TableCell>{order.order_id}</TableCell>
+                  <TableCell>{order.customer}</TableCell>
+                  <TableCell>{order.destination}</TableCell>
                   <TableCell>
                     <Chip color={color} label={label} size="small" />
                   </TableCell>
+                  <TableCell>{order.package_dimension}</TableCell>
+                  <TableCell>{order.special_handling_instruction}</TableCell>
                 </TableRow>
               );
             })}
