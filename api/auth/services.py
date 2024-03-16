@@ -1,6 +1,6 @@
 import boto3
 from .models import User
-from user.user_controller import get_users_by_email
+#from user.user_controller import get_users_by_email
 import hashlib
 from fastapi_jwt_auth import AuthJWT
 from fastapi import HTTPException, Depends
