@@ -22,3 +22,12 @@ def view_order(shipping_id: str):
     if shipping_info is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return shipping_info
+
+@router.get("/get_all_shipping_info/", response_model=List[ShippingInfo])
+def get_all_order_shipping():
+    shipping_info_list = order_shipping_service.get_all_shipping_info()
+
+    if shipping_info_list is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    return shipping_info_list

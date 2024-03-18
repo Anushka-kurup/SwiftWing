@@ -71,7 +71,7 @@ class OrderShippingService:
                 print("Error retrieving shipping.")
                 return None
 
-            print("Order retrieval successful.")
+            print("Shipping retrieval successful.")
             print("Preparing information....")
             return ShippingInfo(
                 shipping_id=shipping.shipping_id,
@@ -86,6 +86,43 @@ class OrderShippingService:
                 status = shipping.status,
                 operator_id = shipping.operator_id
                 )
+        except Exception as e:
+            print(f"Error retrieving order: {e}")
+            return None
+
+    def get_all_shipping_info(self) -> ShippingInfo:
+        # Code to retrieve order from the database
+        try:
+            print("Retrieving shipping information....")
+            shipping_list = self.shipping_service.get_all_shipping()
+
+            if shipping_list == None:
+                print("Error retrieving shipping.")
+                return None
+
+            print("Shipping retrieval successful.")
+            print("Retrieving order information....")
+            shipping_info_list = []
+            for shipping in shipping_list:
+                cur_shipping_id = shipping.shipping_id
+                order = self.order_service.get_order(cur_shipping_id)
+
+                shipping_info_list.append(
+                    ShippingInfo(
+                    shipping_id=shipping.shipping_id,
+                    pickup_location=order.pickup_location,
+                    destination=order.destination,
+                    package_dimension=order.package_dimension,
+                    special_handling_instruction=order.special_handling_instruction,
+                    time_constraint = order.time_constraint,
+                    package_weight = order.package_weight,
+                    latitude = order.latitude,
+                    longitude = order.longitude,
+                    status = shipping.status,
+                    operator_id = shipping.operator_id
+                    )
+                )
+            return shipping_info_list
         except Exception as e:
             print(f"Error retrieving order: {e}")
             return None
