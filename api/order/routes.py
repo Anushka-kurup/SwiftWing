@@ -1,18 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
-from .models import Order
+from .models import Order,OrderCreationResponse
 from .services import OrderService
 from typing import List
 
 router = APIRouter()
 order_service = OrderService()
 
-@router.post("/create_order/", response_model=bool)
+@router.post("/create_order/", response_model=OrderCreationResponse)
 def create_order(order: Order):
     return order_service.create_order(order)
 
 @router.post("/update_order/", response_model=bool)
-def update_order(order_id: str, order: Order):
-    return order_service.update_order(order_id, order)
+def update_order( order: Order):
+    return order_service.update_order(order)
 
 @router.get("/view_order/", response_model=Order)
 def view_order(order_id: str):

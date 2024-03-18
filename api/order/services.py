@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 import uuid
 from dotenv import load_dotenv
+from fastapi import HTTPException
 load_dotenv()
 class OrderService:
     def __init__(self):
@@ -35,20 +36,23 @@ class OrderService:
                     'longitude':{'N':str(order.longitude)}
                 }
             )
-            return True
+            return {"status":True,"order_id":order_id}
         except Exception as e:
             print(f"Error creating order: {e}")
             return False
 
-    def update_order(self, order_id: str, order: Order) -> bool:
+    def update_order(self, order: Order) -> bool:
         # Code to update order in the database
         try:
+            order_check = self.get_order(order.order_id)
+            if not order_check:
+                raise HTTPException(status_code=404, detail="Order not found")
             time_constraint_str = order.time_constraint.isoformat()
             package_dimension = [str(cur_measurement) for cur_measurement in order.package_dimension]
             self.dynamodb.put_item(
                 TableName=self.TABLE_NAME,
                 Item={
-                    'order_id': {'S': order_id},
+                    'order_id': {'S': order.order_id},
                     'pickup_location': {'S': order.pickup_location},
                     'destination': {'S': order.destination},
                     'package_dimension': {'NS': package_dimension},

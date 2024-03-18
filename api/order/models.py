@@ -12,3 +12,7 @@ class Order(BaseModel):
     special_handling_instruction: str
     latitude: float
     longitude: float
+
+class OrderCreationResponse(BaseModel):
+    status: bool
+    order_id: str
