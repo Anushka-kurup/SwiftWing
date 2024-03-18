@@ -1,0 +1,91 @@
+from typing import Dict
+from order.models import Order,OrderCreationResponse
+from shipping.models import Shipping
+from .models import ShippingInfo
+from auth.routes import verify_operator
+from fastapi import HTTPException
+import boto3
+import os
+from order.services import OrderService
+from shipping.services import ShippingService
+from typing import List
+from dotenv import load_dotenv
+load_dotenv()
+
+class OrderShippingService:
+    def __init__(self, order_service: OrderService,shipping_service:ShippingService):
+        self.order_service = order_service
+        self.shipping_service = shipping_service
+        access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+        secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        region = 'us-east-1'
+
+    def create_order_service(self, order:Order):
+        # Check if the order exists
+        try:
+            print("Creating order....")
+            order_result = self.order_service.create_order(order)
+            order_creation_status = order_result["status"]
+            order_id = order_result["order_id"]
+
+            if order_creation_status == False:
+                print("Error creating order")
+                return False
+
+            print("Order creation successful. Order created with ID: " + order_id)
+            print("Creating shipping")
+
+            shipping_item = Shipping(
+                shipping_id=order_id,
+                status="Awaiting Assignment",
+                operator_id="")
+
+            shipping_creation = self.shipping_service.create_shipping(shipping_item)
+
+            if shipping_creation == False:
+                print("Error creating shipping")
+                return False
+
+            print("Shipping creation successful.")
+            return True
+
+        except Exception as e:
+            print(f"Error creating order/shipping: {e}")
+            return False
+
+    def get_shipping_info(self, shipping_id: str) -> ShippingInfo:
+        # Code to retrieve order from the database
+        try:
+            print("Retrieving order information....")
+            order = self.order_service.get_order(shipping_id)
+
+            if order == None:
+                print("Error retrieving order.")
+                return None
+
+            print("Order retrieval successful.")
+            print("Retrieving shipping information....")
+            shipping = self.shipping_service.get_shipping(shipping_id)
+
+            if shipping == None:
+                print("Error retrieving shipping.")
+                return None
+
+            print("Order retrieval successful.")
+            print("Preparing information....")
+            return ShippingInfo(
+                shipping_id=shipping.shipping_id,
+                pickup_location=order.pickup_location,
+                destination=order.destination,
+                package_dimension=order.package_dimension,
+                special_handling_instruction=order.special_handling_instruction,
+                time_constraint = order.time_constraint,
+                package_weight = order.package_weight,
+                latitude = order.latitude,
+                longitude = order.longitude,
+                status = shipping.status,
+                operator_id = shipping.operator_id
+                )
+        except Exception as e:
+            print(f"Error retrieving order: {e}")
+            return None

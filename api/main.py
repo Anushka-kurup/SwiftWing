@@ -10,7 +10,7 @@ from session.routes import router as sessions_router
 from shipping.services import ShippingService
 from order.services import OrderService
 from others.routes import router as optimize_router
-
+from order_shipping_manager.routes import router as order_shipping_router
 load_dotenv()
 
 # Get AWS credentials from environment variables
@@ -37,6 +37,6 @@ app.include_router(sessions_router, prefix="/session", tags=["Session Management
 app.include_router(order_router, prefix="/order", tags=["Order Management"])
 app.include_router(shipping_router, prefix="/shipping", tags=["Shipping Management"])
 app.include_router(optimize_router, prefix="/optimize", tags=["Optimize Route"])
-
+app.include_router(order_shipping_router, prefix="/order_shipping", tags=["Order Shipping Management"])
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)

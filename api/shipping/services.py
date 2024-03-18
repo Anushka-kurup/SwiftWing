@@ -60,7 +60,6 @@ class ShippingService:
             print(f"Error updating order: {e}")
             return False
 
-
     def get_shipping(self, shipping_id: str) -> Shipping:
         # Code to retrieve order from the database
         try:
