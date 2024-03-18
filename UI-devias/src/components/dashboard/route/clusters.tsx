@@ -61,7 +61,7 @@ export function Clusters(props: ClustersProps): JSX.Element {
 
 
         //Call API
-        await fetch('http://0.0.0.0:5000/optimize/cluster', { 
+        await fetch('http://127.0.0.1:5000/optimize/cluster', { 
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
