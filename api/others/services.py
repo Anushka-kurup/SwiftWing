@@ -161,7 +161,7 @@ class ClusterService:
         pass
     def create_clusters(self, obj: Dict):
         coords = obj["coordinates"]
-        num_clusters = obj["num_clusters"]
+        num_clusters = obj["num_drivers"]
 
         #Convert coords to to lat long
         coords = [[float(i[0]),float(i[1])] for i in coords]

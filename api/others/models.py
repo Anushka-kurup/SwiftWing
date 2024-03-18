@@ -23,14 +23,14 @@ class RouteOutput(BaseModel):
 
 class Cluster(BaseModel):
     coordinates: list[list]
-    num_clusters: int
-    coords_name: list[str]
+    num_drivers: int
+    coords_names: list[str]
 
     def to_dict(self):      
         return {
             "coordinates": self.coordinates,
-            "num_clusters": self.num_clusters,
-            "coords_name": self.coords_name
+            "num_drivers": self.num_drivers,
+            "coords_names": self.coords_names
         }
 
 class ClusterOutput(BaseModel):

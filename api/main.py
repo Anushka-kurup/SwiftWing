@@ -11,6 +11,7 @@ from shipping.services import ShippingService
 from order.services import OrderService
 from others.routes import router as optimize_router
 from order_shipping_manager.routes import router as order_shipping_router
+from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 # Get AWS credentials from environment variables
@@ -23,6 +24,15 @@ dynamodb = boto3.client('dynamodb', region_name=region, aws_access_key_id=access
 
 # Initialize FastAPI app
 app = FastAPI()
+
+# Configure CORS:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 # Instantiate order service
@@ -39,4 +49,4 @@ app.include_router(shipping_router, prefix="/shipping", tags=["Shipping Manageme
 app.include_router(optimize_router, prefix="/optimize", tags=["Optimize Route"])
 app.include_router(order_shipping_router, prefix="/order_shipping", tags=["Order Shipping Management"])
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")
