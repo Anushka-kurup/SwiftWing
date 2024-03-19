@@ -35,10 +35,10 @@ export function Clusters(props: ClustersProps): JSX.Element {
     //Cluster function
     const cluster = async () => {
         const coords = orders[0].map((delivery: any) => [delivery.latitude, delivery.longitude]);
-        const coords_names = orders[0].map((delivery: any) => delivery.destination);
+        const coords_id = orders[0].map((delivery: any) => delivery.order_id);
         //Add pickup to both lists
-        coords.unshift([1.3245706, 103.8773117]);
-        coords_names.unshift("313@Somerset, 313 Orchard Road, Singapore 238895");
+        // coords.unshift([1.3245706, 103.8773117]);
+        // coords_id.unshift("Origin");
         //set links pickup location to delivery locations in the form [[1,2],[1,3],[1,4],[1,5],[6,7],[1,8]]
         const links = [];
         for (let i = 0; i < coords.length; i++) {
@@ -53,12 +53,10 @@ export function Clusters(props: ClustersProps): JSX.Element {
         const payload = {
         "coordinates": coords,
         //"round_trip": false,
-        "coords_names": coords_names,
+        "coords_names": coords_id,
         //"pickups_deliveries": links,
         "num_drivers": parseInt(input.value)
         };
-        console.log(payload);
-
 
         //Call API
         await fetch('http://127.0.0.1:5000/optimize/cluster', { 
@@ -74,10 +72,26 @@ export function Clusters(props: ClustersProps): JSX.Element {
         .then((data) => {
             console.log('Success:', data);
             //Set new orders
-            //setOrders(data);
+            const new_data = [];
+            for (let i = 0; i < data.length; i++) {
+                const clusterDel = [];
+                const clust = data[i];
+                console.log(clust);
+                console.log("here");
+                for (let j = 0; j < clust["cluster"].length; j++) {
+                    console.log(clust["cluster"][j]);
+                    const id = clust["cluster"][j];
+                    const delivery_obj = orders[0].find((delivery: any) => delivery.order_id === id);
+                    clusterDel.push(delivery_obj);
+                }
+                new_data.push(clusterDel);
+                console.log(new_data)
+            }
+            setOrders(new_data);
+            props.deliveries = new_data;
         })
-    };
 
+    };
     return (
         <Grid container spacing={3}>
             <Grid lg={12} style={{ position: 'sticky' }}>

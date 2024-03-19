@@ -162,6 +162,7 @@ class ClusterService:
     def create_clusters(self, obj: Dict):
         coords = obj["coordinates"]
         num_clusters = obj["num_drivers"]
+        delivery_ids = obj["coords_names"]
 
         #Convert coords to to lat long
         coords = [[float(i[0]),float(i[1])] for i in coords]
@@ -177,15 +178,13 @@ class ClusterService:
         #Fit the model
         kmeans.fit(coords)
         labels = kmeans.labels_
-        '''Return output in the form
-        [clusteroutput(cluster_name="label",cluster = [list of coords])]'''
         coords = [[str(i[0]),str(i[1])] for i in coords]
         returned = []
         for i in range(num_clusters):
             cluster = []
             for j in range(len(labels)):
                 if labels[j] == i:
-                    cluster.append(coords[j])
+                    cluster.append(delivery_ids[j])
             returned.append(ClusterOutput(cluster_name=f"Cluster {i+1}", cluster=cluster))
         return returned
 
