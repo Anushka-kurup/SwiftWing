@@ -8,30 +8,14 @@ import { Orders } from '@/components/dashboard/route/orders';
 export interface ClustersProps {
     deliveries?: any[];
     sx?: any;
+    setDeliveries: any;
 }
 
 export function Clusters(props: ClustersProps): JSX.Element {
-    const [orders, setOrders] = React.useState(props.deliveries ?? []);
+    console.log(props.deliveries);
 
-    const handleInputChange = () => {
-        // Create length number of orders based on input 
-        const input = document.getElementById('clusters') as HTMLInputElement;
-        const value = input.value;
-        const newOrders = [];
-        for (let i = 0; i < parseInt(value); i++) {
-            newOrders.push([
-                {
-                    id: `ORD-${i + 1}`,
-                    customer: { name: 'New Customer' },
-                    amount: 0,
-                    status: 'New',
-                    createdAt: new Date(),
-                    deliveryAddress: '',
-                },
-            ]);
-        }
-        setOrders(newOrders);
-    };
+    const orders = props.deliveries;
+    
     //Cluster function
     const cluster = async () => {
         const coords = orders[0].map((delivery: any) => [delivery.latitude, delivery.longitude]);
@@ -87,8 +71,7 @@ export function Clusters(props: ClustersProps): JSX.Element {
                 new_data.push(clusterDel);
                 console.log(new_data)
             }
-            setOrders(new_data);
-            props.deliveries = new_data;
+            props.setDeliveries(new_data);
         })
 
     };
@@ -107,7 +90,7 @@ export function Clusters(props: ClustersProps): JSX.Element {
                 </Button>
                 <Button
                     style={{ margin: "20px", color: "red" }}
-                    onClick={handleInputChange}
+                    onClick={cluster}
                     variant="outlined"
                 >
                     Confirm Clusters

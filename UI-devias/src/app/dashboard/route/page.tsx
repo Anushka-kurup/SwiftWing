@@ -12,6 +12,7 @@ import {Optimize} from '@/components/dashboard/route/optimize';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { set } from 'react-hook-form';
 
 
 // const deliveries = [
@@ -116,7 +117,8 @@ const coordinates = [
 
 // Generate 8 deliveries using the random locations
 // deliveries is a nested array
-const deliveries: any[]= [];
+
+const deliveries_list: { [key: string]: any }[] = [];
 const nested = [];
 for (let i = 0; i < randomLocations.length; i++) {
   const newOrder = 
@@ -136,9 +138,17 @@ for (let i = 0; i < randomLocations.length; i++) {
     }
   nested.push(newOrder);
 }
-deliveries.push(nested);
+deliveries_list.push(nested);
+
+console.log(deliveries_list)
 
 export default function Page(): React.JSX.Element {
+  const [deliveries, setDeliveries] = React.useState<{ [key: string]: any }[]>([]);
+
+  React.useEffect(() => {
+    setDeliveries(deliveries_list);
+  }, []);
+
   //Change tabs
   const [value, setValue] = React.useState('clustering');
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -173,7 +183,7 @@ export default function Page(): React.JSX.Element {
                     </DemoContainer>
                 </LocalizationProvider>
             </Grid>
-      {value === 'clustering' && <Clusters deliveries={deliveries}  />}
+      {value === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} />}
       {value === 'optimize' && <Optimize deliveries={deliveries} optimize={optimize} />}
     </Grid>
   );
