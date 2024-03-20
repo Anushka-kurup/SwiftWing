@@ -1,7 +1,7 @@
 from typing import Dict
-from order.models import Order,OrderCreationResponse
+from order.models import Order,OrderCreationResponse,DeliveryTimeStampUpdate
 from shipping.models import Shipping
-from .models import ShippingInfo
+from .models import ShippingInfo,OrderID
 from auth.routes import verify_operator
 from fastapi import HTTPException
 import boto3
@@ -10,6 +10,8 @@ from order.services import OrderService
 from shipping.services import ShippingService
 from typing import List
 from dotenv import load_dotenv
+from datetime import datetime
+
 load_dotenv()
 
 class OrderShippingService:
@@ -73,16 +75,30 @@ class OrderShippingService:
 
             print("Shipping retrieval successful.")
             print("Preparing information....")
+            if order.delivery_date == "" or order.delivery_date == None:
+                delivery_date = None
+            else:
+                delivery_date = order.delivery_date
+            
+            if order.delivery_timestamp == "" or order.delivery_timestamp == None:
+                delivery_timestamp = None
+            else:
+                delivery_timestamp = order.delivery_timestamp
+
             return ShippingInfo(
                 shipping_id=shipping.shipping_id,
-                pickup_location=order.pickup_location,
+                sender_id = order.sender_id,
+                warehouse=order.warehouse,
                 destination=order.destination,
                 package_dimension=order.package_dimension,
                 special_handling_instruction=order.special_handling_instruction,
-                time_constraint = order.time_constraint,
                 package_weight = order.package_weight,
                 latitude = order.latitude,
                 longitude = order.longitude,
+                recipient = order.recipient,
+                created_date = order.created_date,
+                delivery_date = delivery_date,
+                delivery_timestamp = delivery_timestamp,
                 status = shipping.status,
                 operator_id = shipping.operator_id
                 )
@@ -107,22 +123,55 @@ class OrderShippingService:
                 cur_shipping_id = shipping.shipping_id
                 order = self.order_service.get_order(cur_shipping_id)
 
+                if order.delivery_date == "" or order.delivery_date == None:
+                    delivery_date = None
+                else:
+                    delivery_date = order.delivery_date
+                
+                if order.delivery_timestamp == "" or order.delivery_timestamp == None:
+                    delivery_timestamp = None
+                else:
+                    delivery_timestamp = order.delivery_timestamp
+
                 shipping_info_list.append(
                     ShippingInfo(
-                    shipping_id=shipping.shipping_id,
-                    pickup_location=order.pickup_location,
-                    destination=order.destination,
-                    package_dimension=order.package_dimension,
-                    special_handling_instruction=order.special_handling_instruction,
-                    time_constraint = order.time_constraint,
-                    package_weight = order.package_weight,
-                    latitude = order.latitude,
-                    longitude = order.longitude,
-                    status = shipping.status,
-                    operator_id = shipping.operator_id
+                        shipping_id=shipping.shipping_id,
+                        sender_id = order.sender_id,
+                        warehouse=order.warehouse,
+                        destination=order.destination,
+                        package_dimension=order.package_dimension,
+                        special_handling_instruction=order.special_handling_instruction,
+                        package_weight = order.package_weight,
+                        latitude = order.latitude,
+                        longitude = order.longitude,
+                        recipient = order.recipient,
+                        created_date = order.created_date,
+                        delivery_date = delivery_date,
+                        delivery_timestamp = delivery_timestamp,
+                        status = shipping.status,
+                        operator_id = shipping.operator_id
                     )
                 )
             return shipping_info_list
+        except Exception as e:
+            print(f"Error retrieving order: {e}")
+            return None
+
+    def complete_delivery(self,order_id_object:OrderID) -> ShippingInfo:
+        # Code to retrieve order from the database
+        try:
+            order_id = order_id_object.order_id
+            delivery_timestamp = datetime.now().isoformat()
+
+            print("Updating status....")
+            self.shipping_service.update_shipping(Shipping(shipping_id=order_id,shipping_status="Completed"))
+            print("Status updated.")
+
+            print("Updating timestamp....")
+            self.order_service.update_delivery_timestamp(DeliveryTimeStampUpdate(order_id=order_id,delivery_timestamp=delivery_timestamp))
+            print("Timestamp created.")
+
+            return True
         except Exception as e:
             print(f"Error retrieving order: {e}")
             return None

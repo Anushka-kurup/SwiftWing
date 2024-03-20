@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from .services import OrderShippingService
 from order.models import Order
-from .models import ShippingInfo
+from .models import ShippingInfo,OrderID
 from auth.routes import verify_operator
 from typing import List
 from order.services import OrderService
@@ -31,3 +31,9 @@ def get_all_order_shipping():
         raise HTTPException(status_code=404, detail="Order not found")
     
     return shipping_info_list
+
+@router.put("/complete_delivery/", response_model=bool)
+def complete_delivery(order_id:OrderID):
+    result_status = order_shipping_service.complete_delivery(order_id)
+    
+    return result_status
