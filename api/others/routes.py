@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from .services import RouteService, ClusterService
-from .models import Route, RouteOutput, Cluster, ClusterOutput
+from .models import Route, Cluster
 from auth.routes import verify_operator
 from order.services import OrderService
 from fastapi import HTTPException
@@ -11,7 +11,7 @@ router = APIRouter()
 route_service = RouteService()
 
 
-@router.post("/optimizeroute", response_model=List[RouteOutput])
+@router.post("/optimizeroute", response_model=List[List[str]])
 def get_optimized_route(route: Route):
     # Check operator verification
     if not verify_operator:

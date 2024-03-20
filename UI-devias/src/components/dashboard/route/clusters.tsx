@@ -17,7 +17,6 @@ export interface ClustersProps {
 export function Clusters(props: any): JSX.Element {
     //flatten nested list, converting [[{test:string}],[{test:string}]] to [{test:string},{test:string}]
     function flatten(arrayobj: string | any[]) {
-        console.log()
         const return_list = Array();
         if (arrayobj.length == 1) {
             return arrayobj[0];
@@ -30,14 +29,11 @@ export function Clusters(props: any): JSX.Element {
                 }
             }
         }
-        console.log("Return list");
-        console.log(return_list);
         return return_list;
     }
     //Cluster function
     const cluster = async () => {
         const flattened = flatten(props.deliveries);
-        console.log("Flattened:" + JSON.stringify(flattened))
         const coords = flattened.map((delivery: any) => [delivery.latitude, delivery.longitude]);
         const coords_id = flattened.map((delivery: any) => delivery.order_id);
         const links = [];

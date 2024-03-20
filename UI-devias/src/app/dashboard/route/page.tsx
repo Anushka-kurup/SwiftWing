@@ -184,7 +184,7 @@ export default function Page(): React.JSX.Element {
                 </LocalizationProvider>
             </Grid>
       {direction === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection} />}
-      {direction === 'optimize' && <Optimize deliveries={deliveries} optimize={optimize} />}
+      {direction === 'optimize' && <Optimize deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection}  pickup_location={["1.3245706", "103.8773117"]}/>}
     </Grid>
   );
     }
