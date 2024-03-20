@@ -16,7 +16,7 @@ class ShippingInfo(BaseModel):
     created_date: datetime
     delivery_date: Optional[datetime]
     delivery_timestamp: Optional[datetime]
-    status: str
+    shipping_status: str
 
 class OrderID(BaseModel):
     order_id:str

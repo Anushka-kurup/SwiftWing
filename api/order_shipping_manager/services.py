@@ -39,7 +39,7 @@ class OrderShippingService:
 
             shipping_item = Shipping(
                 shipping_id=order_id,
-                status="Awaiting Assignment",
+                shipping_status="Awaiting Assignment",
                 operator_id="")
 
             shipping_creation = self.shipping_service.create_shipping(shipping_item)
@@ -99,7 +99,7 @@ class OrderShippingService:
                 created_date = order.created_date,
                 delivery_date = delivery_date,
                 delivery_timestamp = delivery_timestamp,
-                status = shipping.status,
+                shipping_status = shipping.shipping_status,
                 )
         except Exception as e:
             print(f"Error retrieving order: {e}")
@@ -147,7 +147,7 @@ class OrderShippingService:
                         created_date = order.created_date,
                         delivery_date = delivery_date,
                         delivery_timestamp = delivery_timestamp,
-                        status = shipping.status,
+                        shipping_status = shipping.shipping_status,
                     )
                 )
             return shipping_info_list
