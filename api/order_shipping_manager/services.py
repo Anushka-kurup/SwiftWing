@@ -100,7 +100,6 @@ class OrderShippingService:
                 delivery_date = delivery_date,
                 delivery_timestamp = delivery_timestamp,
                 status = shipping.status,
-                operator_id = shipping.operator_id
                 )
         except Exception as e:
             print(f"Error retrieving order: {e}")
@@ -149,7 +148,6 @@ class OrderShippingService:
                         delivery_date = delivery_date,
                         delivery_timestamp = delivery_timestamp,
                         status = shipping.status,
-                        operator_id = shipping.operator_id
                     )
                 )
             return shipping_info_list
