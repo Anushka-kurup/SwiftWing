@@ -32,8 +32,7 @@ class ShippingService:
                 TableName=self.shippings_table_name,
                 Item={
                     'shipping_id': {'S': shipping.shipping_id},
-                    'status': {'S': shipping.status},
-                    'operator_id': {'S': shipping.operator_id},
+                    'shipping_status': {'S': shipping.shipping_status}
                 }
             )
             return True
@@ -47,13 +46,19 @@ class ShippingService:
             shipping_check = self.get_shipping(shipping.shipping_id)
             if not shipping_check:
                 raise HTTPException(status_code=404, detail="Shipping not found")
-            self.dynamodb.put_item(
-                TableName=self.shippings_table_name,
-                Item={
-                    'shipping_id': {'S': shipping.shipping_id},
-                    'status': {'S': shipping.status},
-                    'operator_id': {'S': shipping.operator_id},
+
+            update_expression = "SET shipping_status = :shipping_status"
+
+            expression_attribute_values = {
+                ':shipping_status': {'S': shipping.shipping_status},
                 }
+
+            key = {'shipping_id': {'S': shipping.shipping_id}}
+
+            self.dynamodb.update_item(Key=key,
+                TableName=self.shippings_table_name,
+                UpdateExpression=update_expression,
+                ExpressionAttributeValues=expression_attribute_values
             )
             return True
         except Exception as e:
@@ -71,8 +76,7 @@ class ShippingService:
             if item:
                 return Shipping(
                     shipping_id=item['shipping_id']['S'],
-                    status=item['status']['S'],
-                    operator_id=item['operator_id']['S'],
+                    shipping_status=item['shipping_status']['S']
                 )
             else:
                 print("Error 404, Order ID " + shipping_id + " not found")
@@ -91,8 +95,7 @@ class ShippingService:
             for item in items:
                 order = Shipping(
                     shipping_id=item['shipping_id']['S'],
-                    status=item['status']['S'],
-                    operator_id=item['operator_id']['S']
+                    shipping_status=item['shipping_status']['S']
                 )
                 orders.append(order)
             return orders

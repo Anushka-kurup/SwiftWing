@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from .models import Order,OrderCreationResponse
+from .models import Order,OrderCreationResponse,DeliveryTimeUpdate,DeliveryTimeStampUpdate
 from .services import OrderService
 from typing import List
+from datetime import datetime
 
 router = APIRouter()
 order_service = OrderService()
@@ -10,9 +11,17 @@ order_service = OrderService()
 def create_order(order: Order):
     return order_service.create_order(order)
 
-@router.post("/update_order/", response_model=bool)
+@router.put("/update_order/", response_model=bool)
 def update_order( order: Order):
     return order_service.update_order(order)
+
+@router.put("/update_delivery_date/", response_model=bool)
+def update_order( delivery_date_update:DeliveryTimeUpdate):
+    return order_service.update_delivery_date(delivery_date_update)
+
+@router.put("/update_delivery_timestamp/", response_model=bool)
+def update_delivery_timestamp( delivery_timestamp_update:DeliveryTimeStampUpdate):
+    return order_service.update_delivery_timestamp(delivery_timestamp_update)
 
 @router.get("/view_order/", response_model=Order)
 def view_order(order_id: str):
