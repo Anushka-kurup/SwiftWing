@@ -42,16 +42,16 @@ export interface LatestOrdersProps {
   type?: string;
 }
 
-export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx, type }: LatestOrdersProps): React.JSX.Element {
   return (
     <Card sx={sx}>
       <CardHeader title="Group" />
       <Divider />
-      <Box >
-        <Table sx={{ Width: 500, overflowX: "scroll"}}>
+      <Box sx={{ overflowX: 'auto' }}>
+        <Table sx={{ Width: 500 }}>
           <TableHead>
             <TableRow>
-              {type === "Optimized" && <TableCell>Order</TableCell>}
+              {type === 'Optimized' && <TableCell>Order</TableCell>}
               <TableCell>Date</TableCell>
               <TableCell>Delivery Number</TableCell>
               <TableCell>Client</TableCell>
@@ -66,7 +66,7 @@ export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.
               const { label, color } = statusMap[order.status] ?? { label: 'Unknown', color: 'default' };
               return (
                 <TableRow hover key={order.order_id}>
-                  {type === "Optimized" && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
+                  {type === 'Optimized' && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
                   <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
                   <TableCell>{order.order_id}</TableCell>
                   <TableCell>{order.customer}</TableCell>
