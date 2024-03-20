@@ -5,7 +5,6 @@ from fastapi import HTTPException
 import geopy.distance
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
-from .models import RouteOutput, ClusterOutput
 from sklearn.cluster import KMeans
 
 class RouteService:
@@ -18,7 +17,7 @@ class RouteService:
         dupe = []
         new_pickups = []
         coordinates = json["coordinates"]
-        names = json["coords_name"]
+        names = json["coords_names"]
         if "pickups_deliveries" in json.keys():
             pickups = json["pickups_deliveries"]
         else:
@@ -151,7 +150,7 @@ class RouteService:
                         print("nope")
                     if solution_list[len(solution_list)-1] == solution_list[len(solution_list)-2] and len(solution_list)>=2:
                         solution_list.pop()
-                returned.append(RouteOutput(name=f"Driver {i+1}", route=solution_list))
+                returned.append(solution_list)
                 solution_list = []
             return returned
 
@@ -185,7 +184,7 @@ class ClusterService:
             for j in range(len(labels)):
                 if labels[j] == i:
                     cluster.append(delivery_ids[j])
-            returned.append(ClusterOutput(cluster_name=f"Cluster {i+1}", cluster=cluster))
+            returned.append(cluster)
         return returned
 
         
