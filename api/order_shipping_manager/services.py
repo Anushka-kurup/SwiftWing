@@ -100,6 +100,7 @@ class OrderShippingService:
                 delivery_date = delivery_date,
                 delivery_timestamp = delivery_timestamp,
                 shipping_status = shipping.shipping_status,
+                driver_id = shipping.driver_id
                 )
         except Exception as e:
             print(f"Error retrieving order: {e}")
@@ -148,6 +149,7 @@ class OrderShippingService:
                         delivery_date = delivery_date,
                         delivery_timestamp = delivery_timestamp,
                         shipping_status = shipping.shipping_status,
+                        driver_id = shipping.driver_id
                     )
                 )
             return shipping_info_list
@@ -162,7 +164,7 @@ class OrderShippingService:
             delivery_timestamp = datetime.now().isoformat()
 
             print("Updating status....")
-            self.shipping_service.update_shipping(Shipping(shipping_id=order_id,shipping_status="Completed"))
+            self.shipping_service.update_shipping_status(Shipping(shipping_id=order_id,shipping_status="Completed"))
             print("Status updated.")
 
             print("Updating timestamp....")
@@ -173,3 +175,31 @@ class OrderShippingService:
         except Exception as e:
             print(f"Error retrieving order: {e}")
             return None
+
+    def create_mass_order_service(self, order_list:List[Order]):
+        # Check if the order exists
+        try:
+            for order in order_list:
+                order_result = self.order_service.create_order(order)
+                order_creation_status = order_result["status"]
+                order_id = order_result["order_id"]
+
+                if order_creation_status == False:
+                    print("Error creating order")
+                    return False
+
+                shipping_item = Shipping(
+                    shipping_id=order_id,
+                    shipping_status="Awaiting Assignment",
+                    operator_id="")
+
+                shipping_creation = self.shipping_service.create_shipping(shipping_item)
+
+                if shipping_creation == False:
+                    print("Error creating shipping")
+                    return False
+            return True
+
+        except Exception as e:
+            print(f"Error creating order/shipping: {e}")
+            return False

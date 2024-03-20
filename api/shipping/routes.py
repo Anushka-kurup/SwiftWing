@@ -14,9 +14,13 @@ shipping_service = ShippingService(order_service)
 def create_shipping(shipping: Shipping):
     return shipping_service.create_shipping(shipping)
 
-@router.post("/update_shipping/", response_model=bool)
-def update_shipping(shipping: Shipping):
-    return shipping_service.update_shipping(shipping)
+@router.post("/update_shipping_status/", response_model=bool)
+def update_shipping_status(shipping: Shipping):
+    return shipping_service.update_shipping_status(shipping)
+
+@router.post("/update_shipping_driver/", response_model=bool)
+def update_shipping_driver(shipping: Shipping):
+    return shipping_service.update_shipping_driver(shipping)
 
 @router.get("/view_shipping/", response_model=Shipping)
 def get_shipping(shipping_id: str):

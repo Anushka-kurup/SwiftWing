@@ -32,7 +32,8 @@ class ShippingService:
                 TableName=self.shippings_table_name,
                 Item={
                     'shipping_id': {'S': shipping.shipping_id},
-                    'shipping_status': {'S': shipping.shipping_status}
+                    'shipping_status': {'S': shipping.shipping_status},
+                    'driver_id':{'S':""}
                 }
             )
             return True
@@ -40,7 +41,7 @@ class ShippingService:
             print(f"Error creating shipping: {e}")
             return False
 
-    def update_shipping(self, shipping: Shipping) -> bool:
+    def update_shipping_status(self, shipping: Shipping) -> bool:
         # Code to update order in the database
         try:
             shipping_check = self.get_shipping(shipping.shipping_id)
@@ -51,6 +52,31 @@ class ShippingService:
 
             expression_attribute_values = {
                 ':shipping_status': {'S': shipping.shipping_status},
+                }
+
+            key = {'shipping_id': {'S': shipping.shipping_id}}
+
+            self.dynamodb.update_item(Key=key,
+                TableName=self.shippings_table_name,
+                UpdateExpression=update_expression,
+                ExpressionAttributeValues=expression_attribute_values
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating order: {e}")
+            return False
+
+    def update_shipping_driver(self, shipping: Shipping) -> bool:
+        # Code to update order in the database
+        try:
+            shipping_check = self.get_shipping(shipping.shipping_id)
+            if not shipping_check:
+                raise HTTPException(status_code=404, detail="Shipping not found")
+
+            update_expression = "SET driver_id = :driver_id"
+
+            expression_attribute_values = {
+                ':driver_id': {'S': shipping.driver_id},
                 }
 
             key = {'shipping_id': {'S': shipping.shipping_id}}
@@ -76,7 +102,8 @@ class ShippingService:
             if item:
                 return Shipping(
                     shipping_id=item['shipping_id']['S'],
-                    shipping_status=item['shipping_status']['S']
+                    shipping_status=item['shipping_status']['S'],
+                    driver_id = item['driver_id']['S']
                 )
             else:
                 print("Error 404, Order ID " + shipping_id + " not found")
@@ -95,7 +122,8 @@ class ShippingService:
             for item in items:
                 order = Shipping(
                     shipping_id=item['shipping_id']['S'],
-                    shipping_status=item['shipping_status']['S']
+                    shipping_status=item['shipping_status']['S'],
+                    driver_id = item['driver_id']['S']
                 )
                 orders.append(order)
             return orders

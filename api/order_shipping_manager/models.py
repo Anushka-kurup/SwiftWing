@@ -17,6 +17,7 @@ class ShippingInfo(BaseModel):
     delivery_date: Optional[datetime]
     delivery_timestamp: Optional[datetime]
     shipping_status: str
+    driver_id:Optional[str]
 
 class OrderID(BaseModel):
     order_id:str

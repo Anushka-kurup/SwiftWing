@@ -16,6 +16,10 @@ order_shipping_service = OrderShippingService(order_service,shipping_service)
 def create_order(order: Order):
     return order_shipping_service.create_order_service(order)
 
+@router.post("/create_mass_order_shipping/", response_model=bool)
+def create_mass_order_service(order_list: List[Order]):
+    return order_shipping_service.create_mass_order_service(order_list)
+
 @router.get("/get_order_shipping/", response_model=ShippingInfo)
 def view_order(shipping_id: str):
     shipping_info = order_shipping_service.get_shipping_info(shipping_id)
