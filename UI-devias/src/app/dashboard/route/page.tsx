@@ -118,8 +118,8 @@ const coordinates = [
 // Generate 8 deliveries using the random locations
 // deliveries is a nested array
 
-const deliveries_list: { [key: string]: any }[] = [];
-const nested = [];
+const deliveries_list = Array();
+const nested = Array();
 for (let i = 0; i < randomLocations.length; i++) {
   const newOrder = 
     {
@@ -150,9 +150,9 @@ export default function Page(): React.JSX.Element {
   }, []);
 
   //Change tabs
-  const [value, setValue] = React.useState('clustering');
+  const [direction, setDirection] = React.useState('clustering');
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
+    setDirection(newValue);
   };
   const [date, setDate] = React.useState<Dayjs | null>(dayjs());
 
@@ -165,7 +165,7 @@ export default function Page(): React.JSX.Element {
     <Grid container spacing={3}>
       <Grid xs={12}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          <Tabs value={direction} onChange={handleChange} >
             <Tab label="Clusters" value="clustering" />
             <Tab label="Route Optimization" value="optimize" />
             <Tab label="Assign Drivers" value="two" />
@@ -183,8 +183,8 @@ export default function Page(): React.JSX.Element {
                     </DemoContainer>
                 </LocalizationProvider>
             </Grid>
-      {value === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} />}
-      {value === 'optimize' && <Optimize deliveries={deliveries} optimize={optimize} />}
+      {direction === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection} />}
+      {direction === 'optimize' && <Optimize deliveries={deliveries} optimize={optimize} />}
     </Grid>
   );
     }

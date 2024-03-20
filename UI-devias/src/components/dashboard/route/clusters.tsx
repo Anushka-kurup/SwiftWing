@@ -4,26 +4,42 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Button from '@mui/material/Button';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Orders } from '@/components/dashboard/route/orders';
+import { ObjectKeys } from 'react-hook-form/dist/types/path/common';
 
 export interface ClustersProps {
-    deliveries?: any[];
+    deliveries?: Array<any>;
     sx?: any;
     setDeliveries: any;
+    setDirection: any;
+
 }
 
-export function Clusters(props: ClustersProps): JSX.Element {
-    console.log(props.deliveries);
-
-    const orders = props.deliveries;
-    
+export function Clusters(props: any): JSX.Element {
+    //flatten nested list, converting [[{test:string}],[{test:string}]] to [{test:string},{test:string}]
+    function flatten(arrayobj: string | any[]) {
+        console.log()
+        const return_list = Array();
+        if (arrayobj.length == 1) {
+            return arrayobj[0];
+        }
+        else{
+            for (let i = 0; i < arrayobj.length; i++) {
+                console.log("Nested list"+arrayobj[i]);
+                for (let j = 0; j < arrayobj[i].length; j++) {
+                    return_list.push(arrayobj[i][j]);
+                }
+            }
+        }
+        console.log("Return list");
+        console.log(return_list);
+        return return_list;
+    }
     //Cluster function
     const cluster = async () => {
-        const coords = orders[0].map((delivery: any) => [delivery.latitude, delivery.longitude]);
-        const coords_id = orders[0].map((delivery: any) => delivery.order_id);
-        //Add pickup to both lists
-        // coords.unshift([1.3245706, 103.8773117]);
-        // coords_id.unshift("Origin");
-        //set links pickup location to delivery locations in the form [[1,2],[1,3],[1,4],[1,5],[6,7],[1,8]]
+        const flattened = flatten(props.deliveries);
+        console.log("Flattened:" + JSON.stringify(flattened))
+        const coords = flattened.map((delivery: any) => [delivery.latitude, delivery.longitude]);
+        const coords_id = flattened.map((delivery: any) => delivery.order_id);
         const links = [];
         for (let i = 0; i < coords.length; i++) {
         for (let j = 0; j < coords.length; j++) {
@@ -60,21 +76,22 @@ export function Clusters(props: ClustersProps): JSX.Element {
             for (let i = 0; i < data.length; i++) {
                 const clusterDel = [];
                 const clust = data[i];
-                console.log(clust);
-                console.log("here");
-                for (let j = 0; j < clust["cluster"].length; j++) {
-                    console.log(clust["cluster"][j]);
-                    const id = clust["cluster"][j];
-                    const delivery_obj = orders[0].find((delivery: any) => delivery.order_id === id);
+                for (let j = 0; j < clust.length; j++) {
+                    const id = clust[j];
+                    const delivery_obj = flattened.find((delivery: any) => delivery.order_id === id);
                     clusterDel.push(delivery_obj);
                 }
                 new_data.push(clusterDel);
-                console.log(new_data)
             }
             props.setDeliveries(new_data);
         })
-
     };
+
+    //Confirm cluster
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+        props.setDirection("optimize");
+      };
+
     return (
         <Grid container spacing={3}>
             <Grid lg={12} style={{ position: 'sticky' }}>
@@ -90,14 +107,14 @@ export function Clusters(props: ClustersProps): JSX.Element {
                 </Button>
                 <Button
                     style={{ margin: "20px", color: "red" }}
-                    onClick={cluster}
+                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleChange(event, "newValue")}
                     variant="outlined"
                 >
                     Confirm Clusters
                 </Button>
             </Grid>
             <Grid lg={12} md={12} xs={12}>
-                {orders.map((nestedList, index) => (
+                {props.deliveries.map((nestedList: any, index: number) => (
                     <Orders
                         key={index}
                         orders={nestedList.map((order: any) => ({ // Explicitly define the type of 'order' as any[]
@@ -111,5 +128,4 @@ export function Clusters(props: ClustersProps): JSX.Element {
         </Grid>
     );
 }
-
 

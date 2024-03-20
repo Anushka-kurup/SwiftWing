@@ -185,7 +185,7 @@ class ClusterService:
             for j in range(len(labels)):
                 if labels[j] == i:
                     cluster.append(delivery_ids[j])
-            returned.append(ClusterOutput(cluster_name=f"Cluster {i+1}", cluster=cluster))
+            returned.append(cluster)
         return returned
 
         

@@ -34,7 +34,6 @@ class Cluster(BaseModel):
         }
 
 class ClusterOutput(BaseModel):
-    cluster_name: str
     cluster: list[str]
 
 

@@ -24,7 +24,7 @@ def get_optimized_route(route: Route):
         print(f"Error getting optimized route: {e}")
         return "Error getting optimized route"
 
-@router.post("/cluster", response_model=List[ClusterOutput])
+@router.post("/cluster", response_model=List[List[str]])
 def get_cluster(cluster: Cluster):
     # Check operator verification
     if not verify_operator:
