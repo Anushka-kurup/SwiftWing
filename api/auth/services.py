@@ -5,6 +5,8 @@ import hashlib
 from fastapi_jwt_auth import AuthJWT
 from fastapi import HTTPException, Depends
 from typing import Optional
+import hashlib
+import uuid
 
 class AuthService:
 
@@ -14,11 +16,15 @@ class AuthService:
 
     def authenticate_user(self, user: User, Authorize: AuthJWT) -> Optional[dict]:
         try:
-            response = self.dynamodb.get_item(
-                TableName=self.TABLE_NAME,
-                Key={'email': {'S': user.email}}
-            )
-            item = response.get('Item')
+            response = None
+     
+            if user.user_id:
+                response = self.dynamodb.get_item(
+                    TableName=self.TABLE_NAME,
+                    Key={'user_id': {'S': str(user.user_id)}}
+                )
+                
+            item = response.get('Item') if response else None
             if item:
                 hashed_password = hashlib.sha256(user.password.encode("utf-8")).hexdigest()
                 if hashed_password == item.get("password").get("S") and item.get("role").get("S") == user.role:
@@ -27,6 +33,7 @@ class AuthService:
         except Exception as e:
             print(f"Error authenticating user: {e}")
         return None
+
     
     @staticmethod
     def get_current_user(Authorize: AuthJWT = Depends()):
@@ -49,20 +56,51 @@ class AuthService:
     
     def store_user_data(self, user: User):
         try:
+            # Check if user already exists by email
+            email_response = self.dynamodb.query(
+                TableName=self.TABLE_NAME,
+                IndexName='email_index',  # Assuming 'email_index' is the name of the GSI on the 'email' attribute
+                KeyConditionExpression='email = :email',
+                ExpressionAttributeValues={':email': {'S': user.email}}
+            )
+            if email_response['Items']:
+                raise ValueError("User with this email already exists")
+
+            # Generate UUID for the user ID
+            user_uuid = str(uuid.uuid4())
+
+            # Define user item including UUID
             hashed_password = hashlib.sha256(user.password.encode("utf-8")).hexdigest()
+            user_item = {
+                'pk': {'S': user_uuid},
+                'user_id': {'S': user_uuid},
+                'email': {'S': user.email},
+                'first_name': {'S': user.first_name},
+                'last_name': {'S': user.last_name},
+                'password': {'S': hashed_password},
+                'role': {'S': user.role},
+                # Add other attributes as needed
+            }
+
+      
+            # Store user data in DynamoDB
             self.dynamodb.put_item(
                 TableName=self.TABLE_NAME,
-                Item={
-                    'email': {'S': user.email},
-                    'password': {'S': hashed_password},
-                    'role': {'S': user.role}
-                }
+                Item=user_item
             )
+
+
             return True
+        except ValueError as ve:
+            print(f"Error storing user data: {ve}")
+            return False
         except Exception as e:
             print(f"Error storing user data: {e}")
             return False
-    
+        finally:
+            # Add any cleanup or logging operations here
+            pass 
+
     def get_all_drivers(self):
         try:
             response = self.dynamodb.scan(
@@ -71,8 +109,9 @@ class AuthService:
                 ExpressionAttributeNames={"#r": "role"},
                 ExpressionAttributeValues={":role": {"S": "driver"}}
             )
-            drivers = [item['email']['S'] for item in response['Items']]
+            drivers = [f"{item['first_name']['S']} {item['last_name']['S']}" for item in response['Items']]
             return drivers
         except Exception as e:
             print(f"Error fetching drivers: {e}")
             return []
+
