@@ -6,7 +6,9 @@ from datetime import datetime
 import uuid
 from dotenv import load_dotenv
 from fastapi import HTTPException
+
 load_dotenv()
+
 class OrderService:
     def __init__(self):
         access_key = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -184,7 +186,7 @@ class OrderService:
         except Exception as e:
             print(f"Error retrieving order: {e}")
             return None
-        
+
     def get_all_order(self) -> List[Order]:
         try:
             response = self.dynamodb.scan(
@@ -235,3 +237,47 @@ class OrderService:
         except Exception as e:
             print(f"Error deleting order: {e}")
             return False
+
+    def get_order_by_user_id(self,sender_id:str) -> List[Order]:
+        try:
+            response = self.dynamodb.query(
+                TableName=self.TABLE_NAME,
+                IndexName="sender_id-index",  # Secondary index on sender_id
+                KeyConditionExpression="#sender_id = :sender_id_val",
+                ExpressionAttributeNames={"#sender_id": "sender_id"},
+                ExpressionAttributeValues={":sender_id_val": {"S": sender_id}}
+            )
+
+            items = response.get('Items', [])
+            orders = []
+            for item in items:
+                if item['delivery_date']['S'] == "":
+                    delivery_date = None
+                else:
+                    delivery_date = item['delivery_date']['S']
+
+                if item['delivery_timestamp']['S'] == "":
+                    delivery_timestamp = None
+                else:
+                    delivery_timestamp = item['delivery_timestamp']['S']
+
+                order = Order(
+                    sender_id = item['sender_id']['S'],
+                    order_id=item['order_id']['S'],
+                    warehouse=item['warehouse']['S'],
+                    destination=item['destination']['S'],
+                    package_dimension=item['package_dimension']['NS'],
+                    special_handling_instruction=item['special_handling_instruction']['S'],
+                    package_weight = item['package_weight']['N'],
+                    latitude = item['latitude']['N'],
+                    longitude = item['longitude']['N'],
+                    recipient = item['recipient']['M'],
+                    created_date = item['created_date']['S'],
+                    delivery_date = delivery_date,
+                    delivery_timestamp = delivery_timestamp,
+                )
+                orders.append(order)
+            return orders
+        except Exception as e:
+            print(f"Error retrieving orders: {e}")
+            return []
