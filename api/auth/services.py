@@ -62,3 +62,17 @@ class AuthService:
         except Exception as e:
             print(f"Error storing user data: {e}")
             return False
+    
+    def get_all_drivers(self):
+        try:
+            response = self.dynamodb.scan(
+                TableName=self.TABLE_NAME,
+                FilterExpression="#r = :role",
+                ExpressionAttributeNames={"#r": "role"},
+                ExpressionAttributeValues={":role": {"S": "driver"}}
+            )
+            drivers = [item['email']['S'] for item in response['Items']]
+            return drivers
+        except Exception as e:
+            print(f"Error fetching drivers: {e}")
+            return []

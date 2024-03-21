@@ -11,6 +11,7 @@ load_dotenv()
 app = FastAPI()
 
 class User(BaseModel):
+    
     email: str
     password: str
     role: str
