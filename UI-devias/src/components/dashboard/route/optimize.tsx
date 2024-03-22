@@ -6,7 +6,7 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Orders } from '@/components/dashboard/route/orders';
 
 export interface OptimizeProps {
-    deliveries?: Array<any>;
+    deliveries: Array<any> ;
     sx?: any;
     setDeliveries: any;
     setDirection: any;
@@ -14,7 +14,6 @@ export interface OptimizeProps {
 }
 
 export function Optimize(props: OptimizeProps): JSX.Element {
-
     const optimize = async () => {
         const optimized_deliveries = Array();
         //for each delivery group

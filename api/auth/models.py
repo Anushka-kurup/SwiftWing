@@ -11,10 +11,19 @@ load_dotenv()
 app = FastAPI()
 
 class User(BaseModel):
+
+    user_id: str    
     email: str
+    first_name: str
+    last_name: str
     password: str
     role: str
 
+class UserLogin(BaseModel):
+    email: str
+    password: str
+    role: str 
+    
 class Settings(BaseModel):
     authjwt_secret_key: str = os.environ.get('AUTHJWT_SECRET_KEY')
 
