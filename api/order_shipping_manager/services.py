@@ -203,3 +203,55 @@ class OrderShippingService:
         except Exception as e:
             print(f"Error creating order/shipping: {e}")
             return False
+        
+    def get_shipping_info_by_user_id(self,sender_id:str) -> ShippingInfo:
+        # Code to retrieve order from the database
+        try:
+            print("Retrieving order information....")
+            order_list = self.order_service.get_order_by_user_id(sender_id)
+            print(order_list)
+
+            if order_list == None:
+                print("Error retrieving order.")
+                return None
+
+            print("Order retrieval successful.")
+            print("Retrieving shipping information....")
+            shipping_info_list = []
+            for order in order_list:
+                cur_shipping_id = order.order_id
+                shipping = self.shipping_service.get_shipping(cur_shipping_id)
+
+                if order.delivery_date == "" or order.delivery_date == None:
+                    delivery_date = None
+                else:
+                    delivery_date = order.delivery_date
+                
+                if order.delivery_timestamp == "" or order.delivery_timestamp == None:
+                    delivery_timestamp = None
+                else:
+                    delivery_timestamp = order.delivery_timestamp
+
+                shipping_info_list.append(
+                    ShippingInfo(
+                        shipping_id=shipping.shipping_id,
+                        sender_id = order.sender_id,
+                        warehouse=order.warehouse,
+                        destination=order.destination,
+                        package_dimension=order.package_dimension,
+                        special_handling_instruction=order.special_handling_instruction,
+                        package_weight = order.package_weight,
+                        latitude = order.latitude,
+                        longitude = order.longitude,
+                        recipient = order.recipient,
+                        created_date = order.created_date,
+                        delivery_date = delivery_date,
+                        delivery_timestamp = delivery_timestamp,
+                        shipping_status = shipping.shipping_status,
+                        driver_id = shipping.driver_id
+                    )
+                )
+            return shipping_info_list
+        except Exception as e:
+            print(f"Error retrieving order: {e}")
+            return None

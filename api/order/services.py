@@ -274,12 +274,17 @@ class OrderService:
                 else:
                     delivery_timestamp = item['delivery_timestamp']['S']
 
+                package_dimension_str = item['package_dimension']["L"]
+                package_dimension = []
+                for cur_item in package_dimension_str:
+                    package_dimension.append(cur_item["N"])
+
                 order = Order(
                     sender_id = item['sender_id']['S'],
                     order_id=item['order_id']['S'],
                     warehouse=item['warehouse']['S'],
                     destination=item['destination']['S'],
-                    package_dimension=item['package_dimension']['L'],
+                    package_dimension=package_dimension,
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     package_weight = item['package_weight']['N'],
                     latitude = item['latitude']['N'],
