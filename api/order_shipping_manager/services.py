@@ -204,12 +204,11 @@ class OrderShippingService:
             print(f"Error creating order/shipping: {e}")
             return False
         
-    def get_shipping_info_by_user_id(self,sender_id:str) -> ShippingInfo:
+    def get_shipping_info_by_user_id(self,sender_id:str,start_date: str, end_date: str ) -> ShippingInfo:
         # Code to retrieve order from the database
         try:
             print("Retrieving order information....")
-            order_list = self.order_service.get_order_by_user_id(sender_id)
-            print(order_list)
+            order_list = self.order_service.get_order_by_user_id(sender_id,start_date,end_date)
 
             if order_list == None:
                 print("Error retrieving order.")

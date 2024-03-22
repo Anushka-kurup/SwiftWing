@@ -251,14 +251,35 @@ class OrderService:
             print(f"Error deleting order: {e}")
             return False
 
-    def get_order_by_user_id(self,sender_id:str) -> List[Order]:
+    def get_order_by_user_id(self,sender_id:str,start_date: str = None, end_date: str = None) -> List[Order]:
         try:
+            key_condition_expression = "#sender_id = :sender_id_val"
+            expression_attribute_names = {"#sender_id": "sender_id"}
+            expression_attribute_values = {":sender_id_val": {"S": sender_id}}
+            
+            if start_date!=None and end_date!=None:
+                start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
+                key_condition_expression += " AND delivery_date BETWEEN :start_date_val AND :end_date_val"
+                expression_attribute_values[":start_date_val"] = {"S": start_date}
+                expression_attribute_values[":end_date_val"] = {"S": end_date}
+
+            elif start_date!=None and end_date==None:
+                start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
+                key_condition_expression += " AND delivery_date > :start_date_val"
+                expression_attribute_values[":start_date_val"] = {"S": start_date}
+
+            elif start_date==None and end_date!=None:
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
+                key_condition_expression += " AND delivery_date < :end_date_val"
+                expression_attribute_values[":end_date_val"] = {"S": end_date}
+            
             response = self.dynamodb.query(
                 TableName=self.TABLE_NAME,
                 IndexName="sender_id-index",  # Secondary index on sender_id
-                KeyConditionExpression="#sender_id = :sender_id_val",
-                ExpressionAttributeNames={"#sender_id": "sender_id"},
-                ExpressionAttributeValues={":sender_id_val": {"S": sender_id}}
+                KeyConditionExpression=key_condition_expression,
+                ExpressionAttributeNames=expression_attribute_names,
+                ExpressionAttributeValues=expression_attribute_values
             )
 
             items = response.get('Items', [])

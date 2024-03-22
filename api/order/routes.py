@@ -38,8 +38,8 @@ def get_all_order():
     return order_list
 
 @router.get("/get_order_by_user_id/", response_model=List[Order])
-def get_order_by_user_id(sender_id:str):
-    order_list = order_service.get_order_by_user_id(sender_id)
+def get_order_by_user_id(sender_id:str,start_date:str=None,end_date:str=None):
+    order_list = order_service.get_order_by_user_id(sender_id,start_date,end_date)
     if order_list is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return order_list

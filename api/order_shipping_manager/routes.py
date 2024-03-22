@@ -37,8 +37,8 @@ def get_all_order_shipping():
     return shipping_info_list
 
 @router.get("/get_shipping_info_by_user_id/", response_model=List[ShippingInfo])
-def get_shipping_info_by_user_id(sender_id: str):
-    shipping_info = order_shipping_service.get_shipping_info_by_user_id(sender_id)
+def get_shipping_info_by_user_id(sender_id: str,start_date: str = None, end_date: str = None):
+    shipping_info = order_shipping_service.get_shipping_info_by_user_id(sender_id,start_date,end_date)
     if shipping_info is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return shipping_info
