@@ -24,6 +24,12 @@ class OrderService:
             order_id = str(uuid.uuid4())
             created_date_str = str(datetime.now().isoformat())
             recipient_map = {key: {'S': value} for key, value in order.recipient.items()}
+            delivery_date = order.delivery_date
+            if delivery_date=="" or delivery_date==None:
+                delivery_date = ""
+
+            else:
+                delivery_date = str(order.delivery_date.isoformat())
             self.dynamodb.put_item(
                 TableName=self.TABLE_NAME,
                 Item={
@@ -38,7 +44,7 @@ class OrderService:
                     'longitude':{'N':str(order.longitude)},
                     'recipient':{'M':recipient_map},
                     'created_date': {'S': created_date_str},
-                    'delivery_date': {'S': ""},
+                    'delivery_date': {'S': delivery_date},
                     'delivery_timestamp': {'S': ""}
                 }
             )
