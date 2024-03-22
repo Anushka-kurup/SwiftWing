@@ -1,6 +1,5 @@
 import boto3
 from .models import User, UserLogin
-#from user.user_controller import get_users_by_email
 import hashlib
 from fastapi_jwt_auth import AuthJWT
 from fastapi import HTTPException, Depends
@@ -18,8 +17,7 @@ class AuthService:
     def login(self, user: UserLogin, Authorize: AuthJWT) -> Optional[dict]:
         try:
             email_response = None
-        
-        
+            
             email_response = self.dynamodb.query(
                 TableName=self.TABLE_NAME,
                 IndexName='email_index',  
@@ -30,8 +28,8 @@ class AuthService:
             if email_response['Items']:
                 user_data = email_response['Items'][0]
                 hashed_password = hashlib.sha256(user.password.encode("utf-8")).hexdigest()
-                if hashed_password == user_data.get("password").get("S"):
-    
+                
+                if hashed_password == user_data.get("password").get("S") and user.role == user_data.get("role").get("S"):
                     access_token = Authorize.create_access_token(subject=user.email, user_claims={"role": user_data.get("role").get("S")})
                     return {"access_token": access_token}
         except Exception as e:
