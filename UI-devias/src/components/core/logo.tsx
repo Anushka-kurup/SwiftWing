@@ -6,8 +6,8 @@ import { useColorScheme } from '@mui/material/styles';
 
 import { NoSsr } from '@/components/core/no-ssr';
 
-const HEIGHT = 60;
-const WIDTH = 60;
+const HEIGHT = 20;
+const WIDTH = 30;
 
 type Color = 'dark' | 'light';
 
@@ -22,9 +22,9 @@ export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }:
   let url: string;
 
   if (emblem) {
-    url = color === 'light' ? '/assets/logo-emblem.svg' : '/assets/logo-emblem--dark.svg';
+    url = color === 'light' ? '/assets/company_logo_only.png' : '/assets/company_logo_only.png';
   } else {
-    url = color === 'light' ? '/assets/logo.svg' : '/assets/logo--dark.svg';
+    url = color === 'light' ? '/assets/company_logo_only.png' : '/assets/company_logo_only.png';
   }
 
   return <Box alt="logo" component="img" height={height} src={url} width={width} />;
@@ -41,7 +41,7 @@ export interface DynamicLogoProps {
 export function DynamicLogo({
   colorDark = 'light',
   colorLight = 'dark',
-  height = HEIGHT,
+  height = "30px",
   width = WIDTH,
   ...props
 }: DynamicLogoProps): React.JSX.Element {
