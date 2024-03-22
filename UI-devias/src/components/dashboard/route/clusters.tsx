@@ -11,7 +11,7 @@ export interface ClustersProps {
     sx?: any;
     setDeliveries: any;
     setDirection: any;
-
+    drivers: Array<any>;
 }
 
 export function Clusters(props: any): JSX.Element {
@@ -35,7 +35,7 @@ export function Clusters(props: any): JSX.Element {
     const cluster = async () => {
         const flattened = flatten(props.deliveries);
         const coords = flattened.map((delivery: any) => [delivery.latitude, delivery.longitude]);
-        const coords_id = flattened.map((delivery: any) => delivery.order_id);
+        const coords_id = flattened.map((delivery: any) => delivery.shipping_id);
         const links = [];
         for (let i = 0; i < coords.length; i++) {
         for (let j = 0; j < coords.length; j++) {
@@ -53,6 +53,8 @@ export function Clusters(props: any): JSX.Element {
         //"pickups_deliveries": links,
         "num_drivers": parseInt(input.value)
         };
+
+        console.log(payload);
 
         //Call API
         await fetch('http://127.0.0.1:5000/optimize/cluster', { 
@@ -74,7 +76,7 @@ export function Clusters(props: any): JSX.Element {
                 const clust = data[i];
                 for (let j = 0; j < clust.length; j++) {
                     const id = clust[j];
-                    const delivery_obj = flattened.find((delivery: any) => delivery.order_id === id);
+                    const delivery_obj = flattened.find((delivery: any) => delivery.shipping_id === id);
                     clusterDel.push(delivery_obj);
                 }
                 new_data.push(clusterDel);
@@ -118,6 +120,7 @@ export function Clusters(props: any): JSX.Element {
                             status: order.status as "Received" | "Delivered" | "Failed" | "In_Progress" | "On_Hold",
                         }))}
                         sx={{ marginBottom: '20px' }}
+                        drivers={props.drivers}
                     />
                 ))}
             </Grid>

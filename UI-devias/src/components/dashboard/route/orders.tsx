@@ -24,7 +24,8 @@ const statusMap = {
 } as const;
 
 export interface Order {
-  order_id: string;
+  shipping_id: string;
+  sender_id: string;
   pickup_location: string;
   destination: string;
   package_dimension: number[];
@@ -34,7 +35,7 @@ export interface Order {
   latitude: number;
   longitude: number;
   createdAt: Date;
-  status: 'Received' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';
+  shipping_status: 'Awaiting Assignment' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';
   customer: string;
 }
 
@@ -42,9 +43,10 @@ export interface LatestOrdersProps {
   orders?: Order[];
   sx?: SxProps;
   type?: string;
+  drivers: Array<any>;
 }
 
-export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx , type, drivers}: LatestOrdersProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(true);
 
   const handleDropdownToggle = () => {
@@ -55,7 +57,7 @@ export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.
     setIsDropdownOpen(false);
   };
 
-  const [driver, setDriver] = React.useState("Adam");
+  const [driver, setDriver] = React.useState("");
 
   const handleChange = (event: SelectChangeEvent) => {
     setDriver(event.target.value);
@@ -80,8 +82,9 @@ export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.
               label="name"
               onChange={handleChange}
             >
-              <MenuItem value={"Adam"}>Adam</MenuItem>
-              <MenuItem value={"Jack"}>Jack</MenuItem>
+              {drivers.map((driver) => (
+                <MenuItem key={driver} value={driver}>{driver}</MenuItem>
+              ))}
             </Select>
           </FormControl>        
       </Box>
@@ -105,13 +108,22 @@ export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.
           </TableHead>
           <TableBody>
             {orders.map((order) => {
-              const { label, color } = statusMap[order.status] ?? { label: 'Unknown', color: 'default' };
+              const statusMap: {
+                [key in 'Delivered' | 'Failed' | 'Awaiting Assignment' | 'In_Progress' | 'On_Hold']: { label: string; color: "info" | "warning" | "success" | "error" | "default" | "primary" | "secondary" };
+              } = {
+                'Delivered': { label: 'Delivered', color: 'success' },
+                'Failed': { label: 'Failed', color: 'error' },
+                'Awaiting Assignment': { label: 'Awaiting Assignment', color: 'warning' },
+                'In_Progress': { label: 'In Progress', color: 'info' },
+                'On_Hold': { label: 'On Hold', color: 'primary' },
+              };
+              const { label, color } = statusMap[order.shipping_status] ?? { color: 'default', label: 'Unknown'};
               return (
-                <TableRow hover key={order.order_id}>
+                <TableRow hover key={order.shipping_id}>
                   {type === 'Optimized' && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
                   <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
-                  <TableCell>{order.order_id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
+                  <TableCell>{order.shipping_id}</TableCell>
+                  <TableCell>{order.sender_id}</TableCell>
                   <TableCell>{order.destination}</TableCell>
                   <TableCell>
                     <Chip color={color} label={label} size="small" />
