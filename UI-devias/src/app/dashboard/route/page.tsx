@@ -13,61 +13,7 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { set } from 'react-hook-form';
-
-
-// const deliveries = [
-//   [
-//     {
-//       id: 'ORD-007',
-//       customer: { name: 'Ekaterina Tankova' },
-//       amount: 30.5,
-//       status: 'Received',
-//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
-//       deliveryAddress: '123 Main St, New York, NY',
-//     },
-//     {
-//       id: 'ORD-006',
-//       customer: { name: 'Cao Yu' },
-//       amount: 25.1,
-//       status: 'Received',
-//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
-//       deliveryAddress: '456 Elm St, Los Angeles, CA',
-//     },
-//     {
-//       id: 'ORD-004',
-//       customer: { name: 'Alexa Richardson' },
-//       amount: 10.99,
-//       status: 'In_Progress',
-//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
-//       deliveryAddress: '789 Oak St, Chicago, IL',
-//     },
-//     {
-//       id: 'ORD-003',
-//       customer: { name: 'Anje Keizer' },
-//       amount: 96.43,
-//       status: 'Delivered',
-//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
-//       deliveryAddress: '321 Pine St, San Francisco, CA',
-//     },
-//     {
-//       id: 'ORD-002',
-//       customer: { name: 'Clarke Gillebert' },
-//       amount: 32.54,
-//       status: 'Failed',
-//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
-//       deliveryAddress: '987 Maple St, Seattle, WA',
-//     },
-//     {
-//       id: 'ORD-001',
-//       customer: { name: 'Adam Denisov' },
-//       amount: 16.76,
-//       status: 'On_Hold',
-//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
-//       deliveryAddress: '654 Birch St, Boston, MA',
-//     },
-//   ],
-// ];
-
+import { useEffect } from 'react';
 
 // Since true randomness is tricky in pure frontend JavaScript, 
 // we'll use a fixed list of locations.
@@ -140,10 +86,31 @@ for (let i = 0; i < randomLocations.length; i++) {
 }
 deliveries_list.push(nested);
 
-console.log(deliveries_list)
 
 export default function Page(): React.JSX.Element {
   const [deliveries, setDeliveries] = React.useState<{ [key: string]: any }[]>([]);
+  // Fetch the deliveries data here and update the state using setDeliveries
+  useEffect(() => {
+      // Fetch the deliveries data here and update the state using setDeliveries
+      // Example:
+      const fetchDeliveries = async () => {
+          try {
+              const response = await fetch('http://127.0.0.1:5000/order_shipping/get_all_shipping_info/',
+              {method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+              }});
+              const data = await response.json();
+              console.log(data);
+          } catch (error) {
+              console.error('Error fetching deliveries:', error);
+          }
+      };
+
+      fetchDeliveries();
+  }, []);
 
   React.useEffect(() => {
     setDeliveries(deliveries_list);
@@ -168,7 +135,6 @@ export default function Page(): React.JSX.Element {
           <Tabs value={direction} onChange={handleChange} >
             <Tab label="Clusters" value="clustering" />
             <Tab label="Route Optimization" value="optimize" />
-            <Tab label="Assign Drivers" value="two" />
           </Tabs>
         </Box>
       </Grid>

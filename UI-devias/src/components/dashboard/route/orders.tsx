@@ -12,6 +12,8 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import dayjs from 'dayjs';
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
 
 const statusMap = {
   Received: { label: 'Received', color: 'info' },
@@ -42,13 +44,53 @@ export interface LatestOrdersProps {
   type?: string;
 }
 
-export function Orders({ orders = [], sx, type }: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx , type}: LatestOrdersProps): React.JSX.Element {
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(true);
+
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleDropdownClose = () => {
+    setIsDropdownOpen(false);
+  };
+
+  const [driver, setDriver] = React.useState("Adam");
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setDriver(event.target.value);
+  };
+
   return (
-    <Card sx={sx}>
-      <CardHeader title="Group" />
-      <Divider />
+    <Card sx={{
+      alignItems: 'center',
+      border: '1px solid var(--mui-palette-neutral-700)',
+      borderRadius: '12px',
+      cursor: 'pointer',
+      p: '4px 12px',
+      margin: '20px',
+    }}>
       <Box sx={{ overflowX: 'auto' }}>
-        <Table sx={{ Width: 500 }}>
+            <FormControl sx={{ m: 1, minWidth: 150 }}>
+            <InputLabel sx={{color:"var(--mui-palette-neutral-400)"}}>Driver</InputLabel>
+            <Select
+              labelId="demo-simple-select-helper-label"
+              id="demo-simple-select-helper"
+              value={driver}
+              label="name"
+              onChange={handleChange}
+            >
+              <MenuItem value={"Adam"}>Adam</MenuItem>
+              <MenuItem value={"Jack"}>Jack</MenuItem>
+            </Select>
+          </FormControl>        
+      </Box>
+      <CaretUpDownIcon onClick={handleDropdownToggle} />
+      {isDropdownOpen && (
+        <>
+          <Divider />
+          <Box sx={{ overflowX: 'auto' }}>
+          <Table sx={{ Width: 500 }}>
           <TableHead>
             <TableRow>
               {type === 'Optimized' && <TableCell>Order</TableCell>}
@@ -81,8 +123,10 @@ export function Orders({ orders = [], sx, type }: LatestOrdersProps): React.JSX.
             })}
           </TableBody>
         </Table>
-      </Box>
-      <Divider />
+        </Box>
+        <Divider />
+        </>
+      )}
     </Card>
   );
 }
