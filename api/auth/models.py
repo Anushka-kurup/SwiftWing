@@ -19,6 +19,11 @@ class User(BaseModel):
     password: str
     role: str
 
+class UserLogin(BaseModel):
+    email: str
+    password: str
+    role: str 
+    
 class Settings(BaseModel):
     authjwt_secret_key: str = os.environ.get('AUTHJWT_SECRET_KEY')
 

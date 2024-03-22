@@ -1,5 +1,5 @@
 import boto3
-from .models import User
+from .models import User, UserLogin
 #from user.user_controller import get_users_by_email
 import hashlib
 from fastapi_jwt_auth import AuthJWT
@@ -14,24 +14,28 @@ class AuthService:
         self.dynamodb = boto3.client('dynamodb', region_name='us-east-1')
         self.TABLE_NAME = 'Users'
 
-    def authenticate_user(self, user: User, Authorize: AuthJWT) -> Optional[dict]:
+    
+    def login(self, user: UserLogin, Authorize: AuthJWT) -> Optional[dict]:
         try:
-            response = None
-     
-            if user.user_id:
-                response = self.dynamodb.get_item(
-                    TableName=self.TABLE_NAME,
-                    Key={'user_id': {'S': str(user.user_id)}}
-                )
-                
-            item = response.get('Item') if response else None
-            if item:
+            email_response = None
+        
+        
+            email_response = self.dynamodb.query(
+                TableName=self.TABLE_NAME,
+                IndexName='email_index',  
+                KeyConditionExpression='email = :email',
+                ExpressionAttributeValues={':email': {'S': user.email}}
+            )
+            
+            if email_response['Items']:
+                user_data = email_response['Items'][0]
                 hashed_password = hashlib.sha256(user.password.encode("utf-8")).hexdigest()
-                if hashed_password == item.get("password").get("S") and item.get("role").get("S") == user.role:
-                    access_token = Authorize.create_access_token(subject=user.email, user_claims={"role": user.role})
+                if hashed_password == user_data.get("password").get("S"):
+    
+                    access_token = Authorize.create_access_token(subject=user.email, user_claims={"role": user_data.get("role").get("S")})
                     return {"access_token": access_token}
         except Exception as e:
-            print(f"Error authenticating user: {e}")
+            print(f"Error during login: {e}")
         return None
 
     

@@ -8,8 +8,8 @@ router = APIRouter()
 
 
 @router.post('/login')
-def login(user: services.User, auth_service: AuthService = Depends(), Authorize: AuthJWT = Depends()):
-    token_info = auth_service.authenticate_user(user, Authorize)
+def login(user: services.UserLogin, auth_service: AuthService = Depends(), Authorize: AuthJWT = Depends()):
+    token_info = auth_service.login(user, Authorize)
     if token_info:
         return token_info
     else:
