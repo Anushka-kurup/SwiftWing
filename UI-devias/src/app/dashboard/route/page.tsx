@@ -14,6 +14,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { set } from 'react-hook-form';
 import { useEffect } from 'react';
+import { array } from 'zod';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // Since true randomness is tricky in pure frontend JavaScript, 
 // we'll use a fixed list of locations.
@@ -85,11 +87,17 @@ for (let i = 0; i < randomLocations.length; i++) {
   nested.push(newOrder);
 }
 deliveries_list.push(nested);
+console.log(deliveries_list);
 
 
 export default function Page(): React.JSX.Element {
   const [deliveries, setDeliveries] = React.useState<{ [key: string]: any }[]>([]);
-  // Fetch the deliveries data here and update the state using setDeliveries
+  const [drivers, setDrivers] = React.useState<any[]>([]);
+  const [isloadingdeliveries, setIsLoadingDeliveries] = React.useState(true);
+  const [isloadingdrivers, setIsLoadingDrivers] = React.useState(true);
+
+
+  //Fetch the deliveries data here and update the state using setDeliveries
   useEffect(() => {
       // Fetch the deliveries data here and update the state using setDeliveries
       // Example:
@@ -104,16 +112,44 @@ export default function Page(): React.JSX.Element {
               }});
               const data = await response.json();
               console.log(data);
+              setDeliveries(Array(data));
           } catch (error) {
               console.error('Error fetching deliveries:', error);
+          } finally {
+              setIsLoadingDeliveries(false);
           }
       };
-
       fetchDeliveries();
   }, []);
 
-  React.useEffect(() => {
-    setDeliveries(deliveries_list);
+  // React.useEffect(() => {
+  //   setDeliveries(deliveries_list);
+  // }, []);
+
+  //Get Drivers
+  useEffect(() => {
+      // Fetch the deliveries data here and update the state using setDeliveries
+      // Example:
+      const fetchDrivers = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/auth/get_all_drivers',
+            {method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+            }});
+            const data = await response.json();
+            setDrivers(data["drivers"]);
+            console.log(data);
+        } catch (error) {
+            console.error('Error fetching deliveries:', error);
+        }
+        finally {
+          setIsLoadingDrivers(false);
+      }
+      };
+      fetchDrivers();
   }, []);
 
   //Change tabs
@@ -123,13 +159,10 @@ export default function Page(): React.JSX.Element {
   };
   const [date, setDate] = React.useState<Dayjs | null>(dayjs());
 
-  //Optimize funtion
-  const optimize = () => {
-    console.log('Optimize route');
-  };
- 
   return (
-    <Grid container spacing={3}>
+    //load below if finish loaded
+    <div>
+      {!isloadingdeliveries && !isloadingdrivers ? <Grid container spacing={3}>
       <Grid xs={12}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={direction} onChange={handleChange} >
@@ -149,9 +182,14 @@ export default function Page(): React.JSX.Element {
                     </DemoContainer>
                 </LocalizationProvider>
             </Grid>
-      {direction === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection} />}
-      {direction === 'optimize' && <Optimize deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection}  pickup_location={["1.3245706", "103.8773117"]}/>}
-    </Grid>
+      {direction === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection} drivers = {drivers}/>}
+      {direction === 'optimize' && <Optimize deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers}/>}
+    </Grid> : 
+    <Box sx={{ display: 'flex' }}>
+      <CircularProgress />
+    </Box>
+      }
+    </div>
   );
     }
 

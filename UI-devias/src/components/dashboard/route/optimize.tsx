@@ -10,7 +10,7 @@ export interface OptimizeProps {
     sx?: any;
     setDeliveries: any;
     setDirection: any;
-    pickup_location:[string, string];
+    drivers: Array<any>;
 }
 
 export function Optimize(props: OptimizeProps): JSX.Element {
@@ -20,7 +20,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
         for (let i = 0; i < props.deliveries.length; i++) {
             //Get the coords of the deliveries in that group
             const coords = props.deliveries[i].map((delivery: any) => [delivery.latitude, delivery.longitude]);
-            const coords_id = props.deliveries[i].map((delivery: any) => delivery.order_id);
+            const coords_id = props.deliveries[i].map((delivery: any) => delivery.shipping_id);
             //set links pickup location to delivery locations in the form [[1,2],[1,3],[1,4],[1,5],[6,7],[1,8]]
             const links = [];
             for (let i = 1; i < coords.length; i++) {
@@ -54,7 +54,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                     const clust = data[x];
                     for (let j = 0; j < clust.length; j++) {
                         const id = clust[j];
-                        const delivery_obj = props.deliveries[i].find((delivery: any) => delivery.order_id === id);
+                        const delivery_obj = props.deliveries[i].find((delivery: any) => delivery.shipping_id === id);
                         clusterDel.push(delivery_obj);
                     }
                     optimized_deliveries.push(clusterDel);
@@ -87,6 +87,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                             status: order.status as "Received" | "Delivered" | "Failed" | "In_Progress" | "On_Hold",
                         }))}
                         sx={{ marginBottom: '20px' }}
+                        drivers={props.drivers}
                     />
                 ))}
             </Grid>

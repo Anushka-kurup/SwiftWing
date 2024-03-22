@@ -30,6 +30,7 @@ export interface SignInWithOAuthParams {
 export interface SignInWithPasswordParams {
   email: string;
   password: string;
+  role: string;
 }
 
 export interface ResetPasswordParams {
@@ -48,11 +49,12 @@ class AuthClient {
   }
 
   async signInWithOAuth(_: SignInWithOAuthParams): Promise<{ error?: string }> {
-    return { error: 'Social authentication not implemented' };
+      return { error: 'Social authentication failed' };
+    
   }
 
   async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
-    const { email, password } = params;
+    const { email, password, role } = params;
 
     // Make API request
 
