@@ -44,6 +44,13 @@ def get_order_by_user_id(sender_id:str,start_date:str=None,end_date:str=None):
         raise HTTPException(status_code=404, detail="Order not found")
     return order_list
 
+@router.get("/get_order_by_delivery_date/", response_model=List[Order])
+def get_order_by_delivery_date(start_date:str=None,end_date:str=None):
+    order_list = order_service.get_order_by_delivery_date(start_date,end_date)
+    if order_list is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order_list
+
 @router.delete("/delete_order/", response_model=bool)
 def delete_order(order_id: str):
     status = order_service.delete_order(order_id)

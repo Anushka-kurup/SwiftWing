@@ -43,6 +43,13 @@ def get_shipping_info_by_user_id(sender_id: str,start_date: str = None, end_date
         raise HTTPException(status_code=404, detail="Order not found")
     return shipping_info
 
+@router.get("/get_shipping_info_by_delivery_date/", response_model=List[ShippingInfo])
+def get_shipping_info_by_delivery_date(start_date: str = None, end_date: str = None):
+    shipping_info = order_shipping_service.get_shipping_info_by_delivery_date(start_date,end_date)
+    if shipping_info is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return shipping_info
+
 @router.put("/complete_delivery/", response_model=bool)
 def complete_delivery(order_id:OrderID):
     result_status = order_shipping_service.complete_delivery(order_id)

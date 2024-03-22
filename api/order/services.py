@@ -320,3 +320,69 @@ class OrderService:
         except Exception as e:
             print(f"Error retrieving orders: {e}")
             return []
+
+    def get_order_by_delivery_date(self,start_date: str = None, end_date: str = None) -> List[Order]:
+        try:
+            expression_attribute_values = {}
+            
+            if start_date!=None and end_date!=None:
+                start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
+                filter_expression = "delivery_date BETWEEN :start_date_val AND :end_date_val"
+                expression_attribute_values[":start_date_val"] = {"S": start_date}
+                expression_attribute_values[":end_date_val"] = {"S": end_date}
+
+            elif start_date!=None and end_date==None:
+                start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
+                filter_expression = "delivery_date > :start_date_val"
+                expression_attribute_values[":start_date_val"] = {"S": start_date}
+
+            elif start_date==None and end_date!=None:
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
+                filter_expression = "delivery_date < :end_date_val"
+                expression_attribute_values[":end_date_val"] = {"S": end_date}
+            
+            response = self.dynamodb.scan(
+                TableName=self.TABLE_NAME,
+                FilterExpression=filter_expression,
+                ExpressionAttributeValues=expression_attribute_values
+            )
+
+            items = response.get('Items', [])
+            orders = []
+            for item in items:
+                if item['delivery_date']['S'] == "":
+                    delivery_date = None
+                else:
+                    delivery_date = item['delivery_date']['S']
+
+                if item['delivery_timestamp']['S'] == "":
+                    delivery_timestamp = None
+                else:
+                    delivery_timestamp = item['delivery_timestamp']['S']
+
+                package_dimension_str = item['package_dimension']["L"]
+                package_dimension = []
+                for cur_item in package_dimension_str:
+                    package_dimension.append(cur_item["N"])
+
+                order = Order(
+                    sender_id = item['sender_id']['S'],
+                    order_id=item['order_id']['S'],
+                    warehouse=item['warehouse']['S'],
+                    destination=item['destination']['S'],
+                    package_dimension=package_dimension,
+                    special_handling_instruction=item['special_handling_instruction']['S'],
+                    package_weight = item['package_weight']['N'],
+                    latitude = item['latitude']['N'],
+                    longitude = item['longitude']['N'],
+                    recipient = item['recipient']['M'],
+                    created_date = item['created_date']['S'],
+                    delivery_date = delivery_date,
+                    delivery_timestamp = delivery_timestamp,
+                )
+                orders.append(order)
+            return orders
+        except Exception as e:
+            print(f"Error retrieving orders: {e}")
+            return []
