@@ -23,7 +23,6 @@ class OrderService:
         try:
             order_id = str(uuid.uuid4())
             created_date_str = str(datetime.now().isoformat())
-            package_dimension = [str(cur_measurement) for cur_measurement in order.package_dimension]
             recipient_map = {key: {'S': value} for key, value in order.recipient.items()}
             self.dynamodb.put_item(
                 TableName=self.TABLE_NAME,
@@ -32,7 +31,7 @@ class OrderService:
                     'order_id': {'S': order_id},
                     'warehouse': {'S': order.warehouse},
                     'destination': {'S': order.destination},
-                    'package_dimension': {'NS': package_dimension},
+                    'package_dimension': {'L': [{'N': str(float(cur_measurement))} for cur_measurement in order.package_dimension]},
                     'special_handling_instruction': {'S': order.special_handling_instruction},
                     'package_weight':{'N':str(order.package_weight)},
                     'latitude':{'N':str(order.latitude)},
@@ -55,8 +54,6 @@ class OrderService:
             if not order_check:
                 raise HTTPException(status_code=404, detail="Order not found")
             created_date = str(order_check.created_date.isoformat())
-
-            package_dimension = [str(cur_measurement) for cur_measurement in order.package_dimension]
             recipient_map = {key: {'S': value} for key, value in order.recipient.items()}
             sender_id = order_check.sender_id
 
@@ -68,7 +65,7 @@ class OrderService:
             expression_attribute_values = {
                 ':warehouse': {'S': order.warehouse},
                 ':destination': {'S': order.destination},
-                ':package_dimension': {'NS': package_dimension},
+                ':package_dimension': {'L': [{'N': str(float(cur_measurement))} for cur_measurement in order.package_dimension]},
                 ':special_handling_instruction': {'S': order.special_handling_instruction},
                 ':package_weight': {'N': str(order.package_weight)},
                 ':latitude': {'N': str(order.latitude)},
@@ -165,12 +162,17 @@ class OrderService:
                 else:
                     delivery_timestamp = item['delivery_timestamp']['S']
 
+                package_dimension_str = item['package_dimension']["L"]
+                package_dimension = []
+                for cur_item in package_dimension_str:
+                    package_dimension.append(cur_item["N"])
+
                 return Order(
                     sender_id = item['sender_id']['S'],
                     order_id=item['order_id']['S'],
                     warehouse=item['warehouse']['S'],
                     destination=item['destination']['S'],
-                    package_dimension=item['package_dimension']['NS'],
+                    package_dimension=package_dimension,
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     package_weight = item['package_weight']['N'],
                     latitude = item['latitude']['N'],
@@ -205,12 +207,17 @@ class OrderService:
                 else:
                     delivery_timestamp = item['delivery_timestamp']['S']
 
+                package_dimension_str = item['package_dimension']["L"]
+                package_dimension = []
+                for cur_item in package_dimension_str:
+                    package_dimension.append(cur_item["N"])
+
                 order = Order(
                     sender_id = item['sender_id']['S'],
                     order_id=item['order_id']['S'],
                     warehouse=item['warehouse']['S'],
                     destination=item['destination']['S'],
-                    package_dimension=item['package_dimension']['NS'],
+                    package_dimension=package_dimension,
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     package_weight = item['package_weight']['N'],
                     latitude = item['latitude']['N'],
@@ -266,7 +273,7 @@ class OrderService:
                     order_id=item['order_id']['S'],
                     warehouse=item['warehouse']['S'],
                     destination=item['destination']['S'],
-                    package_dimension=item['package_dimension']['NS'],
+                    package_dimension=item['package_dimension']['L'],
                     special_handling_instruction=item['special_handling_instruction']['S'],
                     package_weight = item['package_weight']['N'],
                     latitude = item['latitude']['N'],
