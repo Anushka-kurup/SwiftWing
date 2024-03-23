@@ -11,6 +11,7 @@ export interface OptimizeProps {
     setDeliveries: any;
     setDirection: any;
     drivers: Array<any>;
+    assignDrivers: any;
 }
 
 export function Optimize(props: OptimizeProps): JSX.Element {
@@ -88,6 +89,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                         }))}
                         sx={{ marginBottom: '20px' }}
                         drivers={props.drivers}
+                        assignDrivers={props.assignDrivers}
                     />
                 ))}
             </Grid>

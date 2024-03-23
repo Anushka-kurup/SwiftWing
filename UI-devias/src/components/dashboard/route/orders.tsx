@@ -12,8 +12,10 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import dayjs from 'dayjs';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
+import { any } from 'zod';
+import CheckIcon from '@mui/icons-material/Check';
 
 const statusMap = {
   Received: { label: 'Received', color: 'info' },
@@ -44,23 +46,40 @@ export interface LatestOrdersProps {
   sx?: SxProps;
   type?: string;
   drivers: Array<any>;
+  assignDrivers: any;
 }
 
-export function Orders({ orders = [], sx , type, drivers}: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx , type, drivers, assignDrivers}: LatestOrdersProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(true);
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleDropdownClose = () => {
-    setIsDropdownOpen(false);
-  };
-
   const [driver, setDriver] = React.useState("");
 
   const handleChange = (event: SelectChangeEvent) => {
     setDriver(event.target.value);
+    setIsButtonCompleted(false);
+  };
+  
+  const [isButtonRunning, setIsButtonRunning] = React.useState(false);
+  const [isButtonCompleted, setIsButtonCompleted] = React.useState(false);
+
+  const handleAssignDriver = async () => {
+    setIsButtonRunning(true);
+    try {
+      const selectedDriver = drivers.find((driver_info: any) => driver_info.name === driver);
+      if (selectedDriver) {
+        const driverKey = selectedDriver.user_id;
+        await assignDrivers(orders[0].shipping_id, driverKey);
+        setIsButtonCompleted(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsButtonRunning(false);
+    }
   };
 
   return (
@@ -72,21 +91,35 @@ export function Orders({ orders = [], sx , type, drivers}: LatestOrdersProps): R
       p: '4px 12px',
       margin: '20px',
     }}>
-      <Box sx={{ overflowX: 'auto' }}>
-            <FormControl sx={{ m: 1, minWidth: 150 }}>
-            <InputLabel sx={{color:"var(--mui-palette-neutral-400)"}}>Driver</InputLabel>
-            <Select
-              labelId="demo-simple-select-helper-label"
-              id="demo-simple-select-helper"
-              value={driver}
-              label="name"
-              onChange={handleChange}
+      <Box>
+        <FormControl sx={{ m: 1, minWidth: 150 }}>
+          <InputLabel sx={{ color: "var(--mui-palette-neutral-400)" }}>Driver</InputLabel>
+          <Select
+            id="simple_select"
+            value={driver}
+            label="name"
+            onChange={handleChange}
+          >
+            {drivers.map((driver) => (
+              <MenuItem key={driver.user_id} value={driver.name}>{driver.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+            <Button
+              style={{ margin: "20px", float: 'right' }}
+              onClick={handleAssignDriver}
+              variant="contained"
+              color="secondary"
+              disabled={isButtonRunning || isButtonCompleted}
             >
-              {drivers.map((driver) => (
-                <MenuItem key={driver} value={driver}>{driver}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>        
+              {isButtonRunning ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : isButtonCompleted ? (
+                <CheckIcon />
+              ) : (
+                "Confirm Driver"
+              )}
+            </Button>
       </Box>
       <CaretUpDownIcon onClick={handleDropdownToggle} />
       {isDropdownOpen && (

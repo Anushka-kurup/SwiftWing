@@ -12,6 +12,7 @@ export interface ClustersProps {
     setDeliveries: any;
     setDirection: any;
     drivers: Array<any>;
+    assignDrivers: any;
 }
 
 export function Clusters(props: any): JSX.Element {
@@ -121,6 +122,7 @@ export function Clusters(props: any): JSX.Element {
                         }))}
                         sx={{ marginBottom: '20px' }}
                         drivers={props.drivers}
+                        assignDrivers={props.assignDrivers}
                     />
                 ))}
             </Grid>

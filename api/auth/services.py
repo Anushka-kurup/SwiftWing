@@ -111,7 +111,10 @@ class AuthService:
                 ExpressionAttributeNames={"#r": "role"},
                 ExpressionAttributeValues={":role": {"S": "driver"}}
             )
-            drivers = [f"{item['first_name']['S']} {item['last_name']['S']}" for item in response['Items']]
+            drivers = [{
+                "name":f"{item['first_name']['S']} {item['last_name']['S']}",
+                "user_id": item['user_id']['S'],
+                } for item in response['Items']]
             return drivers
         except Exception as e:
             print(f"Error fetching drivers: {e}")

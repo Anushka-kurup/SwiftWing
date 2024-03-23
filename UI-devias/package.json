@@ -24,6 +24,7 @@
     "@fontsource/plus-jakarta-sans": "5.0.19",
     "@fontsource/roboto-mono": "5.0.17",
     "@hookform/resolvers": "3.3.4",
+    "@mui/icons-material": "^5.15.14",
     "@mui/lab": "5.0.0-alpha.167",
     "@mui/material": "5.15.12",
     "@mui/system": "5.15.12",

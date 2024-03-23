@@ -17,111 +17,108 @@ import { useEffect } from 'react';
 import { array } from 'zod';
 import CircularProgress from '@mui/material/CircularProgress';
 
-// Since true randomness is tricky in pure frontend JavaScript, 
-// we'll use a fixed list of locations.
-const randomLocations = [
-  "50 Pasir Panjang Road, Singapore 117439",
-  "200 Pasir Panjang Road, Singapore 117600",
-  "10 Tampines Street 93, Singapore 528817",
-  "30 Bishan Street 12, Singapore 579773",
-  "10 Paya Lebar Road, Singapore 408578",
-  "15 Beach Road, Singapore 189670",
-  "80 Robinson Road, Singapore 068898",
-  "10 Collyer Quay, Singapore 049315",
-];
 
-const coordinates = [
-  [
-    "1.3245706",
-    "103.8773117"
-  ],
-  [
-    "1.400066",
-    "103.906531"
-  ],
-  [
-    "1.3720699",
-    "103.969923"
-  ],
-  [
-    "1.3318464",
-    "103.9463496"
-  ],
-  [
-    "1.2822323",
-    "103.8592267"
-  ],
-  [
-    "1.2896695",
-    "103.7786133"
-  ],
-  [
-    "1.3122508",
-    "103.6971501"
-  ],
-  ["1.33164", "103.84834"],
-  ["1.33649", "103.88413"]
-];
+// const randomLocations = [
+//   "50 Pasir Panjang Road, Singapore 117439",
+//   "200 Pasir Panjang Road, Singapore 117600",
+//   "10 Tampines Street 93, Singapore 528817",
+//   "30 Bishan Street 12, Singapore 579773",
+//   "10 Paya Lebar Road, Singapore 408578",
+//   "15 Beach Road, Singapore 189670",
+//   "80 Robinson Road, Singapore 068898",
+//   "10 Collyer Quay, Singapore 049315",
+// ];
 
-// Generate 8 deliveries using the random locations
-// deliveries is a nested array
+// const coordinates = [
+//   [
+//     "1.3245706",
+//     "103.8773117"
+//   ],
+//   [
+//     "1.400066",
+//     "103.906531"
+//   ],
+//   [
+//     "1.3720699",
+//     "103.969923"
+//   ],
+//   [
+//     "1.3318464",
+//     "103.9463496"
+//   ],
+//   [
+//     "1.2822323",
+//     "103.8592267"
+//   ],
+//   [
+//     "1.2896695",
+//     "103.7786133"
+//   ],
+//   [
+//     "1.3122508",
+//     "103.6971501"
+//   ],
+//   ["1.33164", "103.84834"],
+//   ["1.33649", "103.88413"]
+// ];
 
-const deliveries_list = Array();
-const nested = Array();
-for (let i = 0; i < randomLocations.length; i++) {
-  const newOrder = 
-    {
-      order_id: `ORD-0000${i + 1}`,
-      pickup_location: "313@Somerset, 313 Orchard Road, Singapore 238895",
-      destination: randomLocations[i],
-      package_dimension: [10.0 + i, 10.0 + i, 10.0 + i],
-      package_weight: 5.0 + i,
-      time_constraint: new Date(2024, 2, 17 + i, 10, 0), // Note: Month 2 = March
-      special_handling_instruction: `Special Instruction ${i + 1}`,
-      latitude: coordinates[i + 1][0],
-      longitude: coordinates[i + 1][1],
-      createdAt: dayjs().subtract(10, 'minutes').toDate(),
-      status: ['Received', 'In_Progress', 'Delivered', 'Failed', 'On_Hold'][i % 5],
-      customer: "Random name"
-    }
-  nested.push(newOrder);
-}
-deliveries_list.push(nested);
-console.log(deliveries_list);
+// // Generate 8 deliveries using the random locations
+// // deliveries is a nested array
 
+// const deliveries_list = Array();
+// const nested = Array();
+// for (let i = 0; i < randomLocations.length; i++) {
+//   const newOrder = 
+//     {
+//       order_id: `ORD-0000${i + 1}`,
+//       pickup_location: "313@Somerset, 313 Orchard Road, Singapore 238895",
+//       destination: randomLocations[i],
+//       package_dimension: [10.0 + i, 10.0 + i, 10.0 + i],
+//       package_weight: 5.0 + i,
+//       time_constraint: new Date(2024, 2, 17 + i, 10, 0), // Note: Month 2 = March
+//       special_handling_instruction: `Special Instruction ${i + 1}`,
+//       latitude: coordinates[i + 1][0],
+//       longitude: coordinates[i + 1][1],
+//       createdAt: dayjs().subtract(10, 'minutes').toDate(),
+//       status: ['Received', 'In_Progress', 'Delivered', 'Failed', 'On_Hold'][i % 5],
+//       customer: "Random name"
+//     }
+//   nested.push(newOrder);
+// }
+// deliveries_list.push(nested);
 
 export default function Page(): React.JSX.Element {
   const [deliveries, setDeliveries] = React.useState<{ [key: string]: any }[]>([]);
   const [drivers, setDrivers] = React.useState<any[]>([]);
   const [isloadingdeliveries, setIsLoadingDeliveries] = React.useState(true);
   const [isloadingdrivers, setIsLoadingDrivers] = React.useState(true);
-
+  const [date, setDate] = React.useState<Dayjs | null>(dayjs());
 
   //Fetch the deliveries data here and update the state using setDeliveries
   useEffect(() => {
-      // Fetch the deliveries data here and update the state using setDeliveries
-      // Example:
+    // Fetch the deliveries data here and update the state using setDeliveries
       const fetchDeliveries = async () => {
-          try {
-              const response = await fetch('http://127.0.0.1:5000/order_shipping/get_all_shipping_info/',
-              {method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin': '*',
-                  'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-              }});
-              const data = await response.json();
-              console.log(data);
-              setDeliveries(Array(data));
-          } catch (error) {
-              console.error('Error fetching deliveries:', error);
-          } finally {
-              setIsLoadingDeliveries(false);
-          }
-      };
+        //convert date to string
+        const date_string = date?.format('YYYY-MM-DD');
+        try {
+          const response = await fetch(`http://127.0.0.1:5000/order_shipping/get_shipping_info_by_delivery_date/?start_date=${date_string}&end_date=${date_string}`,
+          {method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+          }});
+          const data = await response.json();
+          console.log(data);
+          setDeliveries(Array(data));
+        } catch (error) {
+          console.error('Error fetching deliveries:', error);
+      } finally {
+          setIsLoadingDeliveries(false);
+      }
+    };
       fetchDeliveries();
-  }, []);
-
+  }, [date]);
   // React.useEffect(() => {
   //   setDeliveries(deliveries_list);
   // }, []);
@@ -157,8 +154,30 @@ export default function Page(): React.JSX.Element {
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setDirection(newValue);
   };
-  const [date, setDate] = React.useState<Dayjs | null>(dayjs());
 
+  //Assign drivers to deliveries
+  function handleAssignDrivers(shipping_id: string, driver_id: string) {
+    const assignDrivers = async () => {
+      try {
+          const response = await fetch('http://localhost:5000/shipping/update_shipping_driver/',
+          {method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+          },
+          body: JSON.stringify({
+            "shipping_id": shipping_id,
+            "driver_id": driver_id,
+            "shipping_status": "In_Progress"
+          })});
+      } catch (error) {
+          console.error('Error assigning driver to deliveries:', error);
+      }
+    };
+    assignDrivers();
+  }
+    
   return (
     //load below if finish loaded
     <div>
@@ -182,8 +201,8 @@ export default function Page(): React.JSX.Element {
                     </DemoContainer>
                 </LocalizationProvider>
             </Grid>
-      {direction === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection} drivers = {drivers}/>}
-      {direction === 'optimize' && <Optimize deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers}/>}
+      {direction === 'clustering' && <Clusters deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection} drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
+      {direction === 'optimize' && <Optimize deliveries={deliveries} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
     </Grid> : 
     <Box sx={{ display: 'flex' }}>
       <CircularProgress />
