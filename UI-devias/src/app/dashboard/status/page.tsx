@@ -9,6 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
+import { type Delivery } from '@/types/types';
 import { DeliveryInfoModal } from '@/components/dashboard/common/delivery-info-modal';
 import { getDeliveriesByDate, getDrivers } from '@/components/dashboard/status/api';
 import CircularWithValueLabel from '@/components/dashboard/status/circular-progress-bar';
@@ -16,11 +17,10 @@ import { CompletedDeliveries } from '@/components/dashboard/status/completed-del
 import { Drivers } from '@/components/dashboard/status/drivers';
 import { OnHoldDeliveries } from '@/components/dashboard/status/on-hold-deliveries';
 import { ParcelInProgress } from '@/components/dashboard/status/parcel-in-progress';
-import type { Delivery } from '@/components/dashboard/status/status-board';
 import { StatusBoard } from '@/components/dashboard/status/status-board';
 
 export default function Page(): React.JSX.Element {
-  const page = 0;
+  const [page, setPage] = React.useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
   const [date, setDate] = React.useState<Dayjs | null>(dayjs());
   const [drivers, setDrivers] = React.useState<any[]>([]);
@@ -43,20 +43,20 @@ export default function Page(): React.JSX.Element {
     setDrivers(data['drivers']);
   };
 
-  const fetchDeliveriesAndOrderByDate = async (date: string): unknown[] => {
-    const formattedDate = date?.format('YYYY-MM-DD');
+  const fetchDeliveriesAndOrderByDate = async (unformattedDate: Dayjs): Promise<void> => {
+    const formattedDate = unformattedDate?.format('YYYY-MM-DD');
     const deliveryData: Delivery[] = await getDeliveriesByDate(formattedDate, formattedDate);
     setDeliveries(deliveryData);
   };
 
-  function countDeliveriesByStatus(deliveries: Delivery[]): void {
+  function countDeliveriesByStatus(deliveryList: Delivery[]): void {
     let received = 0;
     let inProgress = 0;
     let completed = 0;
     let failed = 0;
     let onHold = 0;
 
-    deliveries.forEach((delivery) => {
+    deliveryList.forEach((delivery) => {
       switch (delivery.shipping_status) {
         case 'Received':
           received += 1;
@@ -88,8 +88,7 @@ export default function Page(): React.JSX.Element {
   React.useEffect(() => {
     void fetchDrivers();
     void fetchDeliveriesAndOrderByDate(date);
-    console.log('Deliveries:', deliveries);
-  }, [date]);
+  }, [date, deliveries]);
 
   React.useEffect(() => {
     countDeliveriesByStatus(deliveries);
@@ -108,7 +107,13 @@ export default function Page(): React.JSX.Element {
         <Stack>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker', 'DatePicker']}>
-              <DatePicker label="Date Select" value={date} onChange={(newValue) => setDate(newValue)} />
+              <DatePicker
+                label="Date Select"
+                value={date}
+                onChange={(newValue) => {
+                  setDate(newValue);
+                }}
+              />
             </DemoContainer>
           </LocalizationProvider>
         </Stack>
@@ -148,11 +153,12 @@ export default function Page(): React.JSX.Element {
           Status Board
         </Typography>
         <StatusBoard
-          count={paginatedDeliveries.length}
+          count={deliveries.length}
           page={page}
           rows={paginatedDeliveries}
           rowsPerPage={rowsPerPage}
           onClickDeliveryInfo={onClickDeliveryInfo}
+          setPage={setPage}
           setRowsPerPage={setRowsPerPage}
         />
       </Stack>

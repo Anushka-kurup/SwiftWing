@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 
 export interface OnHoldDeliveriesProps {
   sx?: SxProps;
-  value: string;
+  value: number;
 }
 
 export function OnHoldDeliveries({ value, sx }: OnHoldDeliveriesProps): React.JSX.Element {

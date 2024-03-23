@@ -1,3 +1,5 @@
+import type { Delivery } from '@/components/dashboard/status/status-board';
+
 const api = 'http://localhost:5000';
 
 function createRequestOptions(method: string, body: unknown) {
@@ -30,6 +32,7 @@ export async function getDrivers(): Promise<unknown> {
   } catch (error) {
     console.error('Error get drivers:', error);
   }
+  return [];
 }
 
 // get orders by date
@@ -43,10 +46,11 @@ export async function getOrdersByDate(startDate: string, endDate: string): Promi
   } catch (error) {
     console.error('Error get deliveries:', error);
   }
+  return [];
 }
 
 // get deliveries by date
-export async function getDeliveriesByDate(startDate: string, endDate: string): Promise<unknown> {
+export async function getDeliveriesByDate(startDate: string, endDate: string): Promise<Delivery[]> {
   const requestOptions = createRequestOptions('GET', null);
   const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
@@ -56,4 +60,5 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
   } catch (error) {
     console.error('Error get deliveries:', error);
   }
+  return [];
 }

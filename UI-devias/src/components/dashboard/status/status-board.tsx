@@ -14,31 +14,15 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import dayjs from 'dayjs';
 
+import { type Delivery } from '@/types/types';
 import { useSelection } from '@/hooks/use-selection';
-
-export interface Delivery {
-  created_date: string;
-  delivery_date: string;
-  delivery_timestamp: string;
-  destination: string;
-  driver_id: string;
-  latitude: number;
-  longitude: number;
-  package_dimensions: [number, number, number];
-  package_weight: number;
-  recipient: { phone_no: { S: string }; recipeint_name: { S: string } };
-  sender_id: string;
-  shipping_id: string;
-  shipping_status: string;
-  special_handling_instructions: string;
-  warehouse: string;
-}
 
 interface StatusBoardProps {
   count?: number;
   page?: number;
   rows?: Delivery[];
   rowsPerPage?: number;
+  setPage?: React.Dispatch<React.SetStateAction<number>>;
   setRowsPerPage?: React.Dispatch<React.SetStateAction<number>>;
   onClickDeliveryInfo?: React.MouseEventHandler;
 }
@@ -48,9 +32,22 @@ export function StatusBoard({
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  setPage,
   setRowsPerPage,
   onClickDeliveryInfo,
 }: StatusBoardProps): React.JSX.Element {
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    if (setPage) {
+      setPage(newPage);
+    }
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+    console.log(rowsPerPage);
+  };
+
   const rowIds = React.useMemo(() => {
     return rows.map((delivery) => delivery.shipping_id);
   }, [rows]);
@@ -122,18 +119,12 @@ export function StatusBoard({
       <TablePagination
         component="div"
         count={count}
-        onPageChange={noop(setRowsPerPage)}
+        onPageChange={handleChangePage}
         page={page}
         rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
-        onRowsPerPageChange={noop}
+        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </Card>
   );
-}
-
-function noop(event: React.ChangeEvent, setRowsPerPage: React.Dispatch<React.SetStateAction<number>>): void {
-  // console.log(event);
-  // console.log(event.value == undefined ? 5 : event.target.value);
-  // setRowsPerPage(event.value === undefined ? 5 : event.value);
 }
