@@ -9,10 +9,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
-import { StatusBoard } from '@/components/dashboard/status/status-board';
+import { DeliveryInfoModal } from '@/components/dashboard/common/delivery-info-modal';
 import type { Customer } from '@/components/dashboard/customer/customers-table';
+import CircularWithValueLabel from '@/components/dashboard/status/circular-progress-bar';
 import { Drivers } from '@/components/dashboard/status/drivers';
 import { ParcelInProgress } from '@/components/dashboard/status/parcel-in-progress';
+import { StatusBoard } from '@/components/dashboard/status/status-board';
 import { TasksProgress } from '@/components/dashboard/status/tasks-progress';
 import { TotalProfit } from '@/components/dashboard/status/total-profit';
 
@@ -117,9 +119,20 @@ export default function Page(): React.JSX.Element {
 
   const paginatedCustomers = applyPagination(customers, page, rowsPerPage);
 
+  const onClickDeliveryInfo = (event: React.MouseEvent<HTMLElement>) => {
+    console.log('Delivery Info Clicked');
+  };
+
   return (
     <Stack spacing={3}>
-      <Stack direction="row" spacing={3}>
+      <Stack
+        direction="row"
+        spacing={14}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <Stack>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker', 'DatePicker']}>
@@ -127,7 +140,13 @@ export default function Page(): React.JSX.Element {
             </DemoContainer>
           </LocalizationProvider>
         </Stack>
-        <Stack></Stack>
+        <Stack direction="row" spacing={3}>
+          <CircularWithValueLabel type="Received" value={11} total={33} />
+          <CircularWithValueLabel type="in progress" value={11} total={33} />
+          <CircularWithValueLabel type="completed" value={11} total={33} />
+          <CircularWithValueLabel type="failed" value={11} total={33} />
+          <CircularWithValueLabel type="on hold" value={11} total={33} />
+        </Stack>
       </Stack>
       <Stack>
         <Typography marginLeft={3} marginBottom={1} fontWeight={570}>
@@ -157,6 +176,7 @@ export default function Page(): React.JSX.Element {
           page={page}
           rows={paginatedCustomers}
           rowsPerPage={rowsPerPage}
+          onClickDeliveryInfo={onClickDeliveryInfo}
         />
       </Stack>
     </Stack>

@@ -13,7 +13,6 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 
 import { useSelection } from '@/hooks/use-selection';
@@ -37,6 +36,7 @@ interface CustomersTableProps {
   page?: number;
   rows?: Customer[];
   rowsPerPage?: number;
+  onClickDeliveryInfo?: React.MouseEventHandler;
 }
 
 export function StatusBoard({
@@ -44,6 +44,7 @@ export function StatusBoard({
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  onClickDeliveryInfo,
 }: CustomersTableProps): React.JSX.Element {
   const rowIds = React.useMemo(() => {
     return rows.map((customer) => customer.id);
@@ -59,7 +60,7 @@ export function StatusBoard({
       <Box sx={{ overflowX: 'auto' }}>
         <Table sx={{ minWidth: '800px' }}>
           <TableHead>
-            <TableRow>
+            <TableRow onClick={onClickDeliveryInfo}>
               <TableCell padding="checkbox">
                 <Checkbox
                   checked={selectedAll}
