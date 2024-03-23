@@ -259,19 +259,19 @@ class OrderService:
             
             if start_date!=None and end_date!=None:
                 start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
-                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59).isoformat()
                 key_condition_expression += " AND delivery_date BETWEEN :start_date_val AND :end_date_val"
                 expression_attribute_values[":start_date_val"] = {"S": start_date}
                 expression_attribute_values[":end_date_val"] = {"S": end_date}
 
             elif start_date!=None and end_date==None:
                 start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
-                key_condition_expression += " AND delivery_date > :start_date_val"
+                key_condition_expression += " AND delivery_date >= :start_date_val"
                 expression_attribute_values[":start_date_val"] = {"S": start_date}
 
             elif start_date==None and end_date!=None:
-                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
-                key_condition_expression += " AND delivery_date < :end_date_val"
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59).isoformat()
+                key_condition_expression += " AND delivery_date <= :end_date_val"
                 expression_attribute_values[":end_date_val"] = {"S": end_date}
             
             response = self.dynamodb.query(
@@ -327,19 +327,21 @@ class OrderService:
             
             if start_date!=None and end_date!=None:
                 start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
-                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
+                print(start_date)
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59).isoformat()
+                print(end_date)
                 filter_expression = "delivery_date BETWEEN :start_date_val AND :end_date_val"
                 expression_attribute_values[":start_date_val"] = {"S": start_date}
                 expression_attribute_values[":end_date_val"] = {"S": end_date}
 
             elif start_date!=None and end_date==None:
                 start_date =  datetime.strptime(start_date, "%Y-%m-%d").isoformat()
-                filter_expression = "delivery_date > :start_date_val"
+                filter_expression = "delivery_date >= :start_date_val"
                 expression_attribute_values[":start_date_val"] = {"S": start_date}
 
             elif start_date==None and end_date!=None:
-                end_date =  datetime.strptime(end_date, "%Y-%m-%d").isoformat()
-                filter_expression = "delivery_date < :end_date_val"
+                end_date =  datetime.strptime(end_date, "%Y-%m-%d").replace(hour=23, minute=59, second=59).isoformat()
+                filter_expression = "delivery_date <= :end_date_val"
                 expression_attribute_values[":end_date_val"] = {"S": end_date}
             
             response = self.dynamodb.scan(
