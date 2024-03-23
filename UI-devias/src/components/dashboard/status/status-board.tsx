@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -17,25 +16,30 @@ import dayjs from 'dayjs';
 
 import { useSelection } from '@/hooks/use-selection';
 
-function noop(): void {
-  // do nothing
+export interface Delivery {
+  created_date: string;
+  delivery_date: string;
+  delivery_timestamp: string;
+  destination: string;
+  driver_id: string;
+  latitude: number;
+  longitude: number;
+  package_dimensions: [number, number, number];
+  package_weight: number;
+  recipient: { phone_no: { S: string }; recipeint_name: { S: string } };
+  sender_id: string;
+  shipping_id: string;
+  shipping_status: string;
+  special_handling_instructions: string;
+  warehouse: string;
 }
 
-export interface Customer {
-  id: string;
-  avatar: string;
-  name: string;
-  email: string;
-  address: { city: string; state: string; country: string; street: string };
-  phone: string;
-  createdAt: Date;
-}
-
-interface CustomersTableProps {
+interface StatusBoardProps {
   count?: number;
   page?: number;
-  rows?: Customer[];
+  rows?: Delivery[];
   rowsPerPage?: number;
+  setRowsPerPage?: React.Dispatch<React.SetStateAction<number>>;
   onClickDeliveryInfo?: React.MouseEventHandler;
 }
 
@@ -44,10 +48,11 @@ export function StatusBoard({
   rows = [],
   page = 0,
   rowsPerPage = 0,
+  setRowsPerPage,
   onClickDeliveryInfo,
-}: CustomersTableProps): React.JSX.Element {
+}: StatusBoardProps): React.JSX.Element {
   const rowIds = React.useMemo(() => {
-    return rows.map((customer) => customer.id);
+    return rows.map((delivery) => delivery.shipping_id);
   }, [rows]);
 
   const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
@@ -84,33 +89,29 @@ export function StatusBoard({
           </TableHead>
           <TableBody>
             {rows.map((row) => {
-              const isSelected = selected?.has(row.id);
+              const isSelected = selected?.has(row.shipping_id);
+              const deliveryDate = dayjs(row.delivery_date).format('YYYY-MM-DD');
 
               return (
-                <TableRow hover key={row.id} selected={isSelected}>
+                <TableRow hover key={row.shipping_id} selected={isSelected}>
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={isSelected}
                       onChange={(event) => {
                         if (event.target.checked) {
-                          selectOne(row.id);
+                          selectOne(row.shipping_id);
                         } else {
-                          deselectOne(row.id);
+                          deselectOne(row.shipping_id);
                         }
                       }}
                     />
                   </TableCell>
-                  <TableCell>
-                    <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                      <Avatar src={row.avatar} />
-                    </Stack>
-                  </TableCell>
-                  <TableCell>{row.email}</TableCell>
-                  <TableCell>
-                    {row.address.city}, {row.address.state}, {row.address.country}
-                  </TableCell>
-                  <TableCell>{row.phone}</TableCell>
-                  <TableCell>{dayjs(row.createdAt).format('MMM D, YYYY')}</TableCell>
+                  <TableCell>Profile Picture</TableCell>
+                  <TableCell>{deliveryDate}</TableCell>
+                  <TableCell>{row.shipping_id}</TableCell>
+                  <TableCell>{row.recipient.recipeint_name.S}</TableCell>
+                  <TableCell>{row.destination}</TableCell>
+                  <TableCell>{row.shipping_status}</TableCell>
                 </TableRow>
               );
             })}
@@ -121,12 +122,18 @@ export function StatusBoard({
       <TablePagination
         component="div"
         count={count}
-        onPageChange={noop}
-        onRowsPerPageChange={noop}
+        onPageChange={noop(setRowsPerPage)}
         page={page}
         rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
+        onRowsPerPageChange={noop}
       />
     </Card>
   );
+}
+
+function noop(event: React.ChangeEvent, setRowsPerPage: React.Dispatch<React.SetStateAction<number>>): void {
+  // console.log(event);
+  // console.log(event.value == undefined ? 5 : event.target.value);
+  // setRowsPerPage(event.value === undefined ? 5 : event.value);
 }

@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 export default function CircularWithValueLabel(
   props: CircularProgressProps & { type: string; value: number; total: number }
 ) {
-  const percentageProgress = Math.floor((props.value / props.total) * 100);
+  const percentageProgress = props.total !== 0 ? Math.floor((props.value / props.total) * 100) : 0;
   const barThickness = 5;
   const barSize = 110;
   const textColour = '#383D54';
