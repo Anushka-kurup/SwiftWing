@@ -16,6 +16,8 @@ import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { logger } from '@/lib/default-logger';
 import { useUser } from '@/hooks/use-user';
+import { UserContext, UserContextValue } from '@/contexts/user-context';
+import { useContext } from 'react';
 
 export interface UserPopoverProps {
   anchorEl: Element | null;
@@ -48,6 +50,9 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
     }
   }, [checkSession, router]);
 
+  const userContext = useContext(UserContext);
+  const { user, error, isLoading } = userContext as UserContextValue;
+
   return (
     <Popover
       anchorEl={anchorEl}
@@ -57,9 +62,9 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       slotProps={{ paper: { sx: { width: '240px' } } }}
     >
       <Box sx={{ p: '16px 20px ' }}>
-        <Typography variant="subtitle1">Sofia Rivers</Typography>
+        <Typography variant="subtitle1">{user?.name}</Typography>
         <Typography color="text.secondary" variant="body2">
-          sofia.rivers@devias.io
+          {user?.email}
         </Typography>
       </Box>
       <Divider />

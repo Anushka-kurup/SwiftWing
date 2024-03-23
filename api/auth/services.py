@@ -30,20 +30,30 @@ class AuthService:
                 hashed_password = hashlib.sha256(user.password.encode("utf-8")).hexdigest()
                 
                 if hashed_password == user_data.get("password").get("S") and user.role == user_data.get("role").get("S"):
-                    access_token = Authorize.create_access_token(subject=user.email, user_claims={"role": user_data.get("role").get("S")})
+                    access_token = Authorize.create_access_token(
+                        subject=user.email,
+                        user_claims={
+                            "role": user_data.get("role").get("S"),
+                            "first_name": user_data.get("first_name").get("S"),
+                            "last_name": user_data.get("last_name").get("S"),
+                            "user_id": user_data.get("user_id").get("S")
+                        }
+                    )
                     return {"access_token": access_token}
         except Exception as e:
             print(f"Error during login: {e}")
         return None
 
-    
     @staticmethod
     def get_current_user(Authorize: AuthJWT = Depends()):
         Authorize.jwt_required()
         raw_jwt = Authorize.get_raw_jwt()
         role = raw_jwt.get("role")
         current_user = raw_jwt.get("sub")
-        return {"user": current_user, "role": role}
+        first_name = raw_jwt.get("first_name")
+        last_name = raw_jwt.get("last_name")
+        user_id = raw_jwt.get("user_id")
+        return {"user": current_user, "role": role, "first_name": first_name, "last_name": last_name, "user_id": user_id}
 
     def verify_role(self, role: str, Authorize: AuthJWT = Depends()):
 

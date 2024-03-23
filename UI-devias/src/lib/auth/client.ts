@@ -8,14 +8,6 @@ function generateToken(): string {
   return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-const user = {
-  id: 'USR-000',
-  avatar: '/assets/avatar.png',
-  firstName: 'Sofia',
-  lastName: 'Rivers',
-  email: 'sofia@devias.io',
-} satisfies User;
-
 export interface SignUpParams {
   firstName: string;
   lastName: string;
@@ -55,19 +47,32 @@ class AuthClient {
 
   async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
     const { email, password, role } = params;
-
     // Make API request
-
-    // We do not handle the API, so we'll check if the credentials match with the hardcoded ones.
-    if (email !== 'sofia@devias.io' || password !== 'Secret1') {
-      return { error: 'Invalid credentials' };
+    try {
+      const response = await fetch('http://localhost:5000/auth/login',
+      {method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+      },
+      body: JSON.stringify({
+        "email": email,
+        "password": password,
+        "role": role
+      })});
+      const data = await response.json();
+      console.log(data);
+      if (data.detail == "Authentication failed") {
+        return { error: 'Invalid credentials'}
+      }
+      const token = data.access_token;
+      localStorage.setItem('custom-auth-token', token);
+      return {};
+      } catch (error) {
+        return { error: 'Server down. try again later' }
+      }
     }
-
-    const token = generateToken();
-    localStorage.setItem('custom-auth-token', token);
-
-    return {};
-  }
 
   async resetPassword(_: ResetPasswordParams): Promise<{ error?: string }> {
     return { error: 'Password reset not implemented' };
@@ -78,21 +83,40 @@ class AuthClient {
   }
 
   async getUser(): Promise<{ data?: User | null; error?: string }> {
-    // Make API request
-
     // We do not handle the API, so just check if we have a token in localStorage.
     const token = localStorage.getItem('custom-auth-token');
-
     if (!token) {
       return { data: null };
     }
+    // Make API request
+    try {
+      const response: Response = await fetch('http://localhost:5000/auth/user',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+          'Authorization': `Bearer ${token}`
+        },
+      })
+      const data = await response.json();
+      console.log(data);
+      const user_provided = {
+        id: data.user_id,
+        email: data.user,
+        role: data.role,
+        name: data.first_name + ' ' + data.last_name
+      } satisfies User;
+      return {data: user_provided};
 
-    return { data: user };
+      } catch (error) {
+        return { data: null }
+      }
   }
 
   async signOut(): Promise<{ error?: string }> {
     localStorage.removeItem('custom-auth-token');
-
     return {};
   }
 }

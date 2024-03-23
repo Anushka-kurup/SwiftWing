@@ -21,15 +21,17 @@ import { z as zod } from 'zod';
 import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
+import { Select, MenuItem } from '@mui/material';
 
 const schema = zod.object({
   email: zod.string().min(1, { message: 'Email is required' }).email(),
   password: zod.string().min(1, { message: 'Password is required' }),
+  role: zod.string().min(1, { message: 'Role is required' }),
 });
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: 'sofia@devias.io', password: 'Secret1' } satisfies Values;
+const defaultValues = { email: 'admin123@gmail.com', password: 'admin123', role:'admin'} satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
@@ -82,6 +84,21 @@ export function SignInForm(): React.JSX.Element {
       </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
+        <Controller
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.role)}>
+              <InputLabel>Role</InputLabel>
+              <Select {...field} label="Role" >
+                <MenuItem value="Driver">Driver</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="client">Client</MenuItem>
+              </Select>
+              {errors.role ? <FormHelperText>{errors.role.message}</FormHelperText> : null}
+              </FormControl>
+          )}
+          />
           <Controller
             control={control}
             name="email"
@@ -116,38 +133,39 @@ export function SignInForm(): React.JSX.Element {
                         fontSize="var(--icon-fontSize-md)"
                         onClick={(): void => {
                           setShowPassword(true);
+                        setShowPassword(true);
                         }}
                       />
-                    )
-                  }
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
+                      )
+                    }
+                    label="Password"
+                    type={showPassword ? 'text' : 'password'}
+                    />
+                    {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
+                  </FormControl>
+                  )}
                 />
-                {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
-              </FormControl>
-            )}
-          />
-          <div>
-            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
-              Forgot password?
-            </Link>
-          </div>
-          {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
-          <Button disabled={isPending} type="submit" variant="contained">
-            Sign in
-          </Button>
-        </Stack>
-      </form>
-      <Alert color="warning">
-        Use{' '}
-        <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          sofia@devias.io
-        </Typography>{' '}
-        with password{' '}
-        <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          Secret1
-        </Typography>
-      </Alert>
-    </Stack>
-  );
+                <div>
+                  <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
+                  Forgot password?
+                  </Link>
+                </div>
+                {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
+                <Button disabled={isPending} type="submit" variant="contained">
+                  Sign in
+                </Button>
+                </Stack>
+              </form>
+              <Alert color="warning">
+                Use{' '}
+                <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
+                admin123@gmail.com
+                </Typography>{' '}
+                with password{' '}
+                <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
+                admin123
+                </Typography>
+              </Alert>
+              </Stack>
+            );
 }
