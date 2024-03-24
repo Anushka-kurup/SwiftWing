@@ -49,6 +49,7 @@ export default function Page(): React.JSX.Element {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD');
     const deliveryData: Delivery[] = await getDeliveriesByDate(formattedDate, formattedDate);
     setDeliveries(deliveryData);
+    countDeliveriesByStatus(deliveryData);
   };
 
   function countDeliveriesByStatus(deliveryList: Delivery[]): void {
@@ -90,8 +91,7 @@ export default function Page(): React.JSX.Element {
   React.useEffect(() => {
     void fetchDrivers();
     void fetchDeliveriesAndOrderByDate(date);
-    countDeliveriesByStatus(deliveries);
-  }, [date, deliveries]);
+  }, [date]);
 
   return (
     <Stack spacing={3}>

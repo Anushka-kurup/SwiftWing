@@ -58,10 +58,10 @@ export function StatusBoard({
   const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
 
-  // const onClickTableRow = (delivery: Delivery) => {
-  //   setDeliveryModalInfo(delivery);
-  //   onClickDeliveryInfo();
-  // };
+  const onClickTableRow = (delivery: Delivery) => {
+    setDeliveryModalInfo(delivery);
+    onClickDeliveryInfo();
+  };
 
   return (
     <Card>
@@ -110,12 +110,48 @@ export function StatusBoard({
                         }}
                       />
                     </TableCell>
-                    <TableCell onClick={onClickDeliveryInfo}>Profile Picture</TableCell>
-                    <TableCell onClick={onClickDeliveryInfo}>{deliveryDate}</TableCell>
-                    <TableCell onClick={onClickDeliveryInfo}>{row.shipping_id}</TableCell>
-                    <TableCell onClick={onClickDeliveryInfo}>{row.recipient.recipeint_name.S}</TableCell>
-                    <TableCell onClick={onClickDeliveryInfo}>{row.destination}</TableCell>
-                    <TableCell onClick={onClickDeliveryInfo}>{row.shipping_status}</TableCell>
+                    <TableCell
+                      onClick={() => {
+                        onClickTableRow(row);
+                      }}
+                    >
+                      Profile Picture
+                    </TableCell>
+                    <TableCell
+                      onClick={() => {
+                        onClickTableRow(row);
+                      }}
+                    >
+                      {deliveryDate}
+                    </TableCell>
+                    <TableCell
+                      onClick={() => {
+                        onClickTableRow(row);
+                      }}
+                    >
+                      {row.shipping_id}
+                    </TableCell>
+                    <TableCell
+                      onClick={() => {
+                        onClickTableRow(row);
+                      }}
+                    >
+                      {row.recipient.recipeint_name.S}
+                    </TableCell>
+                    <TableCell
+                      onClick={() => {
+                        onClickTableRow(row);
+                      }}
+                    >
+                      {row.destination}
+                    </TableCell>
+                    <TableCell
+                      onClick={() => {
+                        onClickTableRow(row);
+                      }}
+                    >
+                      {row.shipping_status}
+                    </TableCell>
                   </TableRow>
                 );
               })
