@@ -130,7 +130,7 @@ export function Orders({ orders = [], sx , type, drivers, assignDrivers}: Latest
           <TableHead>
             <TableRow>
               {type === 'Optimized' && <TableCell>Order</TableCell>}
-              <TableCell>Date</TableCell>
+              <TableCell>Date Created</TableCell>
               <TableCell>Delivery Number</TableCell>
               <TableCell>Client</TableCell>
               <TableCell>Delivery Address</TableCell>
