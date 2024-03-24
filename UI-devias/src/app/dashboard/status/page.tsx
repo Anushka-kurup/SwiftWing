@@ -36,7 +36,7 @@ export default function Page(): React.JSX.Element {
 
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
-  const onClickDeliveryInfo = (event: React.MouseEventHandler<Element>) => {
+  const onClickDeliveryInfo = (): void => {
     setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
   };
 
@@ -104,6 +104,7 @@ export default function Page(): React.JSX.Element {
         }}
       >
         <DeliveryInfoModal
+          deliveryModalInfo={deliveryModalInfo}
           deliveryInfoModalOpen={deliveryInfoModalOpen}
           onClickDeliveryInfo={onClickDeliveryInfo}
         />

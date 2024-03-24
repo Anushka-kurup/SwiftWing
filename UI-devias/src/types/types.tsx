@@ -12,7 +12,7 @@ export interface Delivery {
   sender_id: string;
   shipping_id: string;
   shipping_status: string;
-  special_handling_instructions: string;
+  special_handling_instruction: string;
   warehouse: string;
 }
 

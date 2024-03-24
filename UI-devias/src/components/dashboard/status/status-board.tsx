@@ -38,13 +38,13 @@ export function StatusBoard({
   onClickDeliveryInfo,
   setDeliveryModalInfo,
 }: StatusBoardProps): React.JSX.Element {
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number): void => {
     if (setPage) {
       setPage(newPage);
     }
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -58,9 +58,11 @@ export function StatusBoard({
   const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
 
-  const onClickTableRow = (delivery: Delivery) => {
-    setDeliveryModalInfo(delivery);
-    onClickDeliveryInfo();
+  const onClickTableRow = (delivery: Delivery): void => {
+    if (setDeliveryModalInfo) {
+      setDeliveryModalInfo(delivery);
+      onClickDeliveryInfo();
+    }
   };
 
   return (
