@@ -25,6 +25,7 @@ interface StatusBoardProps {
   setPage?: React.Dispatch<React.SetStateAction<number>>;
   setRowsPerPage?: React.Dispatch<React.SetStateAction<number>>;
   onClickDeliveryInfo?: React.MouseEventHandler;
+  setDeliveryModalInfo?: React.Dispatch<React.SetStateAction<Delivery | null>>;
 }
 
 export function StatusBoard({
@@ -35,6 +36,7 @@ export function StatusBoard({
   setPage,
   setRowsPerPage,
   onClickDeliveryInfo,
+  setDeliveryModalInfo,
 }: StatusBoardProps): React.JSX.Element {
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     if (setPage) {
@@ -51,11 +53,15 @@ export function StatusBoard({
     return rows.map((delivery) => delivery.shipping_id);
   }, [rows]);
 
+  // Selection table rows
   const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
-
   const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
-  const [selectedRows, setSelectedRows] = React.useState<Delivery[]>([]);
+
+  // const onClickTableRow = (delivery: Delivery) => {
+  //   setDeliveryModalInfo(delivery);
+  //   onClickDeliveryInfo();
+  // };
 
   return (
     <Card>
@@ -91,7 +97,7 @@ export function StatusBoard({
                 const deliveryDate = dayjs(row.delivery_date).format('YYYY-MM-DD');
 
                 return (
-                  <TableRow hover key={row.shipping_id} selected={isSelected} onClick={onClickDeliveryInfo}>
+                  <TableRow hover key={row.shipping_id} selected={isSelected}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isSelected}
@@ -104,12 +110,12 @@ export function StatusBoard({
                         }}
                       />
                     </TableCell>
-                    <TableCell>Profile Picture</TableCell>
-                    <TableCell>{deliveryDate}</TableCell>
-                    <TableCell>{row.shipping_id}</TableCell>
-                    <TableCell>{row.recipient.recipeint_name.S}</TableCell>
-                    <TableCell>{row.destination}</TableCell>
-                    <TableCell>{row.shipping_status}</TableCell>
+                    <TableCell onClick={onClickDeliveryInfo}>Profile Picture</TableCell>
+                    <TableCell onClick={onClickDeliveryInfo}>{deliveryDate}</TableCell>
+                    <TableCell onClick={onClickDeliveryInfo}>{row.shipping_id}</TableCell>
+                    <TableCell onClick={onClickDeliveryInfo}>{row.recipient.recipeint_name.S}</TableCell>
+                    <TableCell onClick={onClickDeliveryInfo}>{row.destination}</TableCell>
+                    <TableCell onClick={onClickDeliveryInfo}>{row.shipping_status}</TableCell>
                   </TableRow>
                 );
               })

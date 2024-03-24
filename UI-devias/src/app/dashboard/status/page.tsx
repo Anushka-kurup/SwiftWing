@@ -10,10 +10,10 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
 import { type Delivery } from '@/types/types';
-import { DeliveryInfoModal } from '@/components/dashboard/status/delivery-info-modal';
 import { getDeliveriesByDate, getDrivers } from '@/components/dashboard/status/api';
 import CircularWithValueLabel from '@/components/dashboard/status/circular-progress-bar';
 import { CompletedDeliveries } from '@/components/dashboard/status/completed-deliveries';
+import { DeliveryInfoModal } from '@/components/dashboard/status/delivery-info-modal';
 import { Drivers } from '@/components/dashboard/status/drivers';
 import { OnHoldDeliveries } from '@/components/dashboard/status/on-hold-deliveries';
 import { ParcelInProgress } from '@/components/dashboard/status/parcel-in-progress';
@@ -31,11 +31,12 @@ export default function Page(): React.JSX.Element {
   const [completedDeliveries, setCompletedDeliveries] = React.useState<number>(0);
   const [failedDeliveries, setFailedDeliveries] = React.useState<number>(0);
   const [onHoldDeliveries, setOnHoldDeliveries] = React.useState<number>(0);
+  const [deliveryModalInfo, setDeliveryModalInfo] = React.useState<Delivery | null>(null);
   const [deliveryInfoModalOpen, setDeliveryInfoModalOpen] = React.useState<boolean>(false);
 
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
-  const onClickDeliveryInfo = (event: React.MouseEventHandler) => {
+  const onClickDeliveryInfo = (event: React.MouseEventHandler<Element>) => {
     setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
   };
 
@@ -89,11 +90,8 @@ export default function Page(): React.JSX.Element {
   React.useEffect(() => {
     void fetchDrivers();
     void fetchDeliveriesAndOrderByDate(date);
-  }, [date, deliveries]);
-
-  React.useEffect(() => {
     countDeliveriesByStatus(deliveries);
-  }, [deliveries]);
+  }, [date, deliveries]);
 
   return (
     <Stack spacing={3}>
@@ -105,7 +103,10 @@ export default function Page(): React.JSX.Element {
           alignItems: 'center',
         }}
       >
-        <DeliveryInfoModal deliveryInfoModalOpen={deliveryInfoModalOpen} onClickDeliveryInfo={onClickDeliveryInfo} />
+        <DeliveryInfoModal
+          deliveryInfoModalOpen={deliveryInfoModalOpen}
+          onClickDeliveryInfo={onClickDeliveryInfo}
+        />
         <Stack>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker', 'DatePicker']}>
@@ -160,9 +161,11 @@ export default function Page(): React.JSX.Element {
           page={page}
           rows={paginatedDeliveries}
           rowsPerPage={rowsPerPage}
-          onClickDeliveryInfo={onClickDeliveryInfo}
           setPage={setPage}
           setRowsPerPage={setRowsPerPage}
+          onClickDeliveryInfo={onClickDeliveryInfo}
+          setDeliveryModalInfo={setDeliveryModalInfo}
+          setDeliveryModalInfo={setDeliveryModalInfo}
         />
       </Stack>
     </Stack>
