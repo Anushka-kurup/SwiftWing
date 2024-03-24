@@ -10,7 +10,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
 import { type Delivery } from '@/types/types';
-import { DeliveryInfoModal } from '@/components/dashboard/common/delivery-info-modal';
+import { DeliveryInfoModal } from '@/components/dashboard/status/delivery-info-modal';
 import { getDeliveriesByDate, getDrivers } from '@/components/dashboard/status/api';
 import CircularWithValueLabel from '@/components/dashboard/status/circular-progress-bar';
 import { CompletedDeliveries } from '@/components/dashboard/status/completed-deliveries';
@@ -31,11 +31,12 @@ export default function Page(): React.JSX.Element {
   const [completedDeliveries, setCompletedDeliveries] = React.useState<number>(0);
   const [failedDeliveries, setFailedDeliveries] = React.useState<number>(0);
   const [onHoldDeliveries, setOnHoldDeliveries] = React.useState<number>(0);
+  const [deliveryInfoModalOpen, setDeliveryInfoModalOpen] = React.useState<boolean>(false);
 
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
-  const onClickDeliveryInfo = (event: React.MouseEvent<HTMLElement>) => {
-    console.log('Delivery Info Clicked');
+  const onClickDeliveryInfo = (event: React.MouseEventHandler) => {
+    setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
   };
 
   const fetchDrivers = async (): unknown[] => {
@@ -104,12 +105,14 @@ export default function Page(): React.JSX.Element {
           alignItems: 'center',
         }}
       >
+        <DeliveryInfoModal deliveryInfoModalOpen={deliveryInfoModalOpen} onClickDeliveryInfo={onClickDeliveryInfo} />
         <Stack>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker', 'DatePicker']}>
               <DatePicker
                 label="Date Select"
                 value={date}
+                format="YYYY-MM-DD"
                 onChange={(newValue) => {
                   setDate(newValue);
                 }}
@@ -131,7 +134,7 @@ export default function Page(): React.JSX.Element {
         </Typography>
         <Grid container spacing={3}>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
-            <Drivers sx={{ height: '100%' }} value={drivers.length} />
+            <Drivers sx={{ height: '100%' }} value={drivers?.length} />
           </Grid>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
             <ParcelInProgress

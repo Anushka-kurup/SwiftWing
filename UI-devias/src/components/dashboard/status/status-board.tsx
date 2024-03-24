@@ -45,7 +45,6 @@ export function StatusBoard({
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-    console.log(rowsPerPage);
   };
 
   const rowIds = React.useMemo(() => {
@@ -56,13 +55,14 @@ export function StatusBoard({
 
   const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
+  const [selectedRows, setSelectedRows] = React.useState<Delivery[]>([]);
 
   return (
     <Card>
       <Box sx={{ overflowX: 'auto' }}>
         <Table sx={{ minWidth: '800px' }}>
           <TableHead>
-            <TableRow onClick={onClickDeliveryInfo}>
+            <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
                   checked={selectedAll}
@@ -85,33 +85,41 @@ export function StatusBoard({
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => {
-              const isSelected = selected?.has(row.shipping_id);
-              const deliveryDate = dayjs(row.delivery_date).format('YYYY-MM-DD');
+            {rows.length !== 0 ? (
+              rows.map((row) => {
+                const isSelected = selected?.has(row.shipping_id);
+                const deliveryDate = dayjs(row.delivery_date).format('YYYY-MM-DD');
 
-              return (
-                <TableRow hover key={row.shipping_id} selected={isSelected}>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={(event) => {
-                        if (event.target.checked) {
-                          selectOne(row.shipping_id);
-                        } else {
-                          deselectOne(row.shipping_id);
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>Profile Picture</TableCell>
-                  <TableCell>{deliveryDate}</TableCell>
-                  <TableCell>{row.shipping_id}</TableCell>
-                  <TableCell>{row.recipient.recipeint_name.S}</TableCell>
-                  <TableCell>{row.destination}</TableCell>
-                  <TableCell>{row.shipping_status}</TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow hover key={row.shipping_id} selected={isSelected} onClick={onClickDeliveryInfo}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={(event) => {
+                          if (event.target.checked) {
+                            selectOne(row.shipping_id);
+                          } else {
+                            deselectOne(row.shipping_id);
+                          }
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>Profile Picture</TableCell>
+                    <TableCell>{deliveryDate}</TableCell>
+                    <TableCell>{row.shipping_id}</TableCell>
+                    <TableCell>{row.recipient.recipeint_name.S}</TableCell>
+                    <TableCell>{row.destination}</TableCell>
+                    <TableCell>{row.shipping_status}</TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} sx={{ textAlign: 'center' }}>
+                  No Deliveries
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Box>

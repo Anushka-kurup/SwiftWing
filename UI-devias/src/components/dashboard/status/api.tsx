@@ -1,8 +1,8 @@
-import type { Delivery } from '@/components/dashboard/status/status-board';
+import type { Delivery } from '@/types/types';
 
 const api = 'http://localhost:5000';
 
-function createRequestOptions(method: string, body: unknown) {
+function createRequestOptions(method: string, body: unknown): unknown {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -11,14 +11,14 @@ function createRequestOptions(method: string, body: unknown) {
 
   if (body) {
     return {
-      method: method,
-      headers: headers,
+      method,
+      headers,
       body: JSON.stringify(body),
     };
   }
   return {
-    method: method,
-    headers: headers,
+    method,
+    headers,
   };
 }
 
