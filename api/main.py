@@ -11,6 +11,7 @@ from shipping.services import ShippingService
 from order.services import OrderService
 from others.routes import router as optimize_router
 from order_shipping_manager.routes import router as order_shipping_router
+from delivery.routes import router as delivery_router
 from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
@@ -48,5 +49,6 @@ app.include_router(order_router, prefix="/order", tags=["Order Management"])
 app.include_router(shipping_router, prefix="/shipping", tags=["Shipping Management"])
 app.include_router(optimize_router, prefix="/optimize", tags=["Optimize Route"])
 app.include_router(order_shipping_router, prefix="/order_shipping", tags=["Order Shipping Management"])
+app.include_router(delivery_router, prefix="/delivery", tags=["Delivery Management"])
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")
