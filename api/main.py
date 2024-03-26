@@ -22,6 +22,9 @@ region = 'us-east-1'
 # Create a DynamoDB client with the obtained credentials
 dynamodb = boto3.client('dynamodb', region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key)
 
+#Create S3 client
+s3 = boto3.client('s3', region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key)
+
 # Initialize FastAPI app
 app = FastAPI()
 

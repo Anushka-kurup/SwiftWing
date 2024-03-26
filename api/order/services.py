@@ -1,3 +1,4 @@
+import logging
 import boto3
 from .models import Order,DeliveryTimeUpdate,DeliveryTimeStampUpdate
 from typing import List, Optional
@@ -14,9 +15,17 @@ class OrderService:
         access_key = os.environ.get('AWS_ACCESS_KEY_ID')
         secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
         region = 'us-east-1'
-        
+        #DynamoDB
         self.dynamodb = boto3.client('dynamodb', region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key)
         self.TABLE_NAME = 'Orders'
+        #S3
+        self.SURPPORTED_FILE_TYPES = {
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+        }
+        self.s3 = boto3.client('s3', region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key)
+        self.BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+        
 
     def create_order(self, order: Order) -> bool:
         # Code to create order in the database
@@ -388,3 +397,41 @@ class OrderService:
         except Exception as e:
             print(f"Error retrieving orders: {e}")
             return []
+
+    async def upload_to_s3(self, file_payload, file_name: str) -> bool:
+        try:
+            # Check size
+            contents = []
+            size = 0
+            while True:
+                chunk = await file_payload.read(8192)  # read 8192 bytes
+                if not chunk:
+                    break
+                size += len(chunk)
+                contents.append(chunk)
+            if size > 5 * 1024 * 1024:
+                raise ValueError("File size exceeds 5MB")
+            
+            logging.info(f"Uploading file {file_name} to S3 of size {size} bytes")
+            
+            # Check content type
+            file_extension = self.SURPPORTED_FILE_TYPES.get(file_payload.content_type)
+            if file_extension is None:
+                raise ValueError("Unsupported file type")
+            
+            # Upload
+            file_contents = b''.join(contents)
+            self.s3.put_object(Body=file_contents, Bucket=self.BUCKET_NAME, Key=file_name, ContentType=file_payload.content_type)
+            return True
+        except Exception as e:
+            print(f"Error uploading file: {e}")
+            return False
+        
+        
+    async def retrieve_S3_url(self, file_name: str) -> str:
+        try:
+            url = self.s3.generate_presigned_url('get_object', Params={'Bucket': self.BUCKET_NAME, 'Key': file_name}, ExpiresIn=3600)
+            return url
+        except Exception as e:
+            print(f"Error retrieving file: {e}")
+            return None
