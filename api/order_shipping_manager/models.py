@@ -7,7 +7,7 @@ class ShippingInfo(BaseModel):
     sender_id: str
     warehouse: str
     destination: str
-    package_dimension: List[float]
+    package_dimension: Dict[str,Any]
     package_weight: float
     special_handling_instruction: str
     latitude: float
