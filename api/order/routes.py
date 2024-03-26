@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException
 from .models import Order,OrderCreationResponse,DeliveryTimeUpdate,DeliveryTimeStampUpdate
 from .services import OrderService
 from typing import List
 from datetime import datetime
+from fastapi import UploadFile, File, Form
 
 router = APIRouter()
 order_service = OrderService()
@@ -57,3 +58,19 @@ def delete_order(order_id: str):
     if not status:
         raise HTTPException(status_code=404, detail="Order not found")
     return status
+
+@router.post("/upload_to_s3/")
+async def upload_to_s3(file: UploadFile = File(...), user_id: str = Form(None), shipping_id: str = Form(None),date: str = Form(None)):
+    file_name = str(user_id + "$" + shipping_id + "$" + date)
+    status = await order_service.upload_to_s3(file, file_name=file_name)
+    if not status:
+        raise HTTPException(status_code=404, detail="File Upload failed")
+    return {"message": "File Upload successful", "file_name": file_name}
+
+@router.get("/retrieve_S3_url/")
+async def retrieve_S3_url(file_name: str):
+    url = await order_service.retrieve_S3_url(file_name)
+    if url is None:
+        raise HTTPException(status_code=404, detail="File not found")
+    return {"url": url}
+
