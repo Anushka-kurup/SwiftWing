@@ -30,7 +30,7 @@ export interface Order {
   sender_id: string;
   pickup_location: string;
   destination: string;
-  package_dimension: number[];
+  package_dimension: Array<any>; // Fix: Specify the type argument for the Array generic.
   package_weight: number;
   time_constraint: Date;
   special_handling_instruction: string;
@@ -151,20 +151,26 @@ export function Orders({ orders = [], sx , type, drivers, assignDrivers}: Latest
                 'On_Hold': { label: 'On Hold', color: 'primary' },
               };
               const { label, color } = statusMap[order.shipping_status] ?? { color: 'default', label: 'Unknown'};
-              return (
-                <TableRow hover key={order.shipping_id}>
-                  {type === 'Optimized' && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
-                  <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
-                  <TableCell>{order.shipping_id}</TableCell>
-                  <TableCell>{order.sender_id}</TableCell>
-                  <TableCell>{order.destination}</TableCell>
-                  <TableCell>
-                    <Chip color={color} label={label} size="small" />
-                  </TableCell>
-                  <TableCell>{order.package_dimension}</TableCell>
-                  <TableCell>{order.special_handling_instruction}</TableCell>
-                </TableRow>
-              );
+                return (
+                  <TableRow hover key={order.shipping_id}>
+                    {type === 'Optimized' && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
+                    <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
+                    <TableCell>{order.shipping_id}</TableCell>
+                    <TableCell>{order.sender_id}</TableCell>
+                    <TableCell>{order.destination}</TableCell>
+                    <TableCell>
+                      <Chip color={color} label={label} size="small" />
+                    </TableCell>
+                    <TableCell>
+                      {Object.entries(order.package_dimension).map(([key, value]) => (
+                        <div key={key}>
+                          {key}: {value}
+                        </div>
+                      ))}
+                    </TableCell>
+                    <TableCell>{order.special_handling_instruction}</TableCell>
+                  </TableRow>
+                );
             })}
           </TableBody>
         </Table>
