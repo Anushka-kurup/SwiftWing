@@ -26,3 +26,7 @@ def update_delivery( delivery: Delivery):
 @router.put("/add_delivery/", response_model=bool)
 def add_delivery( delivery: Delivery):
     return delivery_service.add_delivery(delivery)
+
+@router.put("/update_delivery_list/", response_model=bool)
+def update_delivery_list( delivery: Delivery):
+    return delivery_service.update_delivery_list(delivery)

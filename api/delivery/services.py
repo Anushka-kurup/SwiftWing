@@ -165,3 +165,41 @@ class DeliveryService:
         except Exception as e:
             print(f"Error updating order: {e}")
             return False
+
+    def update_delivery_list(self, delivery: Delivery) -> bool:
+        # Code to update order in the database
+        try:
+            delivery_date = str(date.fromisoformat(str(delivery.delivery_date)))
+            delivery_check = self.get_delivery(delivery_date)
+
+            if not delivery_check:
+                raise HTTPException(status_code=404, detail="Order not found")
+
+            delivery_map = delivery_check.delivery_map
+            new_delivery_map = delivery.delivery_map
+
+            for user_id, delivery_list in new_delivery_map.items():
+                delivery_map[user_id] = delivery_list
+
+            delivery_map = {
+                key: {'L': [{'S': item} for item in value]}  
+                for key, value in delivery_map.items()
+            }
+
+            update_expression = "SET delivery_map = :delivery_map" 
+
+            expression_attribute_values = {
+                ':delivery_map': {'M': delivery_map},
+                }
+
+            key = {'delivery_date': {'S': delivery_date}}
+
+            self.dynamodb.update_item(Key=key,
+                TableName=self.TABLE_NAME,
+                UpdateExpression=update_expression,
+                ExpressionAttributeValues=expression_attribute_values
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating delivery: {e}")
+            return False
