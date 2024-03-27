@@ -38,7 +38,7 @@ export async function getDrivers(): Promise<unknown> {
 // get orders by date
 export async function getOrdersByDate(startDate: string, endDate: string): Promise<unknown> {
   const requestOptions = createRequestOptions('GET', null);
-  const route = `${api}/order/get_all_order_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
+  const route = `${api}/order/get_order_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
     const response = await fetch(route, requestOptions);
     const result: unknown = await response.json();
@@ -61,4 +61,24 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
     console.error('Error get deliveries:', error);
   }
   return [];
+}
+
+// // edit order info
+export async function editOrderInfo(delivery: Delivery): Promise<boolean> {
+  const newDelivery = { ...delivery, order_id: delivery.shipping_id };
+  delete newDelivery?.shipping_id;
+  delete newDelivery?.driver_id;
+  delete newDelivery?.shipping_status;
+
+  const requestOptions = createRequestOptions('PUT', newDelivery);
+  const route = `${api}/order/update_order`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    console.log(newDelivery);
+    return result as boolean;
+  } catch (error) {
+    console.error('Error edit delivery:', error);
+  }
 }

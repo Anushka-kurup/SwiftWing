@@ -138,7 +138,7 @@ export function StatusBoard({
                         onClickTableRow(row);
                       }}
                     >
-                      {row.recipient.recipeint_name.S}
+                      {row.recipient.recipeint_name}
                     </TableCell>
                     <TableCell
                       onClick={() => {

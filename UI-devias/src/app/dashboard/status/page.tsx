@@ -45,7 +45,7 @@ export default function Page(): React.JSX.Element {
     setDrivers(data['drivers']);
   };
 
-  const fetchDeliveriesAndOrderByDate = async (unformattedDate: Dayjs): Promise<void> => {
+  const fetchDeliveriesByDate = async (unformattedDate: Dayjs): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD');
     const deliveryData: Delivery[] = await getDeliveriesByDate(formattedDate, formattedDate);
     setDeliveries(deliveryData);
@@ -90,7 +90,7 @@ export default function Page(): React.JSX.Element {
 
   React.useEffect(() => {
     void fetchDrivers();
-    void fetchDeliveriesAndOrderByDate(date);
+    void fetchDeliveriesByDate(date);
   }, [date]);
 
   return (
@@ -107,6 +107,8 @@ export default function Page(): React.JSX.Element {
           deliveryModalInfo={deliveryModalInfo}
           deliveryInfoModalOpen={deliveryInfoModalOpen}
           onClickDeliveryInfo={onClickDeliveryInfo}
+          fetchDeliveriesByDate={fetchDeliveriesByDate}
+          date={date}
         />
         <Stack>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -165,7 +167,6 @@ export default function Page(): React.JSX.Element {
           setPage={setPage}
           setRowsPerPage={setRowsPerPage}
           onClickDeliveryInfo={onClickDeliveryInfo}
-          setDeliveryModalInfo={setDeliveryModalInfo}
           setDeliveryModalInfo={setDeliveryModalInfo}
         />
       </Stack>
