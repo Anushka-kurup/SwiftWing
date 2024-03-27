@@ -74,7 +74,7 @@ class OrderService:
             package_map = {key: {'S': value} for key, value in order.package_dimension.items()}
 
             update_expression = "SET warehouse = :warehouse, destination = :destination, " \
-                "package_dimension = :package_map, special_handling_instruction = :special_handling_instruction, " \
+                "package_dimension = :package_dimension, special_handling_instruction = :special_handling_instruction, " \
                 "package_weight = :package_weight, latitude = :latitude, longitude = :longitude, " \
                 "recipient = :recipient, created_date = :created_date" 
 
