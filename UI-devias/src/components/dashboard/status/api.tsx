@@ -63,7 +63,7 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
   return [];
 }
 
-// // edit order info
+// edit order info
 export async function editOrderInfo(delivery: Delivery): Promise<boolean> {
   const newDelivery = { ...delivery, order_id: delivery.shipping_id };
   delete newDelivery?.shipping_id;
@@ -81,4 +81,23 @@ export async function editOrderInfo(delivery: Delivery): Promise<boolean> {
   } catch (error) {
     console.error('Error edit delivery:', error);
   }
+  return false;
+}
+
+// edit order's delivery date
+export async function editOrderDeliveryDate(delivery: Delivery): Promise<boolean> {
+  const requestOptions = createRequestOptions('PUT', {
+    order_id: delivery.shipping_id,
+    delivery_date: delivery.delivery_date,
+  });
+  const route = `${api}/order/update_delivery_date`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error edit delivery date:', error);
+  }
+  return false;
 }

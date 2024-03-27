@@ -10,7 +10,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 
 import { type Delivery } from '@/types/types';
-import { editOrderInfo } from '@/components/dashboard/status/api';
+import { editOrderDeliveryDate, editOrderInfo } from '@/components/dashboard/status/api';
 
 export function DeliveryInfoModal({
   deliveryModalInfo,
@@ -66,7 +66,7 @@ export function DeliveryInfoModal({
   const submitDeliveryInfo = async (deliveryInfo: Delivery | null): Promise<void> => {
     if (deliveryInfo) {
       setSubmitLoading(true);
-      await editOrderInfo(deliveryInfo);
+      void ((await editOrderInfo(deliveryInfo)) && editOrderDeliveryDate(deliveryInfo));
       fetchDeliveriesByDate(date);
       setSubmitLoading(false);
     }
