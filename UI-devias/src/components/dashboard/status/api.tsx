@@ -1,4 +1,4 @@
-import type { Delivery } from '@/types/types';
+import type { Delivery, Driver } from '@/types/types';
 
 const api = 'http://localhost:5000';
 
@@ -23,7 +23,7 @@ function createRequestOptions(method: string, body: unknown): unknown {
 }
 
 // get all drivers - may wanna change this to get all drivers that are assigned to delivery
-export async function getDrivers(): Promise<unknown> {
+export async function getDrivers(): Promise<unknown[]> {
   const requestOptions = createRequestOptions('GET', null);
   try {
     const response = await fetch(api + '/auth/get_all_drivers', requestOptions);

@@ -14,13 +14,13 @@ export default function CircularWithValueLabel(
   let mainColour = 'blue';
   let backgroundColour = 'lightgrey';
 
-  if (props.type.toLowerCase() === 'received') {
+  if (props.type.toLowerCase() === 'awaiting assignment') {
     mainColour = '#8590C8';
     backgroundColour = '#C2CAF2';
   } else if (props.type.toLowerCase() === 'in progress') {
     mainColour = '#FEAE36';
     backgroundColour = '#FFCE86';
-  } else if (props.type.toLowerCase() === 'completed') {
+  } else if (props.type.toLowerCase() === 'delivered') {
     mainColour = '#5DDB6A';
     backgroundColour = '#CEFFD3';
   } else if (props.type.toLowerCase() === 'failed') {
@@ -64,6 +64,7 @@ export default function CircularWithValueLabel(
           width: 'fit-content',
           minWidth: '80px',
           maxWidth: '120px',
+          height: '35px',
           padding: '0px 4px',
         }}
       >
@@ -73,6 +74,10 @@ export default function CircularWithValueLabel(
             color: 'white',
             fontSize: '12px',
             padding: '4px',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           {props.type.toUpperCase()}

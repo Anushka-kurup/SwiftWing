@@ -9,10 +9,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
-import { type Delivery } from '@/types/types';
+import type { Delivery, Driver } from '@/types/types';
 import { getDeliveriesByDate, getDrivers } from '@/components/dashboard/status/api';
 import CircularWithValueLabel from '@/components/dashboard/status/circular-progress-bar';
-import { CompletedDeliveries } from '@/components/dashboard/status/completed-deliveries';
+import { DeliveredDeliveries } from '@/components/dashboard/status/delivered-deliveries';
 import { DeliveryInfoModal } from '@/components/dashboard/status/delivery-info-modal';
 import { Drivers } from '@/components/dashboard/status/drivers';
 import { OnHoldDeliveries } from '@/components/dashboard/status/on-hold-deliveries';
@@ -26,9 +26,9 @@ export default function Page(): React.JSX.Element {
   const [drivers, setDrivers] = React.useState<any[]>([]);
   const [deliveries, setDeliveries] = React.useState<Delivery[]>([]);
 
-  const [receivedDeliveries, setReceivedDeliveries] = React.useState<number>(0);
+  const [awaitingAssignmentDeliveries, setAwaitingAssignmentDeliveries] = React.useState<number>(0);
   const [inProgressDeliveries, setInProgressDeliveries] = React.useState<number>(0);
-  const [completedDeliveries, setCompletedDeliveries] = React.useState<number>(0);
+  const [deliveredDeliveries, setDeliveredDeliveries] = React.useState<number>(0);
   const [failedDeliveries, setFailedDeliveries] = React.useState<number>(0);
   const [onHoldDeliveries, setOnHoldDeliveries] = React.useState<number>(0);
   const [deliveryModalInfo, setDeliveryModalInfo] = React.useState<Delivery | null>(null);
@@ -40,52 +40,53 @@ export default function Page(): React.JSX.Element {
     setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
   };
 
-  const fetchDrivers = async (): unknown[] => {
-    const data: any[] = await getDrivers();
+  const fetchDrivers = async (): Promise<void> => {
+    const data: Driver[] = await getDrivers();
     setDrivers(data['drivers']);
   };
 
-  const fetchDeliveriesByDate = async (unformattedDate: Dayjs): Promise<void> => {
-    const formattedDate = unformattedDate?.format('YYYY-MM-DD');
+  const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {
+    const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
     const deliveryData: Delivery[] = await getDeliveriesByDate(formattedDate, formattedDate);
     setDeliveries(deliveryData);
     countDeliveriesByStatus(deliveryData);
   };
 
   function countDeliveriesByStatus(deliveryList: Delivery[]): void {
-    let received = 0;
+    let awaitingAssignment = 0;
     let inProgress = 0;
-    let completed = 0;
+    let delivered = 0;
     let failed = 0;
     let onHold = 0;
 
     deliveryList.forEach((delivery) => {
       switch (delivery.shipping_status) {
-        case 'Received':
-          received += 1;
+        case 'Awaiting Assignment':
+          awaitingAssignment += 1;
           break;
-        case 'In Progress':
+        case 'In_Progress':
           inProgress += 1;
           break;
-        case 'Completed':
-          completed += 1;
+        case 'Delivered':
+          delivered += 1;
+          break;
+        case 'On_Hold':
+          onHold += 1;
           break;
         case 'Failed':
           failed += 1;
-          break;
-        case 'Awaiting Assignment':
-          onHold += 1;
           break;
         default:
           break;
       }
     });
 
-    setReceivedDeliveries(received);
+    setAwaitingAssignmentDeliveries(awaitingAssignment);
     setInProgressDeliveries(inProgress);
-    setCompletedDeliveries(completed);
+    setDeliveredDeliveries(delivered);
     setFailedDeliveries(failed);
     setOnHoldDeliveries(onHold);
+    console.log(onHold);
   }
 
   React.useEffect(() => {
@@ -125,16 +126,20 @@ export default function Page(): React.JSX.Element {
           </LocalizationProvider>
         </Stack>
         <Stack direction="row" spacing={3}>
-          <CircularWithValueLabel type="Received" value={receivedDeliveries} total={deliveries.length} />
-          <CircularWithValueLabel type="in progress" value={inProgressDeliveries} total={deliveries.length} />
-          <CircularWithValueLabel type="completed" value={completedDeliveries} total={deliveries.length} />
           <CircularWithValueLabel type="failed" value={failedDeliveries} total={deliveries.length} />
           <CircularWithValueLabel type="on hold" value={onHoldDeliveries} total={deliveries.length} />
+          <CircularWithValueLabel
+            type="awaiting assignment"
+            value={awaitingAssignmentDeliveries}
+            total={deliveries.length}
+          />
+          <CircularWithValueLabel type="in progress" value={inProgressDeliveries} total={deliveries.length} />
+          <CircularWithValueLabel type="delivered" value={deliveredDeliveries} total={deliveries.length} />
         </Stack>
       </Stack>
       <Stack>
         <Typography marginLeft={3} marginBottom={1} fontWeight={570}>
-          Today's Statistics
+          {date?.isSame(dayjs(), 'day') ? 'Today' : (date as dayjs.Dayjs)?.format('YYYY-MM-DD')}'s Statistics
         </Typography>
         <Grid container spacing={3}>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
@@ -148,7 +153,7 @@ export default function Page(): React.JSX.Element {
             />
           </Grid>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
-            <CompletedDeliveries sx={{ height: '100%' }} value={completedDeliveries} />
+            <DeliveredDeliveries sx={{ height: '100%' }} value={deliveredDeliveries} />
           </Grid>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
             <OnHoldDeliveries sx={{ height: '100%' }} value={onHoldDeliveries} />

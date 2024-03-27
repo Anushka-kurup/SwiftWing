@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import { Stack } from '@mui/system';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 
 import { type Delivery } from '@/types/types';
 import { editOrderDeliveryDate, editOrderInfo } from '@/components/dashboard/status/api';
@@ -22,8 +22,8 @@ export function DeliveryInfoModal({
   deliveryModalInfo: Delivery | null;
   deliveryInfoModalOpen: boolean;
   onClickDeliveryInfo: React.MouseEventHandler;
-  fetchDeliveriesByDate: (date: Date) => void;
-  date: Date;
+  fetchDeliveriesByDate: (unformattedDate: Dayjs) => Promise<void>;
+  date: Dayjs | null;
 }): React.JSX.Element {
   const [copiedDeliveryInfo, setCopiedDeliveryInfo] = React.useState<Delivery | null>();
   const [submitLoading, setSubmitLoading] = React.useState<boolean>(false);
