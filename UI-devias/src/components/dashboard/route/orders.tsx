@@ -16,9 +16,10 @@ import { CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Se
 import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
 import { any } from 'zod';
 import CheckIcon from '@mui/icons-material/Check';
+import { set } from 'react-hook-form';
 
 const statusMap = {
-  Received: { label: 'Received', color: 'info' },
+  "Awaiting Assignment": { label: 'Received', color: 'info' },
   In_Progress: { label: 'In Progress', color: 'warning' },
   Delivered: { label: 'Delivered', color: 'success' },
   Failed: { label: 'Failed', color: 'error' },
@@ -39,6 +40,7 @@ export interface Order {
   createdAt: Date;
   shipping_status: 'Awaiting Assignment' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';
   customer: string;
+  driver: string;
 }
 
 export interface LatestOrdersProps {
@@ -47,40 +49,71 @@ export interface LatestOrdersProps {
   type?: string;
   drivers: Array<any>;
   assignDrivers: any;
+  setRoute: any;
+  route: any;
+  setIsLoading?: any;
 }
 
-export function Orders({ orders = [], sx , type, drivers, assignDrivers}: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRoute, route, setIsLoading}: LatestOrdersProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(true);
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const [driver, setDriver] = React.useState("");
-
   const handleChange = (event: SelectChangeEvent) => {
-    setDriver(event.target.value);
+    const driver = event.target.value;
+    var selectedDriver = ''
+    if (driver === "unassigned") {
+      selectedDriver = "00-unassigned";
+    }
+    else{
+      selectedDriver = drivers.find((driver_info: any) => driver_info.name === driver).user_id;
+    }
+    const prevValue = orders[0].driver;
+
+    if (prevValue === "unassigned") {
+      setRoute((route: any) => {
+        let newRoute = { ...route };
+        if (!newRoute[selectedDriver]) {
+          newRoute[selectedDriver] = newRoute["00-unassigned"];
+        }
+        else{
+            for (let i = 0; i < newRoute["00-unassigned"].length; i++) {
+            const item = newRoute["00-unassigned"][i];
+            if (!newRoute[selectedDriver].includes(item)) {
+              newRoute[selectedDriver].push(item);
+            }
+          }
+        }
+        delete newRoute["00-unassigned"];
+        return newRoute;
+      });
+    }
+    else{
+      const prevDriver = drivers.find((driver_info: any) => driver_info.name === prevValue).user_id;
+      setRoute((route: any) => {
+      let newRoute = { ...route };
+      if (!newRoute[selectedDriver]) {
+        newRoute[selectedDriver] = newRoute[prevDriver];
+      }
+      else{
+        for (let i = 0; i < newRoute[prevDriver].length; i++) {
+        const item = newRoute[prevDriver][i];
+        if (!newRoute[selectedDriver].includes(item)) {
+          newRoute[selectedDriver].push(item);
+        }
+      }
+    }
+      delete newRoute[prevDriver];
+      return newRoute;
+    });
+    }
     setIsButtonCompleted(false);
   };
   
   const [isButtonRunning, setIsButtonRunning] = React.useState(false);
   const [isButtonCompleted, setIsButtonCompleted] = React.useState(false);
-
-  const handleAssignDriver = async () => {
-    setIsButtonRunning(true);
-    try {
-      const selectedDriver = drivers.find((driver_info: any) => driver_info.name === driver);
-      if (selectedDriver) {
-        const driverKey = selectedDriver.user_id;
-        await assignDrivers(orders[0].shipping_id, driverKey);
-        setIsButtonCompleted(true);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsButtonRunning(false);
-    }
-  };
 
   return (
     <Card sx={{
@@ -96,86 +129,72 @@ export function Orders({ orders = [], sx , type, drivers, assignDrivers}: Latest
           <InputLabel sx={{ color: "var(--mui-palette-neutral-400)" }}>Driver</InputLabel>
           <Select
             id="simple_select"
-            value={driver}
+            value={orders[0].driver}
             label="name"
             onChange={handleChange}
           >
+            <MenuItem value="unassigned">Unassigned</MenuItem>
             {drivers.map((driver) => (
               <MenuItem key={driver.user_id} value={driver.name}>{driver.name}</MenuItem>
             ))}
           </Select>
         </FormControl>
-            <Button
-              style={{ margin: "20px", float: 'right' }}
-              onClick={handleAssignDriver}
-              variant="contained"
-              color="secondary"
-              disabled={isButtonRunning || isButtonCompleted}
-            >
-              {isButtonRunning ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : isButtonCompleted ? (
-                <CheckIcon />
-              ) : (
-                "Confirm Driver"
-              )}
-            </Button>
       </Box>
       <CaretUpDownIcon onClick={handleDropdownToggle} />
       {isDropdownOpen && (
         <>
           <Divider />
           <Box sx={{ overflowX: 'auto' }}>
-          <Table sx={{ Width: 500 }}>
-          <TableHead>
-            <TableRow>
-              {type === 'Optimized' && <TableCell>Order</TableCell>}
-              <TableCell>Date Created</TableCell>
-              <TableCell>Delivery Number</TableCell>
-              <TableCell>Client</TableCell>
-              <TableCell>Delivery Address</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Package Dimensions</TableCell>
-              <TableCell>Special Handling Instructions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orders.map((order) => {
-              const statusMap: {
-                [key in 'Delivered' | 'Failed' | 'Awaiting Assignment' | 'In_Progress' | 'On_Hold']: { label: string; color: "info" | "warning" | "success" | "error" | "default" | "primary" | "secondary" };
-              } = {
-                'Delivered': { label: 'Delivered', color: 'success' },
-                'Failed': { label: 'Failed', color: 'error' },
-                'Awaiting Assignment': { label: 'Awaiting Assignment', color: 'warning' },
-                'In_Progress': { label: 'In Progress', color: 'info' },
-                'On_Hold': { label: 'On Hold', color: 'primary' },
-              };
-              const { label, color } = statusMap[order.shipping_status] ?? { color: 'default', label: 'Unknown'};
-                return (
-                  <TableRow hover key={order.shipping_id}>
-                    {type === 'Optimized' && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
-                    <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
-                    <TableCell>{order.shipping_id}</TableCell>
-                    <TableCell>{order.sender_id}</TableCell>
-                    <TableCell>{order.destination}</TableCell>
-                    <TableCell>
-                      <Chip color={color} label={label} size="small" />
-                    </TableCell>
-                    <TableCell>
-                      {Object.entries(order.package_dimension).map(([key, value]) => (
-                        <div key={key}>
-                          {key}: {value}
-                        </div>
-                      ))}
-                    </TableCell>
-                    <TableCell>{order.special_handling_instruction}</TableCell>
-                  </TableRow>
-                );
-            })}
-          </TableBody>
-        </Table>
-        </Box>
-        <Divider />
+            <Table sx={{ Width: 500 }}>
+              <TableHead>
+                <TableRow>
+                  {type === 'Optimized' && <TableCell>Order</TableCell>}
+                  <TableCell>Date Created</TableCell>
+                  <TableCell>Delivery Number</TableCell>
+                  <TableCell>Client</TableCell>
+                  <TableCell>Delivery Address</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Package Dimensions</TableCell>
+                  <TableCell>Special Handling Instructions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {orders.map((order) => {
+                  const statusMap: {
+                    [key in 'Delivered' | 'Failed' | 'Awaiting Assignment' | 'In_Progress' | 'On_Hold']: { label: string; color: "info" | "warning" | "success" | "error" | "default" | "primary" | "secondary" };
+                  } = {
+                    'Delivered': { label: 'Delivered', color: 'success' },
+                    'Failed': { label: 'Failed', color: 'error' },
+                    'Awaiting Assignment': { label: 'Awaiting Assignment', color: 'warning' },
+                    'In_Progress': { label: 'In Progress', color: 'info' },
+                    'On_Hold': { label: 'On Hold', color: 'primary' },
+                  };
+                  const { label, color } = statusMap[order.shipping_status] ?? { color: 'default', label: 'Unknown' };
+                  return (
+                    <TableRow hover key={order.shipping_id}>
+                      {type === 'Optimized' && <TableCell>{orders.indexOf(order) + 1}</TableCell>}
+                      <TableCell>{dayjs(order.createdAt).format('MMM D, YYYY')}</TableCell>
+                      <TableCell>{order.shipping_id}</TableCell>
+                      <TableCell>{order.sender_id}</TableCell>
+                      <TableCell>{order.destination}</TableCell>
+                      <TableCell>
+                        <Chip color={color} label={label} size="small" />
+                      </TableCell>
+                      <TableCell>
+                        {Object.entries(order.package_dimension).map(([key, value]) => (
+                          <div key={key}>
+                            {key}: {value}
+                          </div>
+                        ))}
+                      </TableCell>
+                      <TableCell>{order.special_handling_instruction}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Box>
+          <Divider />
         </>
       )}
     </Card>

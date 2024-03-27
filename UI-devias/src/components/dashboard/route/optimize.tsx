@@ -6,8 +6,11 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Orders } from '@/components/dashboard/route/orders';
 
 export interface OptimizeProps {
-    deliveries: Array<any> ;
+    deliveries: Array<any>;
+    deliveryMap: any;
+    route: any;
     sx?: any;
+    setRoute: any;
     setDeliveries: any;
     setDirection: any;
     drivers: Array<any>;
@@ -15,7 +18,7 @@ export interface OptimizeProps {
 }
 
 export function Optimize(props: OptimizeProps): JSX.Element {
-    const optimize = async () => {
+    const optimizer = async () => {
         const optimized_deliveries = Array();
         //for each delivery group
         for (let i = 0; i < props.deliveries.length; i++) {
@@ -66,16 +69,47 @@ export function Optimize(props: OptimizeProps): JSX.Element {
         props.setDeliveries(optimized_deliveries);
     };
 
+    const pushOptimized = async () => {
+        const deliveryDate = props.deliveries[0][0].delivery_date;       
+        //Create payload
+        const payload = {
+            "delivery_date": deliveryDate,
+            "delivery_map":{
+
+            }
+        };
+        await fetch('http://127.0.0.1:5000/optimize/optimizeroute', { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+        },
+        body: JSON.stringify(payload),
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            () => {};
+        });
+    };
     return (
         <Grid container spacing={3}>
             <Grid lg={12} style={{ position: 'sticky' }}>
                 <label >Ready to optimize?</label>
                 <Button
                     style={{ margin: "20px", color: "red" }}
-                    onClick={optimize}
+                    onClick={optimizer}
                     variant="outlined"
                 >
                     Optimize Route
+                </Button>
+                <Button
+                    style={{ margin: "20px", color: "white" }}
+                    onClick={pushOptimized}
+                    variant='contained'
+                    color="success"
+                >
+                    Confirm Routes
                 </Button>
             </Grid>
             <Grid lg={12} md={12} xs={12}>
@@ -90,6 +124,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                         sx={{ marginBottom: '20px' }}
                         drivers={props.drivers}
                         assignDrivers={props.assignDrivers}
+                        setRoute={props.setRoute}
                     />
                 ))}
             </Grid>
