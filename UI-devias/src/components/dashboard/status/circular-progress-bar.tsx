@@ -20,7 +20,7 @@ export default function CircularWithValueLabel(
   } else if (props.type.toLowerCase() === 'in progress') {
     mainColour = '#FEAE36';
     backgroundColour = '#FFCE86';
-  } else if (props.type.toLowerCase() === 'delivered') {
+  } else if (props.type.toLowerCase() === 'completed') {
     mainColour = '#5DDB6A';
     backgroundColour = '#CEFFD3';
   } else if (props.type.toLowerCase() === 'failed') {

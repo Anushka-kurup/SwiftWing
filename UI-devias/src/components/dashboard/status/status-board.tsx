@@ -24,7 +24,7 @@ interface StatusBoardProps {
   rowsPerPage?: number;
   setPage?: React.Dispatch<React.SetStateAction<number>>;
   setRowsPerPage?: React.Dispatch<React.SetStateAction<number>>;
-  onClickDeliveryInfo?: React.MouseEventHandler;
+  onClickModal?: React.MouseEventHandler;
   setDeliveryModalInfo?: React.Dispatch<React.SetStateAction<Delivery | null>>;
 }
 
@@ -35,7 +35,7 @@ export function StatusBoard({
   rowsPerPage = 0,
   setPage,
   setRowsPerPage,
-  onClickDeliveryInfo,
+  onClickModal,
   setDeliveryModalInfo,
 }: StatusBoardProps): React.JSX.Element {
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number): void => {
@@ -61,7 +61,7 @@ export function StatusBoard({
   const onClickTableRow = (delivery: Delivery): void => {
     if (setDeliveryModalInfo) {
       setDeliveryModalInfo(delivery);
-      onClickDeliveryInfo();
+      onClickModal();
     }
   };
 
@@ -70,7 +70,7 @@ export function StatusBoard({
       return '#8590C8';
     } else if (status.toLowerCase() === 'in progress') {
       return '#FEAE36';
-    } else if (status.toLowerCase() === 'delivered') {
+    } else if (status.toLowerCase() === 'completed') {
       return '#5DDB6A';
     } else if (status.toLowerCase() === 'failed') {
       return '#FF7F7F';

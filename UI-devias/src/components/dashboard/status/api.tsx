@@ -1,4 +1,6 @@
-import type { Delivery, Driver } from '@/types/types';
+import dayjs from 'dayjs';
+
+import type { Delivery } from '@/types/types';
 
 const api = 'http://localhost:5000';
 
@@ -76,7 +78,6 @@ export async function editOrderInfo(delivery: Delivery): Promise<boolean> {
   try {
     const response = await fetch(route, requestOptions);
     const result: unknown = await response.json();
-    console.log(newDelivery);
     return result as boolean;
   } catch (error) {
     console.error('Error edit delivery:', error);
@@ -98,6 +99,61 @@ export async function editOrderDeliveryDate(delivery: Delivery): Promise<boolean
     return result as boolean;
   } catch (error) {
     console.error('Error edit delivery date:', error);
+  }
+  return false;
+}
+
+// complete delivery
+export async function completeDelivery(delivery: Delivery): Promise<boolean> {
+  const requestOptions = createRequestOptions('PUT', {
+    order_id: delivery.shipping_id,
+  });
+  const route = `${api}/order_shipping/complete_delivery`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
+  }
+  return false;
+}
+
+// update delivery date
+export async function updateDeliveryDate(delivery: Delivery, date: string): Promise<boolean> {
+  const requestOptions = createRequestOptions('PUT', {
+    order_id: delivery.shipping_id,
+    delivery_date: date,
+  });
+  const route = `${api}/order/update_delivery_date`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
+  }
+  return false;
+}
+
+// upload proof of delivery
+export async function uploadProof(delivery: Delivery, file: File): Promise<boolean> {
+  const requestOptions = createRequestOptions('POST', {
+    file,
+    user_id: delivery.driver_id,
+    shipping_id: delivery.shipping_id,
+    date: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+  });
+  const route = `${api}/order/upload_to_s3`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
   }
   return false;
 }

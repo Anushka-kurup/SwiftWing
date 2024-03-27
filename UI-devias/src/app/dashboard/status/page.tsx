@@ -12,7 +12,7 @@ import dayjs, { type Dayjs } from 'dayjs';
 import type { Delivery, Driver } from '@/types/types';
 import { getDeliveriesByDate, getDrivers } from '@/components/dashboard/status/api';
 import CircularWithValueLabel from '@/components/dashboard/status/circular-progress-bar';
-import { DeliveredDeliveries } from '@/components/dashboard/status/delivered-deliveries';
+import { CompletedDeliveries } from '@/components/dashboard/status/completed-deliveries';
 import { DeliveryInfoModal } from '@/components/dashboard/status/delivery-info-modal';
 import { Drivers } from '@/components/dashboard/status/drivers';
 import { OnHoldDeliveries } from '@/components/dashboard/status/on-hold-deliveries';
@@ -28,7 +28,7 @@ export default function Page(): React.JSX.Element {
 
   const [awaitingAssignmentDeliveries, setAwaitingAssignmentDeliveries] = React.useState<number>(0);
   const [inProgressDeliveries, setInProgressDeliveries] = React.useState<number>(0);
-  const [deliveredDeliveries, setDeliveredDeliveries] = React.useState<number>(0);
+  const [completedDeliveries, setCompletedDeliveries] = React.useState<number>(0);
   const [failedDeliveries, setFailedDeliveries] = React.useState<number>(0);
   const [onHoldDeliveries, setOnHoldDeliveries] = React.useState<number>(0);
   const [deliveryModalInfo, setDeliveryModalInfo] = React.useState<Delivery | null>(null);
@@ -36,7 +36,7 @@ export default function Page(): React.JSX.Element {
 
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
-  const onClickDeliveryInfo = (): void => {
+  const onClickDeliveryInfoModal = (): void => {
     setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
   };
 
@@ -55,7 +55,7 @@ export default function Page(): React.JSX.Element {
   function countDeliveriesByStatus(deliveryList: Delivery[]): void {
     let awaitingAssignment = 0;
     let inProgress = 0;
-    let delivered = 0;
+    let completed = 0;
     let failed = 0;
     let onHold = 0;
 
@@ -67,8 +67,8 @@ export default function Page(): React.JSX.Element {
         case 'In_Progress':
           inProgress += 1;
           break;
-        case 'Delivered':
-          delivered += 1;
+        case 'Completed':
+          completed += 1;
           break;
         case 'On_Hold':
           onHold += 1;
@@ -83,10 +83,9 @@ export default function Page(): React.JSX.Element {
 
     setAwaitingAssignmentDeliveries(awaitingAssignment);
     setInProgressDeliveries(inProgress);
-    setDeliveredDeliveries(delivered);
+    setCompletedDeliveries(completed);
     setFailedDeliveries(failed);
     setOnHoldDeliveries(onHold);
-    console.log(onHold);
   }
 
   React.useEffect(() => {
@@ -96,6 +95,13 @@ export default function Page(): React.JSX.Element {
 
   return (
     <Stack spacing={3}>
+      <DeliveryInfoModal
+        deliveryModalInfo={deliveryModalInfo}
+        deliveryInfoModalOpen={deliveryInfoModalOpen}
+        onClickDeliveryInfoModal={onClickDeliveryInfoModal}
+        fetchDeliveriesByDate={fetchDeliveriesByDate}
+        date={date}
+      />
       <Stack
         direction="row"
         spacing={14}
@@ -104,13 +110,6 @@ export default function Page(): React.JSX.Element {
           alignItems: 'center',
         }}
       >
-        <DeliveryInfoModal
-          deliveryModalInfo={deliveryModalInfo}
-          deliveryInfoModalOpen={deliveryInfoModalOpen}
-          onClickDeliveryInfo={onClickDeliveryInfo}
-          fetchDeliveriesByDate={fetchDeliveriesByDate}
-          date={date}
-        />
         <Stack>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker', 'DatePicker']}>
@@ -134,7 +133,7 @@ export default function Page(): React.JSX.Element {
             total={deliveries.length}
           />
           <CircularWithValueLabel type="in progress" value={inProgressDeliveries} total={deliveries.length} />
-          <CircularWithValueLabel type="delivered" value={deliveredDeliveries} total={deliveries.length} />
+          <CircularWithValueLabel type="completed" value={completedDeliveries} total={deliveries.length} />
         </Stack>
       </Stack>
       <Stack>
@@ -153,7 +152,7 @@ export default function Page(): React.JSX.Element {
             />
           </Grid>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
-            <DeliveredDeliveries sx={{ height: '100%' }} value={deliveredDeliveries} />
+            <CompletedDeliveries sx={{ height: '100%' }} value={completedDeliveries} />
           </Grid>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>
             <OnHoldDeliveries sx={{ height: '100%' }} value={onHoldDeliveries} />
@@ -171,7 +170,7 @@ export default function Page(): React.JSX.Element {
           rowsPerPage={rowsPerPage}
           setPage={setPage}
           setRowsPerPage={setRowsPerPage}
-          onClickDeliveryInfo={onClickDeliveryInfo}
+          onClickModal={onClickDeliveryInfoModal}
           setDeliveryModalInfo={setDeliveryModalInfo}
         />
       </Stack>
