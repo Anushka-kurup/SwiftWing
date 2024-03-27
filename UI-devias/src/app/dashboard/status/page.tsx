@@ -139,7 +139,7 @@ export default function Page(): React.JSX.Element {
       </Stack>
       <Stack>
         <Typography marginLeft={3} marginBottom={1} fontWeight={570}>
-          {date?.isSame(dayjs(), 'day') ? 'Today' : (date as dayjs.Dayjs)?.format('YYYY-MM-DD')}'s Statistics
+          {date?.isSame(dayjs(), 'day') ? "Today's" : date?.format('YYYY-MM-DD')} Statistics
         </Typography>
         <Grid container spacing={3}>
           <Grid lg={3} sm={6} xs={12} maxHeight={160}>

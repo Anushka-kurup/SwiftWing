@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -65,6 +65,21 @@ export function StatusBoard({
     }
   };
 
+  const statusBackgroundColor = (status: string): string => {
+    if (status.toLowerCase() === 'awaiting assignment') {
+      return '#8590C8';
+    } else if (status.toLowerCase() === 'in progress') {
+      return '#FEAE36';
+    } else if (status.toLowerCase() === 'delivered') {
+      return '#5DDB6A';
+    } else if (status.toLowerCase() === 'failed') {
+      return '#FF7F7F';
+    } else if (status.toLowerCase() === 'on hold') {
+      return '#EA4CE4';
+    }
+    return 'white';
+  };
+
   return (
     <Card>
       <Box sx={{ overflowX: 'auto' }}>
@@ -84,7 +99,6 @@ export function StatusBoard({
                   }}
                 />
               </TableCell>
-              <TableCell />
               <TableCell>Date</TableCell>
               <TableCell>Delivery Number</TableCell>
               <TableCell>Client</TableCell>
@@ -111,13 +125,6 @@ export function StatusBoard({
                           }
                         }}
                       />
-                    </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      Profile Picture
                     </TableCell>
                     <TableCell
                       onClick={() => {
@@ -152,7 +159,10 @@ export function StatusBoard({
                         onClickTableRow(row);
                       }}
                     >
-                      {row.shipping_status}
+                      <Chip
+                        sx={{ bgcolor: statusBackgroundColor(row.shipping_status), color: 'white' }}
+                        label={row.shipping_status}
+                      />
                     </TableCell>
                   </TableRow>
                 );
