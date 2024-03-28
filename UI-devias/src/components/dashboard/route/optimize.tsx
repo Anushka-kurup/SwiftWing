@@ -88,7 +88,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
             "delivery_map": outputMap,
         };
         console.log(payload);
-        await fetch('http://127.0.0.1:5000/delivery/update_delivery_list/', { 
+        await fetch('http://127.0.0.1:5000/delivery/update_delivery/', { 
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
