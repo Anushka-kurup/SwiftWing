@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 
 import { type Delivery } from '@/types/types';
 import { useSelection } from '@/hooks/use-selection';
+import { Chip } from '@mui/material';
 
 interface StatusBoardProps {
   count?: number;
@@ -53,6 +54,21 @@ export function StatusBoard({
   const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
   const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
+
+  const statusBackgroundColor = (status: string): string => {
+    if (status.toLowerCase() === 'awaiting assignment') {
+      return '#8590C8';
+    } else if (status.toLowerCase() === 'in progress') {
+      return '#FEAE36';
+    } else if (status.toLowerCase() === 'delivered' || status.toLowerCase() === 'completed') {
+      return '#5DDB6A';
+    } else if (status.toLowerCase() === 'failed') {
+      return '#FF7F7F';
+    } else if (status.toLowerCase() === 'on hold') {
+      return '#EA4CE4';
+    }
+    return 'white';
+  };
 
   return (
     <Card>
@@ -106,7 +122,12 @@ export function StatusBoard({
                     <TableCell>{row.shipping_id}</TableCell>
                     <TableCell>{row.recipient.recipeint_name.S}</TableCell>
                     <TableCell>{row.destination}</TableCell>
-                    <TableCell>{row.shipping_status}</TableCell>
+                    <TableCell>
+                      <Chip
+                        sx={{ bgcolor: statusBackgroundColor(row.shipping_status), color: 'white' }}
+                        label={row.shipping_status}
+                      />
+                    </TableCell>
                   </TableRow>
                 );
               })

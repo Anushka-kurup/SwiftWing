@@ -5,6 +5,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
+import CheckIcon from '@mui/icons-material/Check';
+import { Alert } from '@mui/material';
+
 import { Stack } from '@mui/system';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimeField } from '@mui/x-date-pickers/TimeField';
@@ -39,7 +42,7 @@ export function DeliveryInfoModal({
   sender_id
 }: {
   deliveryInfoModalOpen: boolean;
-  onClickDeliveryInfo: React.MouseEventHandler;
+  onClickDeliveryInfo: () => void;
   sender_id: string
   
 }): React.JSX.Element {
@@ -87,6 +90,20 @@ export function DeliveryInfoModal({
     };
     const result = await createOrderShipping(order);
     console.log(result);
+    if (result){
+      setAddress('');
+      setPostalCode('');
+      setDate(dayjs());
+      setRecipientName('');
+      setPhoneNumber('');
+      setS('');
+      setM('');
+      setL('');
+      setPallet('');
+      setS('');
+      setSpecialInstructions('');
+      onClickDeliveryInfo();
+    }
   };
 
   return (
