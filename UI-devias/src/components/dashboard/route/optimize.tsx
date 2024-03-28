@@ -9,6 +9,8 @@ export interface OptimizeProps {
     deliveries: Array<any>;
     deliveryMap: any;
     route: any;
+    deliveryUser: any;
+    setDeliveryUser: any;
     sx?: any;
     setRoute: any;
     setDeliveries: any;

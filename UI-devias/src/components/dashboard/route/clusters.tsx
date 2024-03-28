@@ -9,8 +9,10 @@ import { ObjectKeys } from 'react-hook-form/dist/types/path/common';
 export interface ClustersProps {
     deliveryMap: any;
     route: any;
+    deliveryUser: any;
+    setDeliveryUser: any;
     sx?: any;
-    setRoutes: any;
+    setRoute: any;
     setDeliveries: any;
     setDirection: any;
     drivers: Array<any>;
@@ -21,71 +23,76 @@ export interface ClustersProps {
 export function Clusters(props: any): JSX.Element {
     //flatten nested list, converting [[{test:string}],[{test:string}]] to [{test:string},{test:string}]
     function flatten(deliveryMap: any) {
-        const return_list = Array();
-        Object.keys(deliveryMap).forEach((key) => {
-            return_list.push(...deliveryMap[key]);
-        });
-        return return_list;
+      return deliveryMap.reduce((acc: string | any[], val: any) => acc.concat(val), []);
     }
 
-    //Cluster function
-    const cluster = async () => {
-        const flattened = flatten(props.deliveryMap);
-        console.log(flattened)
-        const coords = flattened.map((delivery: any) => [delivery.latitude, delivery.longitude]);
-        const coords_id = flattened.map((delivery: any) => delivery.shipping_id);
-        const links = [];
-        for (let i = 0; i < coords.length; i++) {
-            for (let j = 0; j < coords.length; j++) {
-                if (i !== j) {
-                    links.push([i, j]);
-                }
-            }
+    // Cluster function
+  const cluster = async () => {
+    const flattened = flatten(props.deliveryMap);
+    console.log(flattened);
+    const coords = flattened.map((delivery: any) => [delivery.latitude, delivery.longitude]);
+    const coords_id = flattened.map((delivery: any) => delivery.shipping_id);
+    const links = [];
+    for (let i = 0; i < coords.length; i++) {
+      for (let j = 0; j < coords.length; j++) {
+        if (i !== j) {
+          links.push([i, j]);
         }
-        const input = document.getElementById('clusters') as HTMLInputElement;
-        //Create payload
-        const payload = {
-            "coordinates": coords,
-            //"round_trip": false,
-            "coords_names": coords_id,
-            //"pickups_deliveries": links,
-            "num_drivers": parseInt(input.value)
-        };
-
-        console.log(payload);
-
-        //Call API
-        await fetch('http://127.0.0.1:5000/optimize/cluster', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-            },
-            body: JSON.stringify(payload),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('Success:', data);
-                //Set new orders
-                const new_data = [];
-                for (let i = 0; i < data.length; i++) {
-                    const clusterDel = [];
-                    const clust = data[i];
-                    for (let j = 0; j < clust.length; j++) {
-                        const id = clust[j];
-                        const delivery_obj = flattened.find((delivery: any) => delivery.shipping_id === id);
-                        clusterDel.push(delivery_obj);
-                    }
-                    new_data.push(clusterDel);
-                }
-                console.log(new_data);
-                //assign to unassigned route
-                props.setRoutes({ "unassigned": new_data });
-
-            })
+      }
+    }
+    const input = document.getElementById('clusters') as HTMLInputElement;
+    // Create payload
+    const payload = {
+      "coordinates": coords,
+      //"round_trip": false,
+      "coords_names": coords_id,
+      //"pickups_deliveries": links,
+      "num_drivers": parseInt(input.value)
     };
 
+    console.log(payload);
+
+    // Call API
+    await fetch('http://127.0.0.1:5000/optimize/cluster', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+      },
+      body: JSON.stringify(payload),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log('Success:', data);
+      /*
+      data = [
+        [
+            "a7796404-9da0-4feb-861e-70df3ec1511d",
+            "23df9700-edc1-4b54-9848-dd27946f5f8e",
+            "ff37d01a-6040-4bd1-a48d-bf5a8d6e5d5d",
+            "c9e1b151-b5d2-4917-b80a-16aa8ef0184d",
+            "e3eb754e-7a7b-4329-bf15-d0f3f15775e6",
+            "45b72b87-0758-46fe-86de-0ebcc4e20645"
+        ]
+    ]
+      */
+      // Set each data cluster to route
+      props.setRoute(data);
+      // Set each data cluster to deliveryUser
+      props.setDeliveryUser(data.map((cluster: any) => "00-unassigned"));
+      console.log("set?")
+      console.log(props.route);
+      console.log(props.deliveryUser);
+
+
+      //WHY DOES THE SET NOT WORK?
+
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
     //Confirm cluster
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         props.setDirection("optimize");
@@ -93,9 +100,16 @@ export function Clusters(props: any): JSX.Element {
 
     console.log(props.deliveryMap);
 
-    /*
-  deliveryMap = {
-    "alan":[
+    //Assign drivers to deliveries and routes
+  /*
+  deliveryUser = ['Adam', 'Jack', 'Unassigned']
+  route = [
+    ['1', '2'],
+    ['3', '4'],
+    ['5', '6']
+  ]
+  deliveryMap = [
+    [
       {
         "shipping_id": "1",
         "delivery_address": "1234 Main St",
@@ -113,7 +127,7 @@ export function Clusters(props: any): JSX.Element {
         "shipping_status": "In_Progress"
       }
     ],
-    jack: [
+    [
       {
         "shipping_id": "3",
         "delivery_address": "1234 Main St",
@@ -131,7 +145,7 @@ export function Clusters(props: any): JSX.Element {
         "shipping_status": "In_Progress"
       }
     ],
-    unassigned:[
+    [
       {
         "shipping_id": "5",
         "delivery_address": "1234 Main St",
@@ -149,7 +163,7 @@ export function Clusters(props: any): JSX.Element {
         "shipping_status": "In_Progress"
       }
     ]
-  }
+  ]
   */
 
     return (
@@ -174,13 +188,14 @@ export function Clusters(props: any): JSX.Element {
                 </Button>
             </Grid>
             <Grid lg={12} md={12} xs={12}>
-                {Object.keys(props.deliveryMap).map((key: string, index: number) => (
+                {props.deliveryMap.map((cluster: any, index: number) => (
                     <Orders
-                        key={index}
-                        orders={props.deliveryMap[key].map((order: any) => ({
+                        key = {index}
+                        indexer={index}
+                        orders={cluster.map((order: any) => ({
                             ...order,
                             status: order.shipping_status as "Awaiting Assignment" | "Delivered" | "Failed" | "In_Progress" | "On_Hold",
-                            driver : key,
+                            driver: props.deliveryUser[index]
                         }))}
                         sx={{ marginBottom: '20px' }}
                         drivers={props.drivers}
@@ -188,6 +203,8 @@ export function Clusters(props: any): JSX.Element {
                         setRoute={props.setRoute}
                         route={props.route}
                         setIsLoading={props.setIsLoading}
+                        deliveryUser={props.deliveryUser}
+                        setDeliveryUser={props.setDeliveryUser}
                     />
                 ))}
             </Grid>

@@ -25,9 +25,11 @@ export default function Page(): React.JSX.Element {
   const [isloadingdrivers, setIsLoadingDrivers] = React.useState(true);
   const [isloadingroute, setIsLoadingRoute] = React.useState(true);
   const [date, setDate] = React.useState<Dayjs | null>(dayjs('2024-03-27'));
-  const [route, setRoute] = React.useState<{ [key: string]: any }>({});
-  const [deliveryMap, setDeliveryMap] = React.useState<{ [key: string]: any }>({});
+  const [route, setRoute] = React.useState<any[]>([]);
+  const [deliveryMap, setDeliveryMap] = React.useState<any[]>([]);
+  const [deliveryUser, setDeliveryUser] = React.useState<any[]>([]);
   const [isloading, setIsLoading] = React.useState(true);
+
 
   //Fetch the deliveries data here and update the state using setDeliveries
   useEffect(() => {
@@ -44,7 +46,6 @@ export default function Page(): React.JSX.Element {
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
           }});
           const data = await response.json();
-          console.log(data);
           setDeliveries(data);
         } catch (error) {
           console.error('Error fetching deliveries:', error);
@@ -70,14 +71,20 @@ export default function Page(): React.JSX.Element {
           }});
           const data = await response.json();
           console.log(data);
-          setRoute(data["delivery_map"]);
+          setRoute([]); // Clear the route array before setting new values
+          setDeliveryUser([]); // Clear the deliveryUser array before setting new values
+          Object.keys(data["delivery_map"]).forEach((key) => {
+            const deliveries = data["delivery_map"][key];
+              setRoute((prev) => [...prev, deliveries]);
+              setDeliveryUser((prev) => [...prev, key]);
+          });
         } catch (error) {
           console.error('Error fetching deliveries:', error);
       } finally {
         setIsLoadingRoute(false);
       }
     };
-    fetchRoute();
+    fetchRoute();    
   }, [date]);
 
   //Get Drivers
@@ -108,8 +115,14 @@ export default function Page(): React.JSX.Element {
 
   //Assign drivers to deliveries and routes
   /*
-  deliveryMap = {
-    "alan":[
+  deliveryUser = ['Adam', 'Jack', 'Unassigned']
+  route = [
+    ['1', '2'],
+    ['3', '4'],
+    ['5', '6']
+  ]
+  deliveryMap = [
+    [
       {
         "shipping_id": "1",
         "delivery_address": "1234 Main St",
@@ -127,7 +140,7 @@ export default function Page(): React.JSX.Element {
         "shipping_status": "In_Progress"
       }
     ],
-    jack: [
+    [
       {
         "shipping_id": "3",
         "delivery_address": "1234 Main St",
@@ -145,7 +158,7 @@ export default function Page(): React.JSX.Element {
         "shipping_status": "In_Progress"
       }
     ],
-    unassigned:[
+    [
       {
         "shipping_id": "5",
         "delivery_address": "1234 Main St",
@@ -163,39 +176,39 @@ export default function Page(): React.JSX.Element {
         "shipping_status": "In_Progress"
       }
     ]
-  }
+  ]
   */
   useEffect(() => {
     if (!isloadingdeliveries && !isloadingdrivers && !isloadingroute && deliveries.length > 0 && drivers.length > 0 && Object.keys(route).length > 0){
       //reset delivery map
-      setDeliveryMap({});
+      setDeliveryMap([]);
+      console.log("running")
+      console.log(deliveryUser)
       //Set routed deliveries first
-      Object.keys(route).forEach((user) => {
+      for (let i = 0; i < deliveryUser.length; i++) {
+
         var driverName = ''
+        const user = deliveryUser[i];
         if (user === "00-unassigned"){
           driverName = "unassigned";
         }
         else{driverName = drivers.find((driver) => driver.user_id === user).name;}
-        const driverDeliveries = route[user];
+        const driverDeliveries = route[i]
         const deliveriesAssigned = Array();
         driverDeliveries.forEach((shipping_id: any) => {
           const delivery = deliveries.find((delivery) => delivery.shipping_id === shipping_id);
           deliveriesAssigned.push(delivery);
         });
-        setDeliveryMap((prev) => {
-          return {
-            ...prev,
-            [driverName]: deliveriesAssigned
-          };
-        });
-      });
-      console.log(deliveryMap);
-      console.log(route);
-      console.log('here')
+        setDeliveryMap((prev) => [...prev, deliveriesAssigned]);
+      }
     }
     if (Object.keys(deliveryMap).length > 0){
       setIsLoading(false);
     }
+    console.log("running")
+    console.log(deliveryMap)
+    console.log(route)
+    console.log(deliveryUser)
   }, [route, deliveries, drivers, isloadingdeliveries, isloadingdrivers, isloadingroute]);
 
   //Change tabs
@@ -250,8 +263,8 @@ export default function Page(): React.JSX.Element {
                     </DemoContainer>
                 </LocalizationProvider>
             </Grid>
-      {direction === 'clustering' && <Clusters deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} setDirection = {setDirection} drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
-      {direction === 'optimize' && <Optimize deliveries={deliveries}   deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
+      {direction === 'clustering' && <Clusters deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} deliveryUser = {deliveryUser} setDeliveryUser = {setDeliveryUser} setDirection = {setDirection} drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
+      {direction === 'optimize' && <Optimize deliveries={deliveries} deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} deliveryUser = {deliveryUser} setDeliveryUser = {setDeliveryUser} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
     </Grid> : 
     <Box sx={{ display: 'flex' }}>
       <CircularProgress />

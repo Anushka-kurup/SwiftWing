@@ -52,17 +52,32 @@ export interface LatestOrdersProps {
   setRoute: any;
   route: any;
   setIsLoading?: any;
+  deliveryUser?: any;
+  setDeliveryUser?: any; 
+  indexer: number;
 }
 
-export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRoute, route, setIsLoading}: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRoute, route, setIsLoading, deliveryUser, setDeliveryUser, indexer}: LatestOrdersProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(true);
 
   const handleDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  // Add a new state variable
+const [selectLabel, setSelectLabel] = React.useState(indexer);
+
+// Update the state variable whenever the label prop changes
+  React.useEffect(() => {
+    setSelectLabel(indexer);
+  }, [indexer]);
+
   const handleChange = (event: SelectChangeEvent) => {
     const driver = event.target.value;
+    console.log(indexer)
+    console.log("driver: ", driver)
+
+
     var selectedDriver = ''
     if (driver === "unassigned") {
       selectedDriver = "00-unassigned";
@@ -71,44 +86,53 @@ export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRout
       selectedDriver = drivers.find((driver_info: any) => driver_info.name === driver).user_id;
     }
     const prevValue = orders[0].driver;
-
-    if (prevValue === "unassigned") {
-      setRoute((route: any) => {
-        let newRoute = { ...route };
-        if (!newRoute[selectedDriver]) {
-          newRoute[selectedDriver] = newRoute["00-unassigned"];
-        }
-        else{
-            for (let i = 0; i < newRoute["00-unassigned"].length; i++) {
-            const item = newRoute["00-unassigned"][i];
-            if (!newRoute[selectedDriver].includes(item)) {
-              newRoute[selectedDriver].push(item);
-            }
-          }
-        }
-        delete newRoute["00-unassigned"];
-        return newRoute;
+  
+    // Update both deliveryUser and route
+    var index = deliveryUser.indexOf(selectedDriver);
+    var prevIndex = indexer
+    console.log("index: ", index)
+    console.log("prevIndex: ", prevIndex)
+    
+    if (index !== -1 && selectedDriver != "00-unassigned") { // selectedDriver is in deliveryUser but not unassigned
+      //deliveries of new driver
+      var deliveries = route[prevIndex]; 
+      // Add to route at route[index] using setRoute
+      setRoute((prevRoute: any) => {
+        const newRoute = [...prevRoute]; // Create a copy of the state
+        console.log("before: ", newRoute)
+        newRoute[index] = newRoute[index].concat(deliveries);
+        newRoute.splice(prevIndex, 1);
+        console.log("after: ", newRoute)
+        return newRoute; // Set the state with the modified copy
+      });
+      //delete from deliveryUser
+      setDeliveryUser((prevDeliveryUser: any) => {
+        const newDeliveryUser = [...prevDeliveryUser]; // Create a copy of the state
+        console.log("before: ", newDeliveryUser)
+        newDeliveryUser.splice(prevIndex, 1);
+        console.log("after: ", newDeliveryUser)
+        return newDeliveryUser; // Set the state with the modified copy
       });
     }
-    else{
-      const prevDriver = drivers.find((driver_info: any) => driver_info.name === prevValue).user_id;
-      setRoute((route: any) => {
-      let newRoute = { ...route };
-      if (!newRoute[selectedDriver]) {
-        newRoute[selectedDriver] = newRoute[prevDriver];
-      }
-      else{
-        for (let i = 0; i < newRoute[prevDriver].length; i++) {
-        const item = newRoute[prevDriver][i];
-        if (!newRoute[selectedDriver].includes(item)) {
-          newRoute[selectedDriver].push(item);
-        }
-      }
+    else {
+      // Add to deliveryUser
+      setDeliveryUser((prevDeliveryUser: any) => {
+        const newDeliveryUser = [...prevDeliveryUser]; // Create a copy of the state
+        //newDeliveryUser.push(selectedDriver);
+        //modify prevUser to new user
+        newDeliveryUser[prevIndex] = selectedDriver;
+        return newDeliveryUser; // Set the state with the modified copy
+      });
+      // // Add to route
+      // setRoute((prevRoute: any) => {
+      //   const newRoute = [...prevRoute]; // Create a copy of the state
+      //   //newRoute.push(orders);
+      //   newRoute[prevIndex] = orders;
+      //   return newRoute; // Set the state with the modified copy
+      // });
     }
-      delete newRoute[prevDriver];
-      return newRoute;
-    });
-    }
+    
+    //stop here
     setIsButtonCompleted(false);
   };
   
@@ -129,13 +153,13 @@ export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRout
           <InputLabel sx={{ color: "var(--mui-palette-neutral-400)" }}>Driver</InputLabel>
           <Select
             id="simple_select"
-            value={orders[0].driver}
-            label="name"
+            value={drivers.find((driver_info: any) => driver_info.user_id === orders[0].driver)?.name || 'unassigned'}
+            label={indexer}
             onChange={handleChange}
           >
             <MenuItem value="unassigned">Unassigned</MenuItem>
             {drivers.map((driver) => (
-              <MenuItem key={driver.user_id} value={driver.name}>{driver.name}</MenuItem>
+              <MenuItem key={driver.user_id} value={driver.name} >{driver.name}</MenuItem>
             ))}
           </Select>
         </FormControl>
