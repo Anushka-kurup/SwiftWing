@@ -164,7 +164,7 @@ class OrderShippingService:
             delivery_timestamp = datetime.now().isoformat()
 
             print("Updating status....")
-            self.shipping_service.update_shipping_status(Shipping(shipping_id=order_id,shipping_status="Completed"))
+            self.shipping_service.update_shipping_status(Shipping(shipping_id=order_id,shipping_status="Delivered"))
             print("Status updated.")
 
             print("Updating timestamp....")
