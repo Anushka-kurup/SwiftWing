@@ -209,17 +209,6 @@ class DeliveryService:
             delivery_check = self.get_delivery(delivery_date) #No deliveries on this date
             if not delivery_check:
                 raise HTTPException(status_code=404, detail="Order not found")
-            
-            '''
-             "delivery_map": {
-                    "driver1": [
-                    "orderid1",
-                    ],
-                    "driver2": [
-                    "orderid2",
-                    ],
-                }
-            '''
 
             delivery_map = delivery_check.delivery_map
             #Check whether the order id is present in the delivery map
@@ -227,7 +216,7 @@ class DeliveryService:
             #Find the key of the delivery list which has the order id
             driver = [key for key, value in delivery_map.items() if order_id in value][0]           
         
-            if len(delivery_list) == 0:
+            if True not in delivery_list:
                 raise HTTPException(status_code=404, detail="Order not found") #Order id not found in delivery
             else:                
                 #Find existing delivery list for the new delivery date

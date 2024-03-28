@@ -313,25 +313,23 @@ class OrderShippingService:
         # Code to retrieve order from the database
         try:
             # Convert the date string to a datetime object
-            delivery_date_dt = datetime.strptime(delivery_date, '%Y-%m-%d')
             new_delivery_date_dt = datetime.strptime(new_delivery_date, '%Y-%m-%d')
 
             # Update the delivery date in the order DB
-            try:
-                self.order_service.update_delivery_date(DeliveryTimeUpdate(order_id=order_id,delivery_date=new_delivery_date_dt))
-            except Exception as e:
-                print(f"Error updating delivery date in the order DB: {e}")
+            bool = self.order_service.update_delivery_date(DeliveryTimeUpdate(order_id=order_id,delivery_date=new_delivery_date_dt))
+            if bool == False:
+                print("Error updating delivery date in the order DB")
                 return False
             
             # Update the delivery date in the delivery DB
-            try:
-                logging.info("Updating delivery date in the delivery DB")
-                self.delivery_service.change_delivery_date_of_delivery(delivery_date,new_delivery_date,order_id)
-            except Exception as e:
-                print(f"Error updating delivery date in the delivery DB: {e}")
+                
+            bool2 = self.delivery_service.change_delivery_date_of_delivery(delivery_date,new_delivery_date,order_id)
+            if bool2 == False:
+                print("Error updating delivery date in the delivery DB")
                 return False
-
+            
             return True
         except Exception as e:
             print(f"Error retrieving order: {e}")
             return False
+        
