@@ -6,7 +6,6 @@ import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { Orders } from '@/components/dashboard/route/orders';
 
 export interface OptimizeProps {
-    deliveries: Array<any>;
     deliveryMap: any;
     route: any;
     deliveryUser: any;
@@ -21,18 +20,16 @@ export interface OptimizeProps {
 
 export function Optimize(props: OptimizeProps): JSX.Element {
     const optimizer = async () => {
-        const optimized_deliveries = Array();
         //for each delivery group
-        for (let i = 0; i < props.deliveries.length; i++) {
+        for (let i = 0; i < props.deliveryMap.length; i++) {
             //Get the coords of the deliveries in that group
-            const coords = props.deliveries[i].map((delivery: any) => [delivery.latitude, delivery.longitude]);
-            const coords_id = props.deliveries[i].map((delivery: any) => delivery.shipping_id);
+            const coords = props.deliveryMap[i].map((delivery: any) => [delivery.latitude, delivery.longitude]);
+            const coords_id = props.deliveryMap[i].map((delivery: any) => delivery.shipping_id);
             //set links pickup location to delivery locations in the form [[1,2],[1,3],[1,4],[1,5],[6,7],[1,8]]
             const links = [];
             for (let i = 1; i < coords.length; i++) {
                 links.push([0+1, i+1]);
             }
-
             //Create payload
             const payload = {
                 "coordinates": coords,
@@ -53,35 +50,46 @@ export function Optimize(props: OptimizeProps): JSX.Element {
             .then((response) => response.json())
             .then((data) => {
                 console.log('Success:', data);
-                //Set the deliveries to the optimized route
-                //Set new orders
-                for (let x = 0; x < data.length; x++) {
-                    const clusterDel = Array();
-                    const clust = data[x];
-                    for (let j = 0; j < clust.length; j++) {
-                        const id = clust[j];
-                        const delivery_obj = props.deliveries[i].find((delivery: any) => delivery.shipping_id === id);
-                        clusterDel.push(delivery_obj);
-                    }
-                    optimized_deliveries.push(clusterDel);
-                }
-                console.log(optimized_deliveries);
+                // Replace cluster of route at each index
+                props.setRoute((prevRoute: any) => {
+                    const newRoute = [...prevRoute]; // Create a copy of the state
+                    console.log("before: ", newRoute)
+                    newRoute[i] = data[0]
+                    console.log("after: ", newRoute)
+                    return newRoute; // Set the state with the modified copy
+                });              
             });
         }
-        props.setDeliveries(optimized_deliveries);
+
     };
 
     const pushOptimized = async () => {
-        const deliveryDate = props.deliveries[0][0].delivery_date;       
+        const deliveryDate = props.deliveryMap[0][0].delivery_date;    
+
+        //Delivery Map
+        const outputMap: { [key: string]: any } = {}; // Define the type of outputMap
+        for (let i = 0; i < props.deliveryUser.length; i++) {
+            if(props.deliveryUser[i] == "00-unassigned"){
+                if ("00-unassigned" in outputMap) {
+                    outputMap["00-unassigned"] = [...outputMap["00-unassigned"], ...props.route[i]]
+                }
+                else{
+                    outputMap["00-unassigned"] = props.route[i];
+                }
+            }
+            else{
+                outputMap[props.deliveryUser[i]] = props.route[i];
+            }
+        }
+        console.log(outputMap);
         //Create payload
         const payload = {
-            "delivery_date": deliveryDate,
-            "delivery_map":{
-
-            }
+            "delivery_date": deliveryDate.slice(0, 10),
+            "delivery_map": outputMap,
         };
-        await fetch('http://127.0.0.1:5000/optimize/optimizeroute', { 
-        method: 'POST',
+        console.log(payload);
+        await fetch('http://127.0.0.1:5000/delivery/update_delivery_list/', { 
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -91,7 +99,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
         })
         .then((response) => response.json())
         .then((data) => {
-            () => {};
+            console.log('Success:', data);
         });
     };
     return (
@@ -115,18 +123,22 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                 </Button>
             </Grid>
             <Grid lg={12} md={12} xs={12}>
-                {props.deliveries.map((nestedList, index) => (
+                {props.deliveryMap.map((cluster: any, index: number) => (
                     <Orders
-                        type='Optimized'
-                        key={index}
-                        orders={nestedList.map((order: any) => ({ // Explicitly define the type of 'order' as any[]
+                        key = {index}
+                        indexer={index}
+                        orders={cluster.map((order: any) => ({
                             ...order,
-                            status: order.status as "Received" | "Delivered" | "Failed" | "In_Progress" | "On_Hold",
+                            status: order.shipping_status as "Awaiting Assignment" | "Delivered" | "Failed" | "In_Progress" | "On_Hold",
+                            driver: props.deliveryUser[index]
                         }))}
                         sx={{ marginBottom: '20px' }}
                         drivers={props.drivers}
                         assignDrivers={props.assignDrivers}
                         setRoute={props.setRoute}
+                        route={props.route}
+                        deliveryUser={props.deliveryUser}
+                        setDeliveryUser={props.setDeliveryUser}
                     />
                 ))}
             </Grid>

@@ -202,7 +202,6 @@ export function Clusters(props: any): JSX.Element {
                         assignDrivers={props.assignDrivers}
                         setRoute={props.setRoute}
                         route={props.route}
-                        setIsLoading={props.setIsLoading}
                         deliveryUser={props.deliveryUser}
                         setDeliveryUser={props.setDeliveryUser}
                     />

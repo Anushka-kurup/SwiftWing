@@ -264,7 +264,7 @@ export default function Page(): React.JSX.Element {
                 </LocalizationProvider>
             </Grid>
       {direction === 'clustering' && <Clusters deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} deliveryUser = {deliveryUser} setDeliveryUser = {setDeliveryUser} setDirection = {setDirection} drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
-      {direction === 'optimize' && <Optimize deliveries={deliveries} deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} deliveryUser = {deliveryUser} setDeliveryUser = {setDeliveryUser} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
+      {direction === 'optimize' && <Optimize deliveryMap = {deliveryMap} route = {route} setRoute = {setRoute} deliveryUser = {deliveryUser} setDeliveryUser = {setDeliveryUser} setDeliveries={setDeliveries} setDirection = {setDirection}  drivers = {drivers} assignDrivers={handleAssignDrivers}/>}
     </Grid> : 
     <Box sx={{ display: 'flex' }}>
       <CircularProgress />

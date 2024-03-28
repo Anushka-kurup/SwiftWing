@@ -51,7 +51,6 @@ export interface LatestOrdersProps {
   assignDrivers: any;
   setRoute: any;
   route: any;
-  setIsLoading?: any;
   deliveryUser?: any;
   setDeliveryUser?: any; 
   indexer: number;
