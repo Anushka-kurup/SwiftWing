@@ -56,7 +56,7 @@ export interface LatestOrdersProps {
   indexer: number;
 }
 
-export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRoute, route, setIsLoading, deliveryUser, setDeliveryUser, indexer}: LatestOrdersProps): React.JSX.Element {
+export function Orders({ orders = [], sx , type, drivers, assignDrivers, setRoute, route,  deliveryUser, setDeliveryUser, indexer}: LatestOrdersProps): React.JSX.Element {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(true);
 
   const handleDropdownToggle = () => {
