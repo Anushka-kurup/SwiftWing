@@ -120,7 +120,7 @@ export function StatusBoard({
                     <TableCell>Profile Picture</TableCell>
                     <TableCell>{deliveryDate}</TableCell>
                     <TableCell>{row.shipping_id}</TableCell>
-                    <TableCell>{row.recipient.recipeint_name.S}</TableCell>
+                    <TableCell>{row.recipient.recipeint_name}</TableCell>
                     <TableCell>{row.destination}</TableCell>
                     <TableCell>
                       <Chip
