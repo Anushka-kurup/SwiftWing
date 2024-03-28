@@ -24,8 +24,6 @@ interface StatusBoardProps {
   rowsPerPage?: number;
   setPage?: React.Dispatch<React.SetStateAction<number>>;
   setRowsPerPage?: React.Dispatch<React.SetStateAction<number>>;
-  onClickDeliveryInfo?: React.MouseEventHandler;
-  setDeliveryModalInfo?: React.Dispatch<React.SetStateAction<Delivery | null>>;
 }
 
 export function StatusBoard({
@@ -34,9 +32,7 @@ export function StatusBoard({
   page = 0,
   rowsPerPage = 0,
   setPage,
-  setRowsPerPage,
-  onClickDeliveryInfo,
-  setDeliveryModalInfo,
+  setRowsPerPage
 }: StatusBoardProps): React.JSX.Element {
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number): void => {
     if (setPage) {
@@ -57,13 +53,6 @@ export function StatusBoard({
   const { selectAll, deselectAll, selectOne, deselectOne, selected } = useSelection(rowIds);
   const selectedSome = (selected?.size ?? 0) > 0 && (selected?.size ?? 0) < rows.length;
   const selectedAll = rows.length > 0 && selected?.size === rows.length;
-
-  const onClickTableRow = (delivery: Delivery): void => {
-    if (setDeliveryModalInfo) {
-      setDeliveryModalInfo(delivery);
-      onClickDeliveryInfo();
-    }
-  };
 
   return (
     <Card>
@@ -112,48 +101,12 @@ export function StatusBoard({
                         }}
                       />
                     </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      Profile Picture
-                    </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      {deliveryDate}
-                    </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      {row.shipping_id}
-                    </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      {row.recipient.recipeint_name.S}
-                    </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      {row.destination}
-                    </TableCell>
-                    <TableCell
-                      onClick={() => {
-                        onClickTableRow(row);
-                      }}
-                    >
-                      {row.shipping_status}
-                    </TableCell>
+                    <TableCell>Profile Picture</TableCell>
+                    <TableCell>{deliveryDate}</TableCell>
+                    <TableCell>{row.shipping_id}</TableCell>
+                    <TableCell>{row.recipient.recipeint_name.S}</TableCell>
+                    <TableCell>{row.destination}</TableCell>
+                    <TableCell>{row.shipping_status}</TableCell>
                   </TableRow>
                 );
               })
