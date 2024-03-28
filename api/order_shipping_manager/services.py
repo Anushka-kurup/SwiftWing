@@ -1,5 +1,6 @@
+import logging
 from typing import Dict
-from order.models import Order,OrderCreationResponse,DeliveryTimeStampUpdate
+from order.models import DeliveryTimeUpdate, Order,OrderCreationResponse,DeliveryTimeStampUpdate
 from shipping.models import Shipping
 from .models import ShippingInfo,OrderID
 from auth.routes import verify_operator
@@ -8,16 +9,18 @@ import boto3
 import os
 from order.services import OrderService
 from shipping.services import ShippingService
+from delivery.services import DeliveryService
 from typing import List
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import date, datetime, time
 
 load_dotenv()
 
 class OrderShippingService:
-    def __init__(self, order_service: OrderService,shipping_service:ShippingService):
+    def __init__(self, order_service: OrderService,shipping_service:ShippingService ):
         self.order_service = order_service
         self.shipping_service = shipping_service
+        self.delivery_service = DeliveryService()
         access_key = os.environ.get('AWS_ACCESS_KEY_ID')
         secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
         region = 'us-east-1'
@@ -305,3 +308,30 @@ class OrderShippingService:
         except Exception as e:
             print(f"Error retrieving order: {e}")
             return None
+    
+    def update_shipping_date(self,order_id:str,delivery_date: str, new_delivery_date: str) -> ShippingInfo:
+        # Code to retrieve order from the database
+        try:
+            # Convert the date string to a datetime object
+            delivery_date_dt = datetime.strptime(delivery_date, '%Y-%m-%d')
+            new_delivery_date_dt = datetime.strptime(new_delivery_date, '%Y-%m-%d')
+
+            # Update the delivery date in the order DB
+            try:
+                self.order_service.update_delivery_date(DeliveryTimeUpdate(order_id=order_id,delivery_date=new_delivery_date_dt))
+            except Exception as e:
+                print(f"Error updating delivery date in the order DB: {e}")
+                return False
+            
+            # Update the delivery date in the delivery DB
+            try:
+                logging.info("Updating delivery date in the delivery DB")
+                self.delivery_service.change_delivery_date_of_delivery(delivery_date,new_delivery_date,order_id)
+            except Exception as e:
+                print(f"Error updating delivery date in the delivery DB: {e}")
+                return False
+
+            return True
+        except Exception as e:
+            print(f"Error retrieving order: {e}")
+            return False
