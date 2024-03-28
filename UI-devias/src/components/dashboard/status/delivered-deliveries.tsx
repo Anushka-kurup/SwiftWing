@@ -10,7 +10,7 @@ export interface TasksProgressProps {
   value: number;
 }
 
-export function CompletedDeliveries({ value, sx }: TasksProgressProps): React.JSX.Element {
+export function DeliveredDeliveries({ value, sx }: TasksProgressProps): React.JSX.Element {
   return (
     <Card sx={sx}>
       <CardContent>
@@ -19,7 +19,7 @@ export function CompletedDeliveries({ value, sx }: TasksProgressProps): React.JS
             <Stack spacing={1}>
               <Typography variant="h4">{value}</Typography>
               <Typography color="text.secondary" gutterBottom variant="overline">
-                Completed
+                Delivered
               </Typography>
             </Stack>
           </Stack>

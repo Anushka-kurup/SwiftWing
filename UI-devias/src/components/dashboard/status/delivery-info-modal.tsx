@@ -10,7 +10,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { type Dayjs } from 'dayjs';
 
 import { type Delivery } from '@/types/types';
-import { editOrderDeliveryDate, editOrderInfo } from '@/components/dashboard/status/api';
+import { updateOrder, updateShippingDate } from '@/components/dashboard/status/api';
 
 export function DeliveryInfoModal({
   deliveryModalInfo,
@@ -27,10 +27,17 @@ export function DeliveryInfoModal({
 }): React.JSX.Element {
   const [copiedDeliveryInfo, setCopiedDeliveryInfo] = React.useState<Delivery | null>();
   const [submitLoading, setSubmitLoading] = React.useState<boolean>(false);
+  const [originalDeliveryDate, setOriginalDeliveryDate] = React.useState<string | null>();
 
   React.useEffect(() => {
     setCopiedDeliveryInfo(deliveryModalInfo);
   }, [deliveryModalInfo]);
+
+  React.useEffect(() => {
+    if (deliveryModalInfo) {
+      setOriginalDeliveryDate(dayjs(deliveryModalInfo.delivery_date).format('YYYY-MM-DD'));
+    }
+  });
 
   const onChangeDeliveryInfo = (event: React.ChangeEvent<HTMLInputElement>, info: string): void => {
     setCopiedDeliveryInfo((prev) => {
@@ -57,7 +64,7 @@ export function DeliveryInfoModal({
   const onChangeDeliveryDate = (newDeliveryDate: Date | null): void => {
     setCopiedDeliveryInfo((prev) => {
       if (prev && dayjs(newDeliveryDate).isValid()) {
-        return { ...prev, delivery_date: dayjs(newDeliveryDate).format('YYYY-MM-DDTHH:mm:ss') };
+        return { ...prev, delivery_date: dayjs(newDeliveryDate).format('YYYY-MM-DD') };
       }
       return prev;
     });
@@ -66,7 +73,13 @@ export function DeliveryInfoModal({
   const submitDeliveryInfo = async (deliveryInfo: Delivery | null): Promise<void> => {
     if (deliveryInfo) {
       setSubmitLoading(true);
-      void ((await editOrderInfo(deliveryInfo)) && (await editOrderDeliveryDate(deliveryInfo)));
+      console.log(originalDeliveryDate);
+      console.log(deliveryInfo.delivery_date);
+      void (
+        (await updateOrder(deliveryInfo)) &&
+        originalDeliveryDate &&
+        (await updateShippingDate(deliveryInfo, originalDeliveryDate))
+      );
       void fetchDeliveriesByDate(date);
       setSubmitLoading(false);
     }

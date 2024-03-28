@@ -60,7 +60,7 @@ export function StatusBoard({
       return '#8590C8';
     } else if (status.toLowerCase() === 'in progress') {
       return '#FEAE36';
-    } else if (status.toLowerCase() === 'delivered' || status.toLowerCase() === 'completed') {
+    } else if (status.toLowerCase() === 'delivered' || status.toLowerCase() === 'delivered') {
       return '#5DDB6A';
     } else if (status.toLowerCase() === 'failed') {
       return '#FF7F7F';
