@@ -177,11 +177,6 @@ class DeliveryService:
 
             delivery_map = delivery_check.delivery_map
             new_delivery_map = delivery.delivery_map
-            
-            #Remove user_id from delivery_map if not in new_delivery_map
-            for user_id in list(delivery_map.keys()):
-                if user_id not in new_delivery_map:
-                    delivery_map.pop(user_id)
 
             for user_id, delivery_list in new_delivery_map.items():
                 delivery_map[user_id] = delivery_list
