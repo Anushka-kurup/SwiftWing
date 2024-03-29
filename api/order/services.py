@@ -3,10 +3,12 @@ import boto3
 from .models import Order,DeliveryTimeUpdate,DeliveryTimeStampUpdate
 from typing import List, Optional
 import os
-from datetime import datetime
+from datetime import datetime, date
 import uuid
 from dotenv import load_dotenv
 from fastapi import HTTPException
+from delivery.models import ClientDelivery
+from delivery.services import DeliveryService
 
 load_dotenv()
 
@@ -58,6 +60,12 @@ class OrderService:
                     'delivery_timestamp': {'S': ""}
                 }
             )
+
+            delivery_date_str = str(date.today())  # Convert date to string in ISO format
+            client_delivery = ClientDelivery(delivery_date=delivery_date_str, delivery_id=order_id)
+            delivery_service = DeliveryService()
+            delivery_service.update_delivery_client(client_delivery)
+
             return {"status":True,"order_id":order_id}
         except Exception as e:
             print(f"Error creating order: {e}")
@@ -416,3 +424,6 @@ class OrderService:
         except Exception as e:
             print(f"Error retrieving file: {e}")
             return None
+        
+
+    
