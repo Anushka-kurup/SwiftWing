@@ -125,7 +125,6 @@ export function DeliveryInfoModal({
           </Stack>
 
           <Stack direction="row">
-            <Stack direction="row" sx={{ width: '70%' }}>
               <TextField
                 sx={{ m: 1 }}
                 required
@@ -150,28 +149,6 @@ export function DeliveryInfoModal({
                 label="Date"
                 onChange={(date) => setDate(date)}
               />
-            </Stack>
-
-            <Stack direction="row" sx={{ width: '30%' }}>
-              <TimeField
-                label="From"
-                sx={{ m: 1 }}
-                slotProps={{
-                  textField: {
-                    helperText: 'Start Time',
-                  },
-                }}
-              />
-              <TimeField
-                label="To"
-                sx={{ m: 1 }}
-                slotProps={{
-                  textField: {
-                    helperText: 'End Time',
-                  },
-                }}
-              />
-            </Stack>
           </Stack>
 
           <Stack direction="row">
