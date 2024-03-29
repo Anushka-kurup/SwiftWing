@@ -177,20 +177,18 @@ export async function completeDelivery(delivery: Delivery): Promise<boolean> {
 
 // upload proof of delivery
 export async function uploadProof(delivery: Delivery, proofImage: File): Promise<boolean> {
-  const convertedImage = await convertImageToBase64(proofImage);
+  const convertedImage = await ConvertImageToBase64(proofImage);
   const requestOptions = createRequestOptions('POST', {
-    file: convertedImage,
-    user_id: delivery.driver_id,
+    base64_image: convertedImage,
+    user_id: 'alice',
     shipping_id: delivery.shipping_id,
     date: dayjs(delivery.delivery_date).format('YYYY-MM-DD'),
   });
-  console.log(convertedImage);
 
-  const route = `${api}/order/upload_to_s3`;
+  const route = `${api}/order/upload_to_s3/`;
   try {
     const response = await fetch(route, requestOptions);
     const result: unknown = await response.json();
-    console.log(result);
     return result as boolean;
   } catch (error) {
     console.error('Error complete delivery:', error);
@@ -216,19 +214,12 @@ export async function updateDeliveryTimeStamp(delivery: Delivery, date: string):
   return false;
 }
 
-async function convertImageToBase64(file: File): Promise<Blob> {
-  let base64Image = '';
-  const reader = new FileReader();
-
-  reader.readAsDataURL(file);
-
-  reader.onload = () => {
-    base64Image = reader.result as string;
-  };
-
-  const b64toBlob = (base64: string, type = 'application/octet-stream') =>
-    fetch(`data:${type};base64,${base64}`).then((res) => res.blob());
-
-  const blob = await b64toBlob(base64Image);
-  return blob;
+export async function ConvertImageToBase64(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
 }
