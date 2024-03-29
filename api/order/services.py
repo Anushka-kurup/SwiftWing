@@ -68,7 +68,7 @@ class OrderService:
                 }
             )
 
-            delivery_date_str = str(date.today())  # Convert date to string in ISO format
+            delivery_date_str = order.delivery_date.strftime("%Y-%m-%d") # Convert date to string in ISO format
             client_delivery = ClientDelivery(delivery_date=delivery_date_str, delivery_id=order_id)
             delivery_service = DeliveryService()
             delivery_service.update_delivery_client(client_delivery)

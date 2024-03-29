@@ -104,7 +104,7 @@ export default function Page(): React.JSX.Element {
       />
       <Stack
         direction="row"
-        spacing={14}
+        spacing={10}
         sx={{
           display: 'flex',
           alignItems: 'center',

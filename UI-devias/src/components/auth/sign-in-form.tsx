@@ -91,7 +91,7 @@ export function SignInForm(): React.JSX.Element {
               <FormControl error={Boolean(errors.role)}>
               <InputLabel>Role</InputLabel>
               <Select {...field} label="Role" >
-                <MenuItem value="Driver">Driver</MenuItem>
+                <MenuItem value="driver">Driver</MenuItem>
                 <MenuItem value="admin">Admin</MenuItem>
                 <MenuItem value="client">Client</MenuItem>
               </Select>

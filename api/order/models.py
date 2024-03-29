@@ -28,3 +28,9 @@ class DeliveryTimeUpdate(BaseModel):
 class DeliveryTimeStampUpdate(BaseModel):
     order_id:str
     delivery_timestamp:datetime
+
+class S3DeliveryImageUpload(BaseModel):
+    base64_image: str
+    user_id: str
+    shipping_id: str
+    date: str
