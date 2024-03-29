@@ -1,11 +1,16 @@
 import boto3
-from .models import Delivery
+from .models import Delivery, ClientDelivery
 from typing import List, Optional
 import os
 from datetime import date
 import uuid
 from dotenv import load_dotenv
 from fastapi import HTTPException
+from auth.services import AuthService
+import requests
+from fastapi_jwt_auth import AuthJWT
+from fastapi import Depends
+
 
 load_dotenv()
 
@@ -203,3 +208,43 @@ class DeliveryService:
         except Exception as e:
             print(f"Error updating delivery: {e}")
             return False
+        
+    def update_delivery_client(self, delivery: ClientDelivery) -> bool:
+        try:
+    
+            # response = requests.get('http://127.0.0.1:5000/auth/verify-client')
+            
+            # auth_header = response.headers.get('Authorization')
+
+            # if auth_header and auth_header.startswith("Bearer "):
+         
+            #     token = auth_header[7:]
+            #     print("Token:", token)
+            
+            # if response.status_code == 201:
+                existing_delivery = self.get_delivery(delivery.delivery_date)
+                print(existing_delivery)
+
+                if existing_delivery:
+                    existing_delivery_map = existing_delivery.delivery_map
+                    for user_id, delivery_list in existing_delivery_map.items():
+                        if delivery.delivery_id in delivery_list:
+                            print("Entry already exists")
+                            return False
+                        delivery_list.append(delivery.delivery_id)
+                    print(existing_delivery)
+                    return self.update_delivery_list(existing_delivery)  
+                else:
+                    curr_delivery_date = str(date.fromisoformat(str(delivery.delivery_date)))
+                    print(curr_delivery_date)
+                    new_delivery = Delivery(delivery_date= curr_delivery_date, delivery_map={"unassigned": [delivery.delivery_id]})
+                    print(new_delivery)
+                    return self.create_delivery(Delivery(delivery_date= curr_delivery_date, delivery_map={"unassigned": [delivery.delivery_id]}))
+                # else:
+                #     return True
+
+        except Exception as e:
+            print(f"Error updating delivery list based on verification: {e}")
+            return False
+
+
