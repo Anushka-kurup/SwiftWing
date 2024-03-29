@@ -89,7 +89,6 @@ export function StatusBoard({
                   }}
                 />
               </TableCell>
-              <TableCell />
               <TableCell>Date</TableCell>
               <TableCell>Delivery Number</TableCell>
               <TableCell>Recipient</TableCell>
@@ -117,7 +116,6 @@ export function StatusBoard({
                         }}
                       />
                     </TableCell>
-                    <TableCell>Profile Picture</TableCell>
                     <TableCell>{deliveryDate}</TableCell>
                     <TableCell>{row.shipping_id}</TableCell>
                     <TableCell>{row.recipient.recipeint_name}</TableCell>
