@@ -62,14 +62,18 @@ def delete_order(order_id: str):
     return status
 
 @router.post("/upload_to_s3/")
-async def upload_to_s3(s3_delivery_image_upload: S3DeliveryImageUpload):
-    base64_image = s3_delivery_image_upload.base64_image
-    user_id = s3_delivery_image_upload.user_id
-    shipping_id = s3_delivery_image_upload.shipping_id
-    date = s3_delivery_image_upload.date
+async def upload_to_s3(file: UploadFile = File(...), user_id: str = Form(None), shipping_id: str = Form(None),date: str = Form(None)):
+    # base64_image = s3_delivery_image_upload.base64_image
+    # user_id = s3_delivery_image_upload.user_id
+    # shipping_id = s3_delivery_image_upload.shipping_id
+    # date = s3_delivery_image_upload.date
+    # print(user_id)
 
     file_name = str(user_id + "$" + shipping_id + "$" + date)
-    file = io.BytesIO(base64.b64decode(base64_image + "=="))
+    # file = io.BytesIO(base64.b64decode(base64_image + "=="))
+    # with open(file_name, "wb") as f:
+    #     f.write(file.getvalue())
+    # print(file_name)
     status = await order_service.upload_to_s3(file, file_name=file_name)
     if not status:
         raise HTTPException(status_code=404, detail="File Upload failed")
