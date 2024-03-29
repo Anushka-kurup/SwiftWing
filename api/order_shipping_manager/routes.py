@@ -55,3 +55,7 @@ def complete_delivery(order_id:OrderID):
     result_status = order_shipping_service.complete_delivery(order_id)
     
     return result_status
+@router.put("/update_shipping_date/", response_model=bool)
+def update_shipping_date(order_id:str,delivery_date:str,new_delivery_date:str):
+    result_status = order_shipping_service.update_shipping_date(order_id,delivery_date,new_delivery_date)
+    return result_status

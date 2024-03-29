@@ -1,3 +1,4 @@
+import * as React from 'react';
 import dayjs from 'dayjs';
 
 import type { Delivery } from '@/types/types';
@@ -11,7 +12,7 @@ function createRequestOptions(method: string, body: unknown): unknown {
     'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
   };
 
-  if (body) {
+  if (method === 'POST' || method === 'PUT') {
     return {
       method,
       headers,
@@ -66,7 +67,7 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
 }
 
 // edit order info
-export async function editOrderInfo(delivery: Delivery): Promise<boolean> {
+export async function updateOrder(delivery: Delivery): Promise<boolean> {
   const newDelivery = { ...delivery, order_id: delivery.shipping_id };
   delete newDelivery?.shipping_id;
   delete newDelivery?.driver_id;
@@ -81,6 +82,22 @@ export async function editOrderInfo(delivery: Delivery): Promise<boolean> {
     return result as boolean;
   } catch (error) {
     console.error('Error edit delivery:', error);
+  }
+  return false;
+}
+
+// editOrderDeliveryDate & updateDeliveryDate must be used in conjunction with each other to update delivery date
+// if not, just use updateShippingDate
+export async function updateShippingDate(delivery: Delivery, oldDate: string): Promise<boolean> {
+  const requestOptions = createRequestOptions('PUT', {});
+  const route = `${api}/order_shipping/update_shipping_date/?order_id=${delivery.shipping_id}&delivery_date=${oldDate}&new_delivery_date=${delivery.delivery_date}`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error edit delivery date:', error);
   }
   return false;
 }
@@ -103,8 +120,27 @@ export async function editOrderDeliveryDate(delivery: Delivery): Promise<boolean
   return false;
 }
 
-// complete delivery
-export async function completeDelivery(delivery: Delivery): Promise<boolean> {
+// update delivery date
+export async function updateDeliveryDate(delivery: Delivery): Promise<boolean> {
+  const requestOptions = createRequestOptions('PUT', {
+    order_id: delivery.shipping_id,
+    delivery_date: delivery.delivery_date,
+  });
+  const route = `${api}/order/update_delivery_date`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
+  }
+  return false;
+}
+
+// completeOrder and completeDelivery are the same in completing delivery
+// complete order
+export async function completeOrder(delivery: Delivery): Promise<boolean> {
   const requestOptions = createRequestOptions('PUT', {
     order_id: delivery.shipping_id,
   });
@@ -120,13 +156,14 @@ export async function completeDelivery(delivery: Delivery): Promise<boolean> {
   return false;
 }
 
-// update delivery date
-export async function updateDeliveryDate(delivery: Delivery, date: string): Promise<boolean> {
-  const requestOptions = createRequestOptions('PUT', {
-    order_id: delivery.shipping_id,
-    delivery_date: date,
+// complete delivery
+export async function completeDelivery(delivery: Delivery): Promise<boolean> {
+  const requestOptions = createRequestOptions('POST', {
+    shipping_id: delivery.shipping_id,
+    shipping_status: 'Delivered',
+    driver_id: delivery.driver_id,
   });
-  const route = `${api}/order/update_delivery_date`;
+  const route = `${api}/shipping/update_shipping_status`;
 
   try {
     const response = await fetch(route, requestOptions);
@@ -139,14 +176,35 @@ export async function updateDeliveryDate(delivery: Delivery, date: string): Prom
 }
 
 // upload proof of delivery
-export async function uploadProof(delivery: Delivery, file: File): Promise<boolean> {
+export async function uploadProof(delivery: Delivery, proofImage: File): Promise<boolean> {
+  const convertedImage = await convertImageToBase64(proofImage);
   const requestOptions = createRequestOptions('POST', {
-    file,
+    file: convertedImage,
     user_id: delivery.driver_id,
     shipping_id: delivery.shipping_id,
-    date: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+    date: dayjs(delivery.delivery_date).format('YYYY-MM-DD'),
   });
+  console.log(convertedImage);
+
   const route = `${api}/order/upload_to_s3`;
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    console.log(result);
+    return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
+  }
+  return false;
+}
+
+// update delivery timestamp
+export async function updateDeliveryTimeStamp(delivery: Delivery, date: string): Promise<boolean> {
+  const requestOptions = createRequestOptions('PUT', {
+    order_id: delivery.shipping_id,
+    delivery_timestamp: date,
+  });
+  const route = `${api}/order/update_delivery_timestamp`;
 
   try {
     const response = await fetch(route, requestOptions);
@@ -156,4 +214,21 @@ export async function uploadProof(delivery: Delivery, file: File): Promise<boole
     console.error('Error complete delivery:', error);
   }
   return false;
+}
+
+async function convertImageToBase64(file: File): Promise<Blob> {
+  let base64Image = '';
+  const reader = new FileReader();
+
+  reader.readAsDataURL(file);
+
+  reader.onload = () => {
+    base64Image = reader.result as string;
+  };
+
+  const b64toBlob = (base64: string, type = 'application/octet-stream') =>
+    fetch(`data:${type};base64,${base64}`).then((res) => res.blob());
+
+  const blob = await b64toBlob(base64Image);
+  return blob;
 }

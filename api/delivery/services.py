@@ -2,7 +2,7 @@ import boto3
 from .models import Delivery, ClientDelivery
 from typing import List, Optional
 import os
-from datetime import date
+from datetime import date, datetime
 import uuid
 from dotenv import load_dotenv
 from fastapi import HTTPException
@@ -204,7 +204,7 @@ class DeliveryService:
         except Exception as e:
             print(f"Error updating delivery: {e}")
             return False
-        
+
     def update_delivery_client(self, delivery: ClientDelivery) -> bool:
         try:
 
@@ -231,4 +231,39 @@ class DeliveryService:
             print(f"Error updating delivery list based on verification: {e}")
             return False
 
+
+
+    def change_delivery_date_of_delivery(self, delivery_date: str, new_delivery_date: str, order_id:str) -> bool:
+        # Code to update order in the database
+        try:
+            delivery_check = self.get_delivery(delivery_date) #No deliveries on this date
+            if not delivery_check:
+                raise HTTPException(status_code=404, detail="Order not found")
+
+            delivery_map = delivery_check.delivery_map
+            #Check whether the order id is present in the delivery map
+            delivery_list = [order_id in value for value in delivery_map.values()]
+            #Find the key of the delivery list which has the order id
+            driver = [key for key, value in delivery_map.items() if order_id in value][0]           
+        
+            if True not in delivery_list:
+                raise HTTPException(status_code=404, detail="Order not found") #Order id not found in delivery
+            else:                
+                #Find existing delivery list for the new delivery date
+                new_date_deliveries = self.get_delivery(new_delivery_date)
+                if new_date_deliveries == None: #Create new delivery
+                    self.create_delivery(Delivery(delivery_date=new_delivery_date, delivery_map={"00-unassigned":[order_id]}))
+                else: #append
+                    new_delivery_map = new_date_deliveries.delivery_map
+                    new_delivery_map["00-unassigned"].append(order_id)
+                    self.update_delivery_list(Delivery(delivery_date=new_delivery_date, delivery_map=new_delivery_map))
+                    
+            #Remove the order id from the delivery list of the old delivery date (updating DB)
+            delivery_map[driver].remove(order_id) #Remove the order id from the delivery list of the old delivery date
+            self.update_delivery_list(Delivery(delivery_date=delivery_date, delivery_map=delivery_map))
+            
+            return True
+        except Exception as e:
+            print(f"Error updating delivery: {e}")
+            return False
 

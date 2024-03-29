@@ -24,6 +24,13 @@ class OrderService:
         self.SURPPORTED_FILE_TYPES = {
             'image/png': 'png',
             'image/jpeg': 'jpg',
+            'image/jfif': 'jfif',
+            'image/gif': 'gif',
+            'image/bmp': 'bmp',
+            'image/webp': 'webp',
+            'image/tiff': 'tiff',
+            'image/svg+xml': 'svg',
+            'image/x-icon': 'ico'
         }
         self.s3 = boto3.client('s3', region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key)
         self.BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
@@ -401,10 +408,11 @@ class OrderService:
             if size > 5 * 1024 * 1024:
                 raise ValueError("File size exceeds 5MB")
             
-            logging.info(f"Uploading file {file_name} to S3 of size {size} bytes")
+            print(f"Uploading file {file_name} to S3 of size {size} bytes")
             
             # Check content type
             file_extension = self.SURPPORTED_FILE_TYPES.get(file_payload.content_type)
+            print(file_extension)
             if file_extension is None:
                 raise ValueError("Unsupported file type")
             

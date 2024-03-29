@@ -14,11 +14,18 @@ import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { Logo } from '@/components/core/logo';
 
-import { navItems } from './config';
+import { getNavItems } from './config';
 import { navIcons } from './nav-icons';
+
+import { UserContext, UserContextValue } from '@/contexts/user-context';
+import {useContext} from 'react';
+
+
 
 export function SideNav(): React.JSX.Element {
   const pathname = usePathname();
+  const userContext = useContext(UserContext);
+  const {user} = userContext as UserContextValue;
 
   return (
     <Box
@@ -68,7 +75,7 @@ export function SideNav(): React.JSX.Element {
               Workspace
             </Typography>
             <Typography color="inherit" variant="subtitle1">
-              Devias
+              Swiftwing
             </Typography>
           </Box>
           <CaretUpDownIcon />
@@ -76,7 +83,7 @@ export function SideNav(): React.JSX.Element {
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
-        {renderNavItems({ pathname, items: navItems })}
+        {renderNavItems({ pathname, items: user ? getNavItems(user.role) : [] })}
       </Box>
     </Box>
   );
