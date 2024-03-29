@@ -6,10 +6,6 @@ from datetime import date
 import uuid
 from dotenv import load_dotenv
 from fastapi import HTTPException
-from auth.services import AuthService
-import requests
-from fastapi_jwt_auth import AuthJWT
-from fastapi import Depends
 
 
 load_dotenv()
@@ -211,17 +207,7 @@ class DeliveryService:
         
     def update_delivery_client(self, delivery: ClientDelivery) -> bool:
         try:
-    
-            # response = requests.get('http://127.0.0.1:5000/auth/verify-client')
-            
-            # auth_header = response.headers.get('Authorization')
 
-            # if auth_header and auth_header.startswith("Bearer "):
-         
-            #     token = auth_header[7:]
-            #     print("Token:", token)
-            
-            # if response.status_code == 201:
                 existing_delivery = self.get_delivery(delivery.delivery_date)
                 print(existing_delivery)
 
@@ -240,8 +226,6 @@ class DeliveryService:
                     new_delivery = Delivery(delivery_date= curr_delivery_date, delivery_map={"unassigned": [delivery.delivery_id]})
                     print(new_delivery)
                     return self.create_delivery(Delivery(delivery_date= curr_delivery_date, delivery_map={"unassigned": [delivery.delivery_id]}))
-                # else:
-                #     return True
 
         except Exception as e:
             print(f"Error updating delivery list based on verification: {e}")
