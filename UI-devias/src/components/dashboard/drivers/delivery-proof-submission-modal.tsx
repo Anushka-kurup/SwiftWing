@@ -16,6 +16,7 @@ import type { Delivery } from '@/types/types';
 import {
   completeDelivery,
   completeOrder,
+  getProof,
   updateDeliveryTimeStamp,
   updateOrder,
   uploadProof,
@@ -55,7 +56,7 @@ export function DeliveryProofSubmissionModal({
 
   const onClickSubmit = async (): Promise<void> => {
     setSubmitBtnLoading(true);
-    if (proof && deliveryInfo) {
+    if (fileUploaded && proof && deliveryInfo) {
       const uploadProofResult = await uploadProof(deliveryInfo, proof);
 
       if (uploadProofResult) {
@@ -74,6 +75,19 @@ export function DeliveryProofSubmissionModal({
       }
     }
     setSubmitBtnLoading(false);
+
+    // Close modal
+    if (onClickModal) {
+      onClickModal();
+    }
+  };
+
+  const getOriginalProofLink = async (): Promise<string> => {
+    if (deliveryInfo?.shipping_status === 'Delivered') {
+      const proofImage = await getProof(deliveryInfo);
+      return proofImage;
+    }
+    return '';
   };
 
   return (
@@ -82,15 +96,21 @@ export function DeliveryProofSubmissionModal({
         <DialogTitle>Upload Proof of Delivery</DialogTitle>
         <DialogContent>
           <div style={{ padding: 50 }}>
-            <DragDropFileUpload onFileUpload={handleFileUpload} file={proof} fileUploaded={fileUploaded} />
+            <DragDropFileUpload
+              onFileUpload={handleFileUpload}
+              file={proof}
+              fileUploaded={fileUploaded}
+              deliveryCurrentStatus={deliveryInfo?.shipping_status}
+              getOriginalProofLink={getOriginalProofLink}
+            />
           </div>
-          <Stack direction="row" spacing={8} justifyContent="center" alignItems="center">
-            <LoadingButton variant="contained" color="primary" onClick={onClickClose}>
+          <Stack direction="row" spacing={10} justifyContent="center" alignItems="center">
+            <LoadingButton variant="contained" color="error" onClick={onClickClose} disabled={submitBtnLoading}>
               Cancel
             </LoadingButton>
-            <LoadingButton variant="contained" color="error" onClick={onClickClose}>
+            {/* <LoadingButton variant="contained" color="error" onClick={onClickClose}>
               Failed
-            </LoadingButton>
+            </LoadingButton> */}
             <LoadingButton variant="contained" color="primary" onClick={onClickSubmit} loading={submitBtnLoading}>
               Submit
             </LoadingButton>
@@ -105,12 +125,17 @@ function DragDropFileUpload({
   onFileUpload,
   fileUploaded,
   file,
+  deliveryCurrentStatus,
+  getOriginalProofLink,
 }: {
   onFileUpload: (file: File) => void;
   fileUploaded: boolean;
   file: File | null;
+  deliveryCurrentStatus: Delivery['shipping_status'] | undefined;
+  getOriginalProofLink: () => Promise<string>;
 }): React.JSX.Element {
   const [dragOver, setDragOver] = React.useState<boolean>(false);
+  const [proofLink, setProofLink] = React.useState<string>('');
 
   const handleDragOver = React.useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -142,6 +167,16 @@ function DragDropFileUpload({
     [onFileUpload]
   );
 
+  const getProofLink = React.useCallback(async () => {
+    const link = await getOriginalProofLink();
+    setProofLink(link['url']);
+    console.log('link:', link);
+  }, [getOriginalProofLink]);
+
+  React.useEffect(() => {
+    void getProofLink();
+  }, [getProofLink]);
+
   return (
     <Paper
       variant="outlined"
@@ -164,7 +199,19 @@ function DragDropFileUpload({
             {fileUploaded ? <CloudDoneIcon /> : <CloudUploadIcon />}
           </IconButton>
           <Typography variant="body1">
-            {fileUploaded && file ? file['name'] : 'Drag and drop a file here or click to upload'}
+            {deliveryCurrentStatus?.toLowerCase() === 'delivered' && !fileUploaded && proofLink !== '' ? (
+              <div>
+                <a href={proofLink} target="_blank" rel="noreferrer">
+                  Click to view the original proof of delivery.
+                  <br />
+                </a>
+                Or upload a new one.
+              </div>
+            ) : fileUploaded && file ? (
+              file['name']
+            ) : (
+              'Drag and drop a file here or click to upload'
+            )}
           </Typography>
         </Box>
       </label>

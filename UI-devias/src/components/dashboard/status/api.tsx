@@ -177,25 +177,31 @@ export async function completeDelivery(delivery: Delivery): Promise<boolean> {
 
 // upload proof of delivery
 export async function uploadProof(delivery: Delivery, proofImage: File): Promise<boolean> {
-  // const convertedImage = await ConvertImageToBase64(proofImage);
-  // const requestOptions = createRequestOptions('POST', {
-  //   base64_image: convertedImage,
-  //   user_id: 'alice',
-  //   shipping_id: delivery.shipping_id,
-  //   date: dayjs(delivery.delivery_date).format('YYYY-MM-DD'),
-  // });
-
   const formData = new FormData();
-  formData.append("file", proofImage);
-  formData.append("user_id", "alice");
-  formData.append("shipping_id", "delivery.shipping_id");
-  formData.append("date",dayjs(delivery.delivery_date).format('YYYY-MM-DD'));
+  formData.append('file', proofImage);
+  formData.append('user_id', delivery.driver_id);
+  formData.append('shipping_id', delivery.shipping_id);
+  formData.append('date', dayjs(delivery.delivery_date).format('YYYY-MM-DD'));
 
   const route = `${api}/order/upload_to_s3/`;
   try {
-    const response = await fetch(route, {method: 'POST', body: formData});
+    const response = await fetch(route, { method: 'POST', body: formData });
     const result: unknown = await response.json();
     return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
+  }
+  return false;
+}
+
+// get proof of delivery
+export async function getProof(delivery: Delivery): Promise<string> {
+  const fileName = `${delivery.driver_id}$${delivery.shipping_id}$${dayjs(delivery.delivery_date).format('YYYY-MM-DD')}`;
+  const route = `${api}/order/retrieve_S3_url/?file_name=${fileName}`;
+  try {
+    const response = await fetch(route, { method: 'GET', body: null });
+    const result: unknown = await response.json();
+    return result;
   } catch (error) {
     console.error('Error complete delivery:', error);
   }
@@ -218,14 +224,4 @@ export async function updateDeliveryTimeStamp(delivery: Delivery, date: string):
     console.error('Error complete delivery:', error);
   }
   return false;
-}
-
-export async function ConvertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(reader.result);
-    };
-    reader.readAsDataURL(file);
-  });
 }
