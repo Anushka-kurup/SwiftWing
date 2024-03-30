@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: /UI-devias  # Adjust the path to your built frontend
+    destination: /var/www/html/frontend
+  - source: /api  # Adjust the path your built/packaged backend
+    destination: /var/www/html/backend 
+hooks:
+  BeforeInstall:
+    - location: scripts/install_frontend_dependencies.sh
+      timeout: 300  
+  ApplicationStart:
+    - location: scripts/start_backend.sh
+      timeout: 300
+  ValidateService:
+    - location: scripts/validate_backend.sh
+      timeout: 300

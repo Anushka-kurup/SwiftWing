@@ -35,7 +35,7 @@ export default function Page(): React.JSX.Element {
 
   const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
-    const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate, user?.id);
+    const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate, user?.id ?? '');
     setDeliveries(deliveryData);
   };
 

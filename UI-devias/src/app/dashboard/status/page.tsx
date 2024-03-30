@@ -36,13 +36,9 @@ export default function Page(): React.JSX.Element {
 
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
-  const onClickDeliveryInfoModal = (): void => {
-    setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
-  };
-
   const fetchDrivers = async (): Promise<void> => {
-    const data: Driver[] = await getDrivers();
-    setDrivers(data['drivers']);
+    const data = await getDrivers();
+    setDrivers(data as Driver[]);
   };
 
   const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {

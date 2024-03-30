@@ -23,7 +23,7 @@ import { getDeliveriesByDateAndSender } from '@/components/dashboard/api';
 export default function Page(): React.JSX.Element | null {
   const [page, setPage] = React.useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
-  const [date, setDate] = React.useState<Dayjs | null>(dayjs());
+  const [date, setDate] = React.useState<Dayjs>(dayjs());
   const [drivers, setDrivers] = React.useState<any[]>([]);
   const [deliveries, setDeliveries] = React.useState<Delivery[]>([]);
 
@@ -76,7 +76,7 @@ export default function Page(): React.JSX.Element | null {
                 value={date}
                 format="YYYY-MM-DD"
                 onChange={(newValue) => {
-                  setDate(newValue);
+                  setDate(newValue || dayjs());
                 }}
               />
             </DemoContainer>
