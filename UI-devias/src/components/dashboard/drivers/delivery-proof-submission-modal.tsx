@@ -28,12 +28,14 @@ export function DeliveryProofSubmissionModal({
   onClickModal,
   fetchDeliveriesByDate,
   date,
+  driverId,
 }: {
   deliveryInfo: Delivery | null;
   modalOpen: boolean;
   onClickModal?: VoidFunction;
   fetchDeliveriesByDate: (unformattedDate: Dayjs) => Promise<void>;
-  date: Dayjs;
+  date: Dayjs | null;
+  driverId: string;
 }): React.JSX.Element {
   const [fileUploaded, setFileUploaded] = React.useState<boolean>(false);
   const [proof, setProof] = React.useState<File | null>(null);
@@ -57,12 +59,12 @@ export function DeliveryProofSubmissionModal({
   const onClickSubmit = async (): Promise<void> => {
     setSubmitBtnLoading(true);
     if (fileUploaded && proof && deliveryInfo) {
-      const uploadProofResult = await uploadProof(deliveryInfo, proof);
+      const uploadProofResult = await uploadProof(deliveryInfo, proof, driverId);
 
       if (uploadProofResult) {
         // Complete delivery status
         const completeOrderResult = await completeOrder(deliveryInfo);
-        const completeDeliveryResult = completeOrderResult && (await completeDelivery(deliveryInfo));
+        const completeDeliveryResult = completeOrderResult && (await completeDelivery(deliveryInfo, driverId));
 
         // Update delivery timestamp
         const nowTimeStamp = dayjs().format('YYYY-MM-DDTHH:mm:ss');
@@ -84,7 +86,7 @@ export function DeliveryProofSubmissionModal({
 
   const getOriginalProofLink = async (): Promise<string> => {
     if (deliveryInfo?.shipping_status === 'Delivered') {
-      const proofImage = await getProof(deliveryInfo);
+      const proofImage = await getProof(deliveryInfo, driverId);
       return proofImage;
     }
     return '';

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useContext } from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -9,12 +10,10 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
 import type { Delivery } from '@/types/types';
+import { UserContext, type UserContextValue } from '@/contexts/user-context';
 import { DeliveryProofSubmissionModal } from '@/components/dashboard/drivers/delivery-proof-submission-modal';
-import { getDeliveriesByDate, getDeliveriesByDateAndDriver } from '@/components/dashboard/status/api';
+import { getDeliveriesByDateAndDriver } from '@/components/dashboard/status/api';
 import { StatusBoard } from '@/components/dashboard/status/status-board';
-
-import {useContext} from 'react';
-import { UserContext, UserContextValue } from '@/contexts/user-context';
 
 export default function Page(): React.JSX.Element {
   const [page, setPage] = React.useState<number>(0);
@@ -26,9 +25,8 @@ export default function Page(): React.JSX.Element {
   const [submissionModalOpen, setSubmissionInfoModalOpen] = React.useState<boolean>(false);
 
   const userContext = useContext(UserContext);
-  const {user} = userContext as UserContextValue;
+  const { user } = userContext as UserContextValue;
 
-  
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
   const onClickDeliveryProofSubmissionModal = (): void => {
@@ -37,7 +35,7 @@ export default function Page(): React.JSX.Element {
 
   const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
-    const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate,user?.id);
+    const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate, user?.id);
     setDeliveries(deliveryData);
   };
 
@@ -53,6 +51,7 @@ export default function Page(): React.JSX.Element {
         onClickModal={onClickDeliveryProofSubmissionModal}
         fetchDeliveriesByDate={fetchDeliveriesByDate}
         date={date}
+        driverId={user?.id ?? ''}
       />
       <Stack
         direction="row"
