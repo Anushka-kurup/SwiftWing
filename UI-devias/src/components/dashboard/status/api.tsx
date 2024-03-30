@@ -38,6 +38,49 @@ export async function getDrivers(): Promise<unknown[]> {
   return [];
 }
 
+// get orderID assigned to driver by date
+export async function getRouteList(startDate: string): Promise<unknown[]> {
+  const requestOptions = createRequestOptions('GET', null);
+  try {
+    const response = await fetch(api + '/delivery/get_delivery/?delivery_date=' + startDate, requestOptions);
+    const result: unknown = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error get drivers:', error);
+  }
+  return [];
+}
+
+// get deliveries by date
+export async function getDeliveriesByDateAndDriver(startDate: string, endDate: string, driverID:string): Promise<Delivery[]> {
+  const requestOptions = createRequestOptions('GET', null);
+  const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
+  try {
+    const response = await fetch(route, requestOptions);
+    const allOrders: unknown = await response.json();
+
+    const routeList = await getRouteList(startDate);
+    console.log(routeList);
+    console.log(driverID);
+
+    const driverRoute = routeList["delivery_map"][driverID];
+    if (!driverRoute) {
+      return [];
+    }
+    const deliveries: Delivery[] = allOrders.map((order: Delivery) => {
+      if (driverRoute?.includes(order.shipping_id)) {
+        return order;
+      }
+    }).filter((delivery) => delivery !== null && delivery !== undefined); 
+    console.log(deliveries);
+    return deliveries;
+  } catch (error) {
+    console.error('Error get deliveries:', error);
+  }
+  return [];
+}
+
+
 // get orders by date
 export async function getOrdersByDate(startDate: string, endDate: string): Promise<unknown> {
   const requestOptions = createRequestOptions('GET', null);

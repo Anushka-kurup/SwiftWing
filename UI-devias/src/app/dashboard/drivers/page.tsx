@@ -10,8 +10,11 @@ import dayjs, { type Dayjs } from 'dayjs';
 
 import type { Delivery } from '@/types/types';
 import { DeliveryProofSubmissionModal } from '@/components/dashboard/drivers/delivery-proof-submission-modal';
-import { getDeliveriesByDate } from '@/components/dashboard/status/api';
+import { getDeliveriesByDate, getDeliveriesByDateAndDriver } from '@/components/dashboard/status/api';
 import { StatusBoard } from '@/components/dashboard/status/status-board';
+
+import {useContext} from 'react';
+import { UserContext, UserContextValue } from '@/contexts/user-context';
 
 export default function Page(): React.JSX.Element {
   const [page, setPage] = React.useState<number>(0);
@@ -22,6 +25,10 @@ export default function Page(): React.JSX.Element {
   const [deliveryModalInfo, setDeliveryModalInfo] = React.useState<Delivery | null>(null);
   const [submissionModalOpen, setSubmissionInfoModalOpen] = React.useState<boolean>(false);
 
+  const userContext = useContext(UserContext);
+  const {user} = userContext as UserContextValue;
+
+  
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
   const onClickDeliveryProofSubmissionModal = (): void => {
@@ -30,7 +37,7 @@ export default function Page(): React.JSX.Element {
 
   const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
-    const deliveryData: Delivery[] = await getDeliveriesByDate(formattedDate, formattedDate);
+    const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate,user?.id);
     setDeliveries(deliveryData);
   };
 

@@ -24,7 +24,7 @@ export default function Page(): React.JSX.Element {
   const [isloadingdeliveries, setIsLoadingDeliveries] = React.useState(true);
   const [isloadingdrivers, setIsLoadingDrivers] = React.useState(true);
   const [isloadingroute, setIsLoadingRoute] = React.useState(true);
-  const [date, setDate] = React.useState<Dayjs | null>(dayjs('2024-03-27'));
+  const [date, setDate] = React.useState<Dayjs | null>(dayjs());
   const [route, setRoute] = React.useState<any[]>([]);
   const [deliveryMap, setDeliveryMap] = React.useState<any[]>([]);
   const [deliveryUser, setDeliveryUser] = React.useState<any[]>([]);
