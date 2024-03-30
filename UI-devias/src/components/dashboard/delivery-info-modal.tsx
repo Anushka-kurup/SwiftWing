@@ -18,19 +18,19 @@ import { UserContext, UserContextValue } from '@/contexts/user-context';
 
 import { type Delivery } from '@/types/types';
 
-import { Dict } from 'typescript';
+
 // ...
 export interface Order {
   sender_id: string;
   order_id: string;
   warehouse: string;
   destination: string;
-  package_dimension: Dict<string, any>;
+  package_dimension:{};
   package_weight: number;
   special_handling_instruction: string;
   latitude: number;
   longitude: number;
-  recipient: Dict<string, any>;
+  recipient: {};
   created_date: Date;
   delivery_date?: Date;
   delivery_timestamp?: Date | null;

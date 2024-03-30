@@ -74,7 +74,7 @@ export function DeliveryProofSubmissionModal({
         const updateOrderTimeStampResult =
           updateDeliveryTimeStampResult && (await updateOrder({ ...deliveryInfo, delivery_timestamp: nowTimeStamp }));
 
-        void (updateOrderTimeStampResult && fetchDeliveriesByDate(date));
+        void (updateOrderTimeStampResult && fetchDeliveriesByDate(date as Dayjs));
       }
     }
     setSubmitBtnLoading(false);
@@ -88,7 +88,9 @@ export function DeliveryProofSubmissionModal({
   const getOriginalProofLink = async (): Promise<string> => {
     if (deliveryInfo?.shipping_status === 'Delivered') {
       const proofImage = await getProof(deliveryInfo, driverId);
-      return proofImage;
+      if (typeof proofImage === 'string') {
+        return proofImage;
+      }
     }
     return '';
   };
@@ -146,7 +148,7 @@ function DragDropFileUpload({
   fileUploaded: boolean;
   file: File | null;
   deliveryCurrentStatus: Delivery['shipping_status'] | undefined;
-  getOriginalProofLink: () => Promise<string>;
+  getOriginalProofLink: () => Promise<unknown>;
 }): React.JSX.Element {
   const [dragOver, setDragOver] = React.useState<boolean>(false);
   const [proofLink, setProofLink] = React.useState<string>('');
@@ -182,8 +184,8 @@ function DragDropFileUpload({
   );
 
   const getProofLink = React.useCallback(async () => {
-    const link = await getOriginalProofLink();
-    setProofLink(link['url']);
+    const link = await getOriginalProofLink() as Record<string, string>;
+    setProofLink(link['URL']);
   }, [getOriginalProofLink]);
 
   React.useEffect(() => {

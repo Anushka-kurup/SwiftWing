@@ -181,10 +181,9 @@ export default function Page(): React.JSX.Element {
   useEffect(() => {
     if (!isloadingdeliveries && !isloadingdrivers && !isloadingroute && deliveries.length > 0 && drivers.length > 0 && Object.keys(route).length > 0){
       //reset delivery map
-      setDeliveryMap([]);
-      console.log("running")
-      console.log(deliveryUser)
+      //setDeliveryMap([]);
       //Set routed deliveries first
+      console.log("Working???")
       for (let i = 0; i < deliveryUser.length; i++) {
 
         var driverName = ''
@@ -199,6 +198,8 @@ export default function Page(): React.JSX.Element {
           const delivery = deliveries.find((delivery) => delivery.shipping_id === shipping_id);
           deliveriesAssigned.push(delivery);
         });
+        console.log(deliveriesAssigned)
+        console.log("here")
         setDeliveryMap((prev) => [...prev, deliveriesAssigned]);
       }
     }
@@ -209,6 +210,10 @@ export default function Page(): React.JSX.Element {
     console.log(deliveryMap)
     console.log(route)
     console.log(deliveryUser)
+    console.log(drivers)
+    console.log(isloadingdeliveries)
+    console.log(isloadingdrivers)
+    console.log(isloadingroute)
   }, [route, deliveries, drivers, isloadingdeliveries, isloadingdrivers, isloadingroute]);
 
   //Change tabs

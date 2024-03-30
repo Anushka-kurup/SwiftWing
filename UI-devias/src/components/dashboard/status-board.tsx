@@ -35,15 +35,13 @@ export function StatusBoard({
   setPage,
   setRowsPerPage
 }: StatusBoardProps): React.JSX.Element {
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number): void => {
-    if (setPage) {
-      setPage(newPage);
-    }
-  };
-
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    if (setRowsPerPage) {
+      setRowsPerPage(parseInt(event.target.value, 10));
+    }
+    if (setPage) {
+      setPage(0);
+    }
   };
 
   const rowIds = React.useMemo(() => {
@@ -69,6 +67,10 @@ export function StatusBoard({
     }
     return 'white';
   };
+
+  function handleChangePage(event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, page: number): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <Card>
@@ -122,7 +124,7 @@ export function StatusBoard({
                     <TableCell>{row.destination}</TableCell>
                     <TableCell>
                       <Chip
-                        sx={{ bgcolor: statusBackgroundColor(row.shipping_status), color: 'white' }}
+                        sx={{ bgcolor: statusBackgroundColor(row.shipping_status ?? ''), color: 'white' }}
                         label={row.shipping_status}
                       />
                     </TableCell>

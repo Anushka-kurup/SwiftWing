@@ -3,7 +3,7 @@ import { Order } from './delivery-info-modal';
 
 const api = 'http://localhost:5000';
 
-function createRequestOptions(method: string, body: unknown): unknown {
+function createRequestOptions(method: string, body: unknown): RequestInit {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',

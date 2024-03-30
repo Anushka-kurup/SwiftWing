@@ -37,7 +37,7 @@ export function DeliveryInfoModal({
   React.useEffect(() => {
     async function getProofOfDelivery(deliveryInfo: Delivery, dateChosen: Dayjs): Promise<void> {
       if (deliveryModalInfo) {
-        const proof = await getProofById(deliveryInfo, dayjs(dateChosen).format('YYYY-MM-DD'));
+        const proof = await getProofById(deliveryInfo, dayjs(dateChosen).format('YYYY-MM-DD')) as any;
         console.log(proof['url']);
         setProofOfDelivery(proof['url']);
       }
@@ -49,7 +49,7 @@ export function DeliveryInfoModal({
 
     console.log(deliveryModalInfo?.shipping_status);
 
-    if (deliveryModalInfo?.shipping_status.toLowerCase() === 'delivered') {
+    if (deliveryModalInfo && (deliveryModalInfo.shipping_status ?? '').toLowerCase() === 'delivered') {
       void getProofOfDelivery(deliveryModalInfo, date);
     } else {
       setProofOfDelivery(null);
@@ -159,7 +159,7 @@ export function DeliveryInfoModal({
                 label="Date"
                 sx={{ m: 1, width: '30%' }}
                 format="YYYY-MM-DD"
-                value={dayjs(copiedDeliveryInfo?.delivery_date)}
+                value={dayjs(copiedDeliveryInfo?.delivery_date).toDate()}
                 slotProps={{
                   textField: {
                     required: true,
@@ -295,7 +295,9 @@ export function DeliveryInfoModal({
               type="submit"
               sx={{ width: 100 }}
               onClick={() => {
-                submitDeliveryInfo(copiedDeliveryInfo);
+                if (copiedDeliveryInfo) {
+                  submitDeliveryInfo(copiedDeliveryInfo);
+                }
               }}
               loading={submitLoading}
             >

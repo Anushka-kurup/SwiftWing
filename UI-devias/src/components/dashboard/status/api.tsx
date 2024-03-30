@@ -26,8 +26,8 @@ function createRequestOptions(method: string, body: unknown): unknown {
 }
 
 // get all drivers - may wanna change this to get all drivers that are assigned to delivery
-export async function getDrivers(): Promise<unknown[]> {
-  const requestOptions = createRequestOptions('GET', null);
+export async function getDrivers(): Promise<unknown> {
+  const requestOptions = createRequestOptions('GET', null) as RequestInit;
   try {
     const response = await fetch(api + '/auth/get_all_drivers', requestOptions);
     const result: unknown = await response.json();
@@ -39,8 +39,8 @@ export async function getDrivers(): Promise<unknown[]> {
 }
 
 // get orderID assigned to driver by date
-export async function getRouteList(startDate: string): Promise<unknown[]> {
-  const requestOptions = createRequestOptions('GET', null);
+export async function getRouteList(startDate: string): Promise<unknown> {
+  const requestOptions = createRequestOptions('GET', null) as RequestInit;
   try {
     const response = await fetch(api + '/delivery/get_delivery/?delivery_date=' + startDate, requestOptions);
     const result: unknown = await response.json();
@@ -57,27 +57,27 @@ export async function getDeliveriesByDateAndDriver(
   endDate: string,
   driverID: string
 ): Promise<Delivery[]> {
-  const requestOptions = createRequestOptions('GET', null);
+  const requestOptions = createRequestOptions('GET', null) as RequestInit;
   const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
     const response = await fetch(route, requestOptions);
     const allOrders: unknown = await response.json();
 
-    const routeList = await getRouteList(startDate);
+    const routeList = await getRouteList(startDate) as any;
     console.log(routeList);
     console.log(driverID);
 
-    const driverRoute = routeList['delivery_map'][driverID];
+    const driverRoute = routeList.delivery_map[driverID];
     if (!driverRoute) {
       return [];
     }
-    const deliveries: Delivery[] = allOrders
-      .map((order: Delivery) => {
-        if (driverRoute?.includes(order.shipping_id)) {
+    const deliveries: Delivery[] = (allOrders as (Delivery | undefined)[])
+      .map((order: Delivery | undefined) => {
+        if (driverRoute?.includes(order?.shipping_id)) {
           return order;
         }
       })
-      .filter((delivery) => delivery !== null && delivery !== undefined);
+      .filter((delivery) => delivery !== null && delivery !== undefined) as Delivery[];
     console.log(deliveries);
     return deliveries;
   } catch (error) {
@@ -86,9 +86,9 @@ export async function getDeliveriesByDateAndDriver(
   return [];
 }
 
-export async function getProofById(delivery: Delivery, date: string): Promise<string> {
+export async function getProofById(delivery: Delivery, date: string): Promise<string | boolean> {
   // get list of route by date
-  const routeList = await getRouteList(date);
+  const routeList = await getRouteList(date) as any;
 
   for (const driver in routeList['delivery_map']) {
     if (routeList['delivery_map'][driver].includes(delivery.shipping_id)) {
@@ -96,11 +96,12 @@ export async function getProofById(delivery: Delivery, date: string): Promise<st
       return link;
     }
   }
+  return false;
 }
 
 // get orders by date
 export async function getOrdersByDate(startDate: string, endDate: string): Promise<unknown> {
-  const requestOptions = createRequestOptions('GET', null);
+  const requestOptions = createRequestOptions('GET', null) as RequestInit;
   const route = `${api}/order/get_order_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
     const response = await fetch(route, requestOptions);
@@ -114,12 +115,12 @@ export async function getOrdersByDate(startDate: string, endDate: string): Promi
 
 // get deliveries by date
 export async function getDeliveriesByDate(startDate: string, endDate: string): Promise<Delivery[]> {
-  const requestOptions = createRequestOptions('GET', null);
+  const requestOptions = createRequestOptions('GET', null) as RequestInit;
   const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
     const response = await fetch(route, requestOptions);
     const result: unknown = await response.json();
-    return result;
+    return result as Delivery[]; // Type assertion to cast result as Delivery[]
   } catch (error) {
     console.error('Error get deliveries:', error);
   }
@@ -128,12 +129,12 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
 
 // edit order info
 export async function updateOrder(delivery: Delivery): Promise<boolean> {
-  const newDelivery = { ...delivery, order_id: delivery.shipping_id };
+  const newDelivery = { ...delivery, order_i: delivery.shipping_id };
   delete newDelivery?.shipping_id;
   delete newDelivery?.driver_id; // to be deleted
   delete newDelivery?.shipping_status;
 
-  const requestOptions = createRequestOptions('PUT', newDelivery);
+  const requestOptions = createRequestOptions('PUT', newDelivery) as RequestInit;
   const route = `${api}/order/update_order`;
 
   try {
@@ -149,7 +150,7 @@ export async function updateOrder(delivery: Delivery): Promise<boolean> {
 // editOrderDeliveryDate & updateDeliveryDate must be used in conjunction with each other to update delivery date
 // if not, just use updateShippingDate
 export async function updateShippingDate(delivery: Delivery, oldDate: string): Promise<boolean> {
-  const requestOptions = createRequestOptions('PUT', {});
+  const requestOptions = createRequestOptions('PUT', {}) as RequestInit;
   const route = `${api}/order_shipping/update_shipping_date/?order_id=${delivery.shipping_id}&delivery_date=${oldDate}&new_delivery_date=${delivery.delivery_date}`;
 
   try {
@@ -167,7 +168,7 @@ export async function editOrderDeliveryDate(delivery: Delivery): Promise<boolean
   const requestOptions = createRequestOptions('PUT', {
     order_id: delivery.shipping_id,
     delivery_date: delivery.delivery_date,
-  });
+  }) as RequestInit;
   const route = `${api}/order/update_delivery_date`;
 
   try {
@@ -185,7 +186,7 @@ export async function updateDeliveryDate(delivery: Delivery): Promise<boolean> {
   const requestOptions = createRequestOptions('PUT', {
     order_id: delivery.shipping_id,
     delivery_date: delivery.delivery_date,
-  });
+  }) as RequestInit;
   const route = `${api}/order/update_delivery_date`;
 
   try {
@@ -203,7 +204,7 @@ export async function updateDeliveryDate(delivery: Delivery): Promise<boolean> {
 export async function completeOrder(delivery: Delivery): Promise<boolean> {
   const requestOptions = createRequestOptions('PUT', {
     order_id: delivery.shipping_id,
-  });
+  }) as RequestInit;
   const route = `${api}/order_shipping/complete_delivery`;
 
   try {
@@ -222,7 +223,7 @@ export async function completeDelivery(delivery: Delivery, driverId: string, new
     shipping_id: delivery.shipping_id,
     shipping_status: newStatus,
     driver_id: driverId,
-  });
+  }) as RequestInit;
   const route = `${api}/shipping/update_shipping_status`;
 
   try {
@@ -240,7 +241,7 @@ export async function uploadProof(delivery: Delivery, proofImage: File, driverId
   const formData = new FormData();
   formData.append('file', proofImage);
   formData.append('user_id', driverId);
-  formData.append('shipping_id', delivery.shipping_id);
+  formData.append('shipping_id', delivery.shipping_id as string);
   formData.append('date', dayjs(delivery.delivery_date).format('YYYY-MM-DD'));
 
   const route = `${api}/order/upload_to_s3/`;
@@ -255,12 +256,12 @@ export async function uploadProof(delivery: Delivery, proofImage: File, driverId
 }
 
 // get proof of delivery
-export async function getProof(delivery: Delivery, driverId: string): Promise<string> {
+export async function getProof(delivery: Delivery, driverId: string): Promise<boolean | string> {
   const fileName = `${driverId}$${delivery.shipping_id}$${dayjs(delivery.delivery_date).format('YYYY-MM-DD')}`;
   const route = `${api}/order/retrieve_S3_url/?file_name=${fileName}`;
   try {
     const response = await fetch(route, { method: 'GET', body: null });
-    const result: unknown = await response.json();
+    const result: string = await response.json();
     return result;
   } catch (error) {
     console.error('Error complete delivery:', error);
@@ -273,7 +274,7 @@ export async function updateDeliveryTimeStamp(delivery: Delivery, date: string):
   const requestOptions = createRequestOptions('PUT', {
     order_id: delivery.shipping_id,
     delivery_timestamp: date,
-  });
+  }) as RequestInit;
   const route = `${api}/order/update_delivery_timestamp`;
 
   try {

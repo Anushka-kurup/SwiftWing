@@ -3,14 +3,14 @@ export interface Delivery {
   delivery_date: string;
   delivery_timestamp: string;
   destination: string;
-  driver_id: string;
+  driver_id?: string;
   latitude: number;
   longitude: number;
   package_weight: number;
   recipient: { phone_no: string; recipeint_name: string };
   sender_id: string;
-  shipping_id: string;
-  shipping_status: 'Awaiting Assignment' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';
+  shipping_id?: string;
+  shipping_status?: 'Awaiting Assignment' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';
   special_handling_instruction: string;
   warehouse: string;
   package_dimension: {
