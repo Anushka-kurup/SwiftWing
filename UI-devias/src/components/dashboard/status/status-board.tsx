@@ -68,7 +68,7 @@ export function StatusBoard({
   const statusBackgroundColor = (status: string): string => {
     if (status.toLowerCase() === 'awaiting assignment') {
       return '#8590C8';
-    } else if (status.toLowerCase() === 'in progress') {
+    } else if (status.toLowerCase() === 'in_progress') {
       return '#FEAE36';
     } else if (status.toLowerCase() === 'delivered') {
       return '#5DDB6A';
@@ -78,6 +78,21 @@ export function StatusBoard({
       return '#EA4CE4';
     }
     return 'white';
+  };
+
+  const statusLabel = (status: string): string => {
+    if (status.toLowerCase() === 'awaiting assignment') {
+      return 'Awaiting Assignment';
+    } else if (status.toLowerCase() === 'in_progress') {
+      return 'In Progress';
+    } else if (status.toLowerCase() === 'delivered') {
+      return 'Delivered';
+    } else if (status.toLowerCase() === 'failed') {
+      return 'Failed';
+    } else if (status.toLowerCase() === 'on_hold') {
+      return 'On Hold';
+    }
+    return '';
   };
 
   return (
@@ -161,7 +176,7 @@ export function StatusBoard({
                     >
                       <Chip
                         sx={{ bgcolor: statusBackgroundColor(row.shipping_status), color: 'white' }}
-                        label={row.shipping_status}
+                        label={statusLabel(row.shipping_status)}
                       />
                     </TableCell>
                   </TableRow>
