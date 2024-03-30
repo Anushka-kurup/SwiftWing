@@ -31,7 +31,9 @@ const schema = zod.object({
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: 'admin123@gmail.com', password: 'admin123', role:'admin'} satisfies Values;
+const defaultValuesAdmin = { email: 'admin123@gmail.com', password: 'admin123', role:'admin'} satisfies Values;
+const defaultValuesClient = { email: 'client1@gmail.com', password: 'hashedpasasword', role:'client'} satisfies Values;
+const defaultValuesDriver = { email: 'adamtan123@gmail.com', password: 'adamtan123', role:'driver'} satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
@@ -42,12 +44,42 @@ export function SignInForm(): React.JSX.Element {
 
   const [isPending, setIsPending] = React.useState<boolean>(false);
 
+  const handleRoleChange = (value: string) => {
+    switch (value) {
+      case 'admin':
+        setDefaultValues(defaultValuesAdmin);
+        break;
+      case 'client':
+        setDefaultValues(defaultValuesClient);
+        break;
+      case 'driver':
+        setDefaultValues(defaultValuesDriver);
+        break;
+      default:
+        setDefaultValues(defaultValuesAdmin);
+        break;
+    }
+  };
+
+  const [defaultValues, setDefaultValues] = React.useState(defaultValuesAdmin);
+
+  React.useEffect(() => {
+    setDefaultValues(defaultValuesAdmin);
+  }, []);
+
+  React.useEffect(() => {
+    control._reset(defaultValues);
+  }, [defaultValues]);
+
   const {
     control,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<Values>({ defaultValues, resolver: zodResolver(schema) });
+  } = useForm<Values>({
+    defaultValues,
+    resolver: zodResolver(schema),
+  });
 
   const onSubmit = React.useCallback(
     async (values: Values): Promise<void> => {
@@ -71,6 +103,7 @@ export function SignInForm(): React.JSX.Element {
     [checkSession, router, setError]
   );
 
+
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
@@ -90,7 +123,7 @@ export function SignInForm(): React.JSX.Element {
             render={({ field }) => (
               <FormControl error={Boolean(errors.role)}>
               <InputLabel>Role</InputLabel>
-              <Select {...field} label="Role" >
+              <Select {...field} label="Role" onChange={(e) => handleRoleChange(e.target.value)}>
                 <MenuItem value="driver">Driver</MenuItem>
                 <MenuItem value="admin">Admin</MenuItem>
                 <MenuItem value="client">Client</MenuItem>
