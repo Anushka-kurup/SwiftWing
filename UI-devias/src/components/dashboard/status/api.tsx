@@ -52,7 +52,11 @@ export async function getRouteList(startDate: string): Promise<unknown[]> {
 }
 
 // get deliveries by date
-export async function getDeliveriesByDateAndDriver(startDate: string, endDate: string, driverID:string): Promise<Delivery[]> {
+export async function getDeliveriesByDateAndDriver(
+  startDate: string,
+  endDate: string,
+  driverID: string
+): Promise<Delivery[]> {
   const requestOptions = createRequestOptions('GET', null);
   const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
@@ -63,15 +67,17 @@ export async function getDeliveriesByDateAndDriver(startDate: string, endDate: s
     console.log(routeList);
     console.log(driverID);
 
-    const driverRoute = routeList["delivery_map"][driverID];
+    const driverRoute = routeList['delivery_map'][driverID];
     if (!driverRoute) {
       return [];
     }
-    const deliveries: Delivery[] = allOrders.map((order: Delivery) => {
-      if (driverRoute?.includes(order.shipping_id)) {
-        return order;
-      }
-    }).filter((delivery) => delivery !== null && delivery !== undefined); 
+    const deliveries: Delivery[] = allOrders
+      .map((order: Delivery) => {
+        if (driverRoute?.includes(order.shipping_id)) {
+          return order;
+        }
+      })
+      .filter((delivery) => delivery !== null && delivery !== undefined);
     console.log(deliveries);
     return deliveries;
   } catch (error) {
@@ -79,7 +85,6 @@ export async function getDeliveriesByDateAndDriver(startDate: string, endDate: s
   }
   return [];
 }
-
 
 // get orders by date
 export async function getOrdersByDate(startDate: string, endDate: string): Promise<unknown> {
@@ -113,7 +118,7 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
 export async function updateOrder(delivery: Delivery): Promise<boolean> {
   const newDelivery = { ...delivery, order_id: delivery.shipping_id };
   delete newDelivery?.shipping_id;
-  delete newDelivery?.driver_id;
+  delete newDelivery?.driver_id; // to be deleted
   delete newDelivery?.shipping_status;
 
   const requestOptions = createRequestOptions('PUT', newDelivery);
@@ -200,11 +205,11 @@ export async function completeOrder(delivery: Delivery): Promise<boolean> {
 }
 
 // complete delivery
-export async function completeDelivery(delivery: Delivery): Promise<boolean> {
+export async function completeDelivery(delivery: Delivery, driverId: string): Promise<boolean> {
   const requestOptions = createRequestOptions('POST', {
     shipping_id: delivery.shipping_id,
     shipping_status: 'Delivered',
-    driver_id: delivery.driver_id,
+    driver_id: driverId,
   });
   const route = `${api}/shipping/update_shipping_status`;
 
@@ -219,10 +224,10 @@ export async function completeDelivery(delivery: Delivery): Promise<boolean> {
 }
 
 // upload proof of delivery
-export async function uploadProof(delivery: Delivery, proofImage: File): Promise<boolean> {
+export async function uploadProof(delivery: Delivery, proofImage: File, driverId: string): Promise<boolean> {
   const formData = new FormData();
   formData.append('file', proofImage);
-  formData.append('user_id', delivery.driver_id);
+  formData.append('user_id', driverId);
   formData.append('shipping_id', delivery.shipping_id);
   formData.append('date', dayjs(delivery.delivery_date).format('YYYY-MM-DD'));
 
@@ -238,8 +243,8 @@ export async function uploadProof(delivery: Delivery, proofImage: File): Promise
 }
 
 // get proof of delivery
-export async function getProof(delivery: Delivery): Promise<string> {
-  const fileName = `${delivery.driver_id}$${delivery.shipping_id}$${dayjs(delivery.delivery_date).format('YYYY-MM-DD')}`;
+export async function getProof(delivery: Delivery, driverId: string): Promise<string> {
+  const fileName = `${driverId}$${delivery.shipping_id}$${dayjs(delivery.delivery_date).format('YYYY-MM-DD')}`;
   const route = `${api}/order/retrieve_S3_url/?file_name=${fileName}`;
   try {
     const response = await fetch(route, { method: 'GET', body: null });
