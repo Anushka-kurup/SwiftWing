@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  backend:
+      build:
+        context: ./api  
+      ports:
+        - "5000:5000"  
+      environment:
+        - AWS_ACCESS_KEY_ID=AKIA2UC3FZHSQNT3NJNY
+        - AWS_SECRET_ACCESS_KEY=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
+        - AWS_REGION=us-east-1
+      networks:
+        - app-network
+        
+  frontend:
+      build:
+        context: ./UI-devias  
+      ports:
+        - "3000:3000"  
+      depends_on:
+        - backend  
+      networks:
+        - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
