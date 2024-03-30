@@ -217,10 +217,10 @@ export async function completeOrder(delivery: Delivery): Promise<boolean> {
 }
 
 // complete delivery
-export async function completeDelivery(delivery: Delivery, driverId: string): Promise<boolean> {
+export async function completeDelivery(delivery: Delivery, driverId: string, newStatus: string): Promise<boolean> {
   const requestOptions = createRequestOptions('POST', {
     shipping_id: delivery.shipping_id,
-    shipping_status: 'Delivered',
+    shipping_status: newStatus,
     driver_id: driverId,
   });
   const route = `${api}/shipping/update_shipping_status`;

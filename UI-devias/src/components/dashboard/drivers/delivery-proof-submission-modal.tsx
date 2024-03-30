@@ -64,7 +64,8 @@ export function DeliveryProofSubmissionModal({
       if (uploadProofResult) {
         // Complete delivery status
         const completeOrderResult = await completeOrder(deliveryInfo);
-        const completeDeliveryResult = completeOrderResult && (await completeDelivery(deliveryInfo, driverId));
+        const completeDeliveryResult =
+          completeOrderResult && (await completeDelivery(deliveryInfo, driverId, 'Delivered'));
 
         // Update delivery timestamp
         const nowTimeStamp = dayjs().format('YYYY-MM-DDTHH:mm:ss');
@@ -92,6 +93,17 @@ export function DeliveryProofSubmissionModal({
     return '';
   };
 
+  const onClickFailed = async (): Promise<void> => {
+    if (deliveryInfo) {
+      await completeDelivery(deliveryInfo, driverId, 'Failed');
+
+      // Close modal
+      if (onClickModal) {
+        onClickModal();
+      }
+    }
+  };
+
   return (
     <div>
       <Dialog open={modalOpen} maxWidth="md">
@@ -110,9 +122,9 @@ export function DeliveryProofSubmissionModal({
             <LoadingButton variant="contained" color="error" onClick={onClickClose} disabled={submitBtnLoading}>
               Cancel
             </LoadingButton>
-            {/* <LoadingButton variant="contained" color="error" onClick={onClickClose}>
+            <LoadingButton variant="contained" color="error" onClick={onClickFailed}>
               Failed
-            </LoadingButton> */}
+            </LoadingButton>
             <LoadingButton variant="contained" color="primary" onClick={onClickSubmit} loading={submitBtnLoading}>
               Submit
             </LoadingButton>

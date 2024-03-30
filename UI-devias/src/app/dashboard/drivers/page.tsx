@@ -41,7 +41,7 @@ export default function Page(): React.JSX.Element {
 
   React.useEffect(() => {
     void fetchDeliveriesByDate(date);
-  }, [date]);
+  }, [date, submissionModalOpen]);
 
   return (
     <Stack spacing={3}>
