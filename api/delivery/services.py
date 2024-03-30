@@ -223,9 +223,9 @@ class DeliveryService:
                 else:
                     curr_delivery_date = str(date.fromisoformat(str(delivery.delivery_date)))
                     print(curr_delivery_date)
-                    new_delivery = Delivery(delivery_date= curr_delivery_date, delivery_map={"unassigned": [delivery.delivery_id]})
+                    new_delivery = Delivery(delivery_date= curr_delivery_date, delivery_map={"00-unassigned": [delivery.delivery_id]})
                     print(new_delivery)
-                    return self.create_delivery(Delivery(delivery_date= curr_delivery_date, delivery_map={"unassigned": [delivery.delivery_id]}))
+                    return self.create_delivery(Delivery(delivery_date= curr_delivery_date, delivery_map={"00-unassigned": [delivery.delivery_id]}))
 
         except Exception as e:
             print(f"Error updating delivery list based on verification: {e}")

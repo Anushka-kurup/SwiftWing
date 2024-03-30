@@ -42,7 +42,7 @@ class OrderService:
             order_id = str(uuid.uuid4())
             created_date_str = str(datetime.now().isoformat())
             recipient_map = {key: {'S': value} for key, value in order.recipient.items()}
-            package_map = {key: {'S': value} for key, value in order.package_dimension.items()}
+            package_map = {key: {'S': str(value)} for key, value in order.package_dimension.items()}
             delivery_date = order.delivery_date
             if delivery_date=="" or delivery_date==None:
                 delivery_date = ""
