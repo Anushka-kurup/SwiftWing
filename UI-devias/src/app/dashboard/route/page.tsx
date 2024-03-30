@@ -49,6 +49,7 @@ export default function Page(): React.JSX.Element {
           setDeliveries(data);
         } catch (error) {
           console.error('Error fetching deliveries:', error);
+          setDeliveries([]);
       } finally {
           setIsLoadingDeliveries(false);
       }
@@ -80,6 +81,7 @@ export default function Page(): React.JSX.Element {
           });
         } catch (error) {
           console.error('Error fetching deliveries:', error);
+          setRoute([]);
       } finally {
         setIsLoadingRoute(false);
       }
@@ -105,6 +107,7 @@ export default function Page(): React.JSX.Element {
             console.log(data);
         } catch (error) {
             console.error('Error fetching deliveries:', error);
+            setDrivers([]);
         }
         finally {
           setIsLoadingDrivers(false);
@@ -178,42 +181,39 @@ export default function Page(): React.JSX.Element {
     ]
   ]
   */
-  useEffect(() => {
-    if (!isloadingdeliveries && !isloadingdrivers && !isloadingroute && deliveries.length > 0 && drivers.length > 0 && Object.keys(route).length > 0){
-      //reset delivery map
-      //setDeliveryMap([]);
-      //Set routed deliveries first
-      console.log("Working???")
-      for (let i = 0; i < deliveryUser.length; i++) {
 
-        var driverName = ''
-        const user = deliveryUser[i];
-        if (user === "00-unassigned"){
-          driverName = "unassigned";
-        }
-        else{driverName = drivers.find((driver) => driver.user_id === user).name;}
-        const driverDeliveries = route[i]
-        const deliveriesAssigned = Array();
-        driverDeliveries.forEach((shipping_id: any) => {
-          const delivery = deliveries.find((delivery) => delivery.shipping_id === shipping_id);
-          deliveriesAssigned.push(delivery);
-        });
-        console.log(deliveriesAssigned)
-        console.log("here")
-        setDeliveryMap((prev) => [...prev, deliveriesAssigned]);
-      }
-    }
+  React.useEffect(() => {
     if (Object.keys(deliveryMap).length > 0){
       setIsLoading(false);
     }
-    console.log("running")
-    console.log(deliveryMap)
-    console.log(route)
-    console.log(deliveryUser)
-    console.log(drivers)
-    console.log(isloadingdeliveries)
-    console.log(isloadingdrivers)
-    console.log(isloadingroute)
+  }, [deliveryMap]);
+  useEffect(() => {
+      if (!isloadingdeliveries && !isloadingdrivers && !isloadingroute && deliveries.length > 0 && drivers.length > 0 && Object.keys(route).length > 0){
+        //reset delivery map
+        setDeliveryMap([]);
+        //Set routed deliveries first
+        console.log("Working???")
+        for (let i = 0; i < deliveryUser.length; i++) {
+
+          var driverName = ''
+          const user = deliveryUser[i];
+          if (user === "00-unassigned"){
+            driverName = "unassigned";
+          }
+          else{driverName = drivers.find((driver) => driver.user_id === user).name;}
+          const driverDeliveries = route[i]
+          const deliveriesAssigned = Array();
+          driverDeliveries.forEach((shipping_id: any) => {
+            const delivery = deliveries.find((delivery) => delivery.shipping_id === shipping_id);
+            deliveriesAssigned.push(delivery);
+          });
+          console.log(deliveriesAssigned)
+          console.log("here")
+          setDeliveryMap((prev) => [...prev, deliveriesAssigned]);
+        }
+      }
+      else{
+      setDeliveryMap([]);}
   }, [route, deliveries, drivers, isloadingdeliveries, isloadingdrivers, isloadingroute]);
 
   //Change tabs
@@ -273,6 +273,18 @@ export default function Page(): React.JSX.Element {
     </Grid> : 
     <Box sx={{ display: 'flex' }}>
       <CircularProgress />
+      <Grid xs={12}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker', 'DatePicker']}>
+                        <DatePicker
+                            label="Date Select"
+                            value={date}
+                            onChange={(newValue) => setDate(newValue)}
+                        />
+                    </DemoContainer>
+                </LocalizationProvider>
+            </Grid>
+      <h2>No Deliveries Found!</h2>
     </Box>
       }
     </div>
