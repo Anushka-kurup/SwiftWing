@@ -101,6 +101,32 @@ export function Optimize(props: OptimizeProps): JSX.Element {
         .then((data) => {
             console.log('Success:', data);
         });
+
+        //Update delivery status
+        for (let i = 0; i < props.deliveryUser.length; i++) {
+            if(props.deliveryUser[i] != "00-unassigned"){
+                const driver = props.deliveryUser[i];
+                const delivery_ids = props.route[i];
+                //Update delivery status and driver 
+                for (let j = 0; j < delivery_ids.length; j++) {
+                    const payload = {
+                        "shipping_id": delivery_ids[j],
+                        "shipping_status": "In_Progress",
+                        "driver_id": driver,
+                    };
+                    console.log(payload);
+                    await fetch('http://127.0.0.1:5000/shipping/update_shipping_status_and_driver/',{
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+                        },
+                        body: JSON.stringify(payload),
+                    })
+                    }
+                }
+            }
     };
     return (
         <Grid container spacing={3}>

@@ -65,6 +65,33 @@ class ShippingService:
         except Exception as e:
             print(f"Error updating order: {e}")
             return False
+        
+    def update_shipping_status_and_driver(self, shipping: Shipping) -> bool:
+        # Code to update order in the database
+        try:
+            shipping_check = self.get_shipping(shipping.shipping_id)
+            if not shipping_check:
+                raise HTTPException(status_code=404, detail="Shipping not found")
+
+            update_expression = "SET shipping_status = :shipping_status, driver_id = :driver_id"
+            print(shipping)
+
+            expression_attribute_values = {
+                ':shipping_status': {'S': shipping.shipping_status},
+                ':driver_id': {'S': shipping.driver_id},
+                }
+
+            key = {'shipping_id': {'S': shipping.shipping_id}}
+
+            self.dynamodb.update_item(Key=key,
+                TableName=self.shippings_table_name,
+                UpdateExpression=update_expression,
+                ExpressionAttributeValues=expression_attribute_values
+            )
+            return True
+        except Exception as e:
+            print(f"Error updating order: {e}")
+            return False
 
     def update_shipping_driver(self, shipping: Shipping) -> bool:
         # Code to update order in the database

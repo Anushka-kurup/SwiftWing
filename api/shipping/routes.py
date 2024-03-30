@@ -22,6 +22,10 @@ def update_shipping_status(shipping: Shipping):
 def update_shipping_driver(shipping: Shipping):
     return shipping_service.update_shipping_driver(shipping)
 
+@router.post("/update_shipping_status_and_driver/", response_model=bool)
+def update_shipping_status_and_driver(shipping: Shipping):
+    return shipping_service.update_shipping_status_and_driver(shipping)
+
 @router.get("/view_shipping/", response_model=Shipping)
 def get_shipping(shipping_id: str):
     return shipping_service.get_shipping(shipping_id)
