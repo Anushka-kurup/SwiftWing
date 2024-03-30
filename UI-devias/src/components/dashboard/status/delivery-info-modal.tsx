@@ -5,12 +5,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
-import { Stack } from '@mui/system';
+import { Box, Stack } from '@mui/system';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { type Dayjs } from 'dayjs';
 
 import { type Delivery } from '@/types/types';
-import { updateOrder, updateShippingDate } from '@/components/dashboard/status/api';
+import { getProofById, updateOrder, updateShippingDate } from '@/components/dashboard/status/api';
 
 export function DeliveryInfoModal({
   deliveryModalInfo,
@@ -28,16 +28,33 @@ export function DeliveryInfoModal({
   const [copiedDeliveryInfo, setCopiedDeliveryInfo] = React.useState<Delivery | null>();
   const [submitLoading, setSubmitLoading] = React.useState<boolean>(false);
   const [originalDeliveryDate, setOriginalDeliveryDate] = React.useState<string | null>();
+  const [proofOfDelivery, setProofOfDelivery] = React.useState<string | null>();
 
   React.useEffect(() => {
     setCopiedDeliveryInfo(deliveryModalInfo);
   }, [deliveryModalInfo]);
 
   React.useEffect(() => {
+    async function getProofOfDelivery(deliveryInfo: Delivery, dateChosen: Dayjs): Promise<void> {
+      if (deliveryModalInfo) {
+        const proof = await getProofById(deliveryInfo, dayjs(dateChosen).format('YYYY-MM-DD'));
+        console.log(proof['url']);
+        setProofOfDelivery(proof['url']);
+      }
+    }
+
     if (deliveryModalInfo) {
       setOriginalDeliveryDate(dayjs(deliveryModalInfo.delivery_date).format('YYYY-MM-DD'));
     }
-  });
+
+    console.log(deliveryModalInfo?.shipping_status);
+
+    if (deliveryModalInfo?.shipping_status.toLowerCase() === 'delivered') {
+      void getProofOfDelivery(deliveryModalInfo, date);
+    } else {
+      setProofOfDelivery(null);
+    }
+  }, [deliveryModalInfo, date]);
 
   const onChangeDeliveryInfo = (event: React.ChangeEvent<HTMLInputElement>, info: string): void => {
     setCopiedDeliveryInfo((prev) => {
@@ -70,6 +87,12 @@ export function DeliveryInfoModal({
     });
   };
 
+  const onClickOpenProofOfDelivery = (): void => {
+    if (proofOfDelivery) {
+      window.open(proofOfDelivery, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const submitDeliveryInfo = async (deliveryInfo: Delivery | null): Promise<void> => {
     if (deliveryInfo) {
       setSubmitLoading(true);
@@ -88,7 +111,14 @@ export function DeliveryInfoModal({
   return (
     <div>
       <Dialog open={deliveryInfoModalOpen} maxWidth="md">
-        <DialogTitle>Delivery Info Modal</DialogTitle>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Delivery Info Modal
+            <LoadingButton variant="contained" onClick={onClickOpenProofOfDelivery} disabled={proofOfDelivery === null}>
+              View Proof of Delivery
+            </LoadingButton>
+          </Box>
+        </DialogTitle>
         <DialogContent>
           <Stack direction="column">
             <Stack direction="row">

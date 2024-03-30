@@ -86,6 +86,18 @@ export async function getDeliveriesByDateAndDriver(
   return [];
 }
 
+export async function getProofById(delivery: Delivery, date: string): Promise<string> {
+  // get list of route by date
+  const routeList = await getRouteList(date);
+
+  for (const driver in routeList['delivery_map']) {
+    if (routeList['delivery_map'][driver].includes(delivery.shipping_id)) {
+      const link = await getProof(delivery, driver);
+      return link;
+    }
+  }
+}
+
 // get orders by date
 export async function getOrdersByDate(startDate: string, endDate: string): Promise<unknown> {
   const requestOptions = createRequestOptions('GET', null);

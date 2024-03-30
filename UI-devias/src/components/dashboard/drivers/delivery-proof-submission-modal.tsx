@@ -172,7 +172,6 @@ function DragDropFileUpload({
   const getProofLink = React.useCallback(async () => {
     const link = await getOriginalProofLink();
     setProofLink(link['url']);
-    console.log('link:', link);
   }, [getOriginalProofLink]);
 
   React.useEffect(() => {
