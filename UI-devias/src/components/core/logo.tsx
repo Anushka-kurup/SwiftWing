@@ -41,7 +41,7 @@ export interface DynamicLogoProps {
 export function DynamicLogo({
   colorDark = 'light',
   colorLight = 'dark',
-  height = "30px",
+  height = 30,
   width = WIDTH,
   ...props
 }: DynamicLogoProps): React.JSX.Element {

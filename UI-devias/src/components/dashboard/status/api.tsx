@@ -1,11 +1,17 @@
-import * as React from 'react';
 import dayjs from 'dayjs';
 
-import type { Delivery } from '@/types/types';
+import type {
+  DriverAPIReturn,
+  RequestOptionsWithBody,
+  RequestOptionsWithoutBody,
+  RouteAPIReturn,
+  S3ProofAPIReturn,
+} from '@/types/api-return-types';
+import type { Delivery, Driver } from '@/types/types';
 
 const api = 'http://localhost:5000';
 
-function createRequestOptions(method: string, body: unknown): unknown {
+function createRequestOptions(method: string, body: unknown): RequestOptionsWithBody | RequestOptionsWithoutBody {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -26,12 +32,12 @@ function createRequestOptions(method: string, body: unknown): unknown {
 }
 
 // get all drivers - may wanna change this to get all drivers that are assigned to delivery
-export async function getDrivers(): Promise<unknown[]> {
+export async function getDrivers(): Promise<Driver[]> {
   const requestOptions = createRequestOptions('GET', null);
   try {
-    const response = await fetch(api + '/auth/get_all_drivers', requestOptions);
-    const result: unknown = await response.json();
-    return result;
+    const response = await fetch(`${api}/auth/get_all_drivers`, requestOptions);
+    const result = (await response.json()) as DriverAPIReturn;
+    return result.drivers;
   } catch (error) {
     console.error('Error get drivers:', error);
   }
@@ -39,16 +45,16 @@ export async function getDrivers(): Promise<unknown[]> {
 }
 
 // get orderID assigned to driver by date
-export async function getRouteList(startDate: string): Promise<unknown[]> {
+export async function getRouteList(startDate: string): Promise<RouteAPIReturn> {
   const requestOptions = createRequestOptions('GET', null);
   try {
-    const response = await fetch(api + '/delivery/get_delivery/?delivery_date=' + startDate, requestOptions);
-    const result: unknown = await response.json();
+    const response = await fetch(`${api}/delivery/get_delivery/?delivery_date=${startDate}`, requestOptions);
+    const result = (await response.json()) as RouteAPIReturn;
     return result;
   } catch (error) {
     console.error('Error get drivers:', error);
   }
-  return [];
+  return { delivery_date: '', delivery_map: {} };
 }
 
 // get deliveries by date
@@ -57,29 +63,22 @@ export async function getDeliveriesByDateAndDriver(
   endDate: string,
   driverID: string
 ): Promise<Delivery[]> {
-  const requestOptions = createRequestOptions('GET', null);
-  const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
-    const response = await fetch(route, requestOptions);
-    const allOrders: unknown = await response.json();
-
+    const allOrders = await getDeliveriesByDate(startDate, endDate);
     const routeList = await getRouteList(startDate);
-    console.log(routeList);
-    console.log(driverID);
 
-    const driverRoute = routeList['delivery_map'][driverID];
-    if (!driverRoute) {
-      return [];
+    const driverRoute = routeList.delivery_map[driverID];
+    if (driverRoute) {
+      const deliveries = allOrders
+        .map((order: Delivery) => {
+          if (driverRoute?.includes(order?.shipping_id ?? '')) {
+            return order;
+          }
+          return [];
+        })
+        .filter((delivery) => delivery !== null && delivery !== undefined) as Delivery[];
+      return deliveries;
     }
-    const deliveries: Delivery[] = allOrders
-      .map((order: Delivery) => {
-        if (driverRoute?.includes(order.shipping_id)) {
-          return order;
-        }
-      })
-      .filter((delivery) => delivery !== null && delivery !== undefined);
-    console.log(deliveries);
-    return deliveries;
   } catch (error) {
     console.error('Error get deliveries:', error);
   }
@@ -90,12 +89,14 @@ export async function getProofById(delivery: Delivery, date: string): Promise<st
   // get list of route by date
   const routeList = await getRouteList(date);
 
-  for (const driver in routeList['delivery_map']) {
-    if (routeList['delivery_map'][driver].includes(delivery.shipping_id)) {
+  for (const driver in routeList.delivery_map) {
+    const driverRoutes = routeList.delivery_map[driver];
+    if (driverRoutes.includes(delivery?.shipping_id ?? '')) {
       const link = await getProof(delivery, driver);
       return link;
     }
   }
+  return '';
 }
 
 // get orders by date
@@ -118,7 +119,7 @@ export async function getDeliveriesByDate(startDate: string, endDate: string): P
   const route = `${api}/order_shipping/get_shipping_info_by_delivery_date?start_date=${startDate}&end_date=${endDate}`;
   try {
     const response = await fetch(route, requestOptions);
-    const result: unknown = await response.json();
+    const result = (await response.json()) as Delivery[];
     return result;
   } catch (error) {
     console.error('Error get deliveries:', error);
@@ -240,7 +241,7 @@ export async function uploadProof(delivery: Delivery, proofImage: File, driverId
   const formData = new FormData();
   formData.append('file', proofImage);
   formData.append('user_id', driverId);
-  formData.append('shipping_id', delivery.shipping_id);
+  delivery.shipping_id && formData.append('shipping_id', delivery.shipping_id);
   formData.append('date', dayjs(delivery.delivery_date).format('YYYY-MM-DD'));
 
   const route = `${api}/order/upload_to_s3/`;
@@ -260,12 +261,12 @@ export async function getProof(delivery: Delivery, driverId: string): Promise<st
   const route = `${api}/order/retrieve_S3_url/?file_name=${fileName}`;
   try {
     const response = await fetch(route, { method: 'GET', body: null });
-    const result: unknown = await response.json();
-    return result;
+    const result = (await response.json()) as S3ProofAPIReturn;
+    return result.url;
   } catch (error) {
     console.error('Error complete delivery:', error);
   }
-  return false;
+  return '';
 }
 
 // update delivery timestamp

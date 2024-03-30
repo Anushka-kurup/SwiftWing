@@ -1,9 +1,11 @@
+import type { RequestOptionsWithBody, RequestOptionsWithoutBody } from '@/types/api-return-types';
 import type { Delivery } from '@/types/types';
-import { Order } from './delivery-info-modal';
+
+import type { Order } from './delivery-info-modal';
 
 const api = 'http://localhost:5000';
 
-function createRequestOptions(method: string, body: unknown): unknown {
+function createRequestOptions(method: string, body: unknown): RequestOptionsWithBody | RequestOptionsWithoutBody {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -24,9 +26,13 @@ function createRequestOptions(method: string, body: unknown): unknown {
 }
 
 // get deliveries by date and sender
-export async function getDeliveriesByDateAndSender(sender_id: string, startDate: string, endDate: string): Promise<Delivery[]> {
+export async function getDeliveriesByDateAndSender(
+  senderId: string,
+  startDate: string,
+  endDate: string
+): Promise<Delivery[]> {
   const requestOptions = createRequestOptions('GET', null);
-  const route = `${api}/order_shipping/get_shipping_info_by_user_id/?sender_id=${sender_id}&start_date=${startDate}&end_date=${endDate}`;
+  const route = `${api}/order_shipping/get_shipping_info_by_user_id/?sender_id=${senderId}&start_date=${startDate}&end_date=${endDate}`;
   try {
     const response = await fetch(route, requestOptions);
     const result: unknown = await response.json();
@@ -37,7 +43,7 @@ export async function getDeliveriesByDateAndSender(sender_id: string, startDate:
   return [];
 }
 
-// create delivery 
+// create delivery
 export async function createOrderShipping(order: Order): Promise<unknown> {
   const body = order;
   console.log(body);
@@ -53,11 +59,14 @@ export async function createOrderShipping(order: Order): Promise<unknown> {
   return [];
 }
 
-export async function getLatLong(address : string): Promise<{latitude: string, longitude: string}> {
+export async function getLatLong(address: string): Promise<{ latitude: string; longitude: string }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(address)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`);
-    xhr.onload = function() {
+    xhr.open(
+      'GET',
+      `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(address)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`
+    );
+    xhr.onload = function () {
       if (this.status >= 200 && this.status < 300) {
         const response = JSON.parse(xhr.responseText);
         if (response.results && response.results.length > 0) {
@@ -70,7 +79,7 @@ export async function getLatLong(address : string): Promise<{latitude: string, l
         reject(xhr.statusText);
       }
     };
-    xhr.onerror = function() {
+    xhr.onerror = function () {
       reject(xhr.statusText);
     };
     xhr.send();

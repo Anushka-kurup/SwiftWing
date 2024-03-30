@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
+import { Chip } from '@mui/material';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Checkbox from '@mui/material/Checkbox';
@@ -16,7 +16,6 @@ import dayjs from 'dayjs';
 
 import { type Delivery } from '@/types/types';
 import { useSelection } from '@/hooks/use-selection';
-import { Chip } from '@mui/material';
 
 interface StatusBoardProps {
   count?: number;
@@ -33,7 +32,7 @@ export function StatusBoard({
   page = 0,
   rowsPerPage = 0,
   setPage,
-  setRowsPerPage
+  setRowsPerPage,
 }: StatusBoardProps): React.JSX.Element {
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number): void => {
     if (setPage) {
@@ -42,8 +41,12 @@ export function StatusBoard({
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    if (setRowsPerPage) {
+      setRowsPerPage(parseInt(event.target.value, 10));
+    }
+    if (setPage) {
+      setPage(0);
+    }
   };
 
   const rowIds = React.useMemo(() => {
@@ -67,7 +70,7 @@ export function StatusBoard({
     } else if (status.toLowerCase() === 'on hold') {
       return '#EA4CE4';
     }
-    return 'white';
+    return 'black';
   };
 
   return (
@@ -122,7 +125,7 @@ export function StatusBoard({
                     <TableCell>{row.destination}</TableCell>
                     <TableCell>
                       <Chip
-                        sx={{ bgcolor: statusBackgroundColor(row.shipping_status), color: 'white' }}
+                        sx={{ bgcolor: statusBackgroundColor(row?.shipping_status ?? ''), color: 'white' }}
                         label={row.shipping_status}
                       />
                     </TableCell>

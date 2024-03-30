@@ -6,6 +6,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import { Box, Stack } from '@mui/system';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { type Dayjs } from 'dayjs';
 
@@ -22,8 +24,8 @@ export function DeliveryInfoModal({
   deliveryModalInfo: Delivery | null;
   deliveryInfoModalOpen: boolean;
   onClickDeliveryInfoModal: React.MouseEventHandler;
-  fetchDeliveriesByDate: (unformattedDate: Dayjs) => Promise<void>;
-  date: Dayjs;
+  fetchDeliveriesByDate: (unformattedDate: Dayjs | null) => Promise<void>;
+  date: Dayjs | null;
 }): React.JSX.Element {
   const [copiedDeliveryInfo, setCopiedDeliveryInfo] = React.useState<Delivery | null>();
   const [submitLoading, setSubmitLoading] = React.useState<boolean>(false);
@@ -35,11 +37,10 @@ export function DeliveryInfoModal({
   }, [deliveryModalInfo]);
 
   React.useEffect(() => {
-    async function getProofOfDelivery(deliveryInfo: Delivery, dateChosen: Dayjs): Promise<void> {
+    async function getProofOfDelivery(deliveryInfo: Delivery, dateChosen: Dayjs | null): Promise<void> {
       if (deliveryModalInfo) {
         const proof = await getProofById(deliveryInfo, dayjs(dateChosen).format('YYYY-MM-DD'));
-        console.log(proof['url']);
-        setProofOfDelivery(proof['url']);
+        setProofOfDelivery(proof);
       }
     }
 
@@ -47,9 +48,7 @@ export function DeliveryInfoModal({
       setOriginalDeliveryDate(dayjs(deliveryModalInfo.delivery_date).format('YYYY-MM-DD'));
     }
 
-    console.log(deliveryModalInfo?.shipping_status);
-
-    if (deliveryModalInfo?.shipping_status.toLowerCase() === 'delivered') {
+    if (deliveryModalInfo?.shipping_status?.toLowerCase() === 'delivered') {
       void getProofOfDelivery(deliveryModalInfo, date);
     } else {
       setProofOfDelivery(null);
@@ -78,7 +77,7 @@ export function DeliveryInfoModal({
     });
   };
 
-  const onChangeDeliveryDate = (newDeliveryDate: Date | null): void => {
+  const onChangeDeliveryDate = (newDeliveryDate: Dayjs | null): void => {
     setCopiedDeliveryInfo((prev) => {
       if (prev && dayjs(newDeliveryDate).isValid()) {
         return { ...prev, delivery_date: dayjs(newDeliveryDate).format('YYYY-MM-DD') };
@@ -96,8 +95,6 @@ export function DeliveryInfoModal({
   const submitDeliveryInfo = async (deliveryInfo: Delivery | null): Promise<void> => {
     if (deliveryInfo) {
       setSubmitLoading(true);
-      console.log(originalDeliveryDate);
-      console.log(deliveryInfo.delivery_date);
       void (
         (await updateOrder(deliveryInfo)) &&
         originalDeliveryDate &&
@@ -155,22 +152,24 @@ export function DeliveryInfoModal({
                   onChangeDeliveryInfo(event, 'postal_code');
                 }}
               />
-              <DatePicker
-                label="Date"
-                sx={{ m: 1, width: '30%' }}
-                format="YYYY-MM-DD"
-                value={dayjs(copiedDeliveryInfo?.delivery_date)}
-                slotProps={{
-                  textField: {
-                    required: true,
-                    helperText: 'Delivery Date',
-                    fullWidth: true,
-                  },
-                }}
-                onChange={(newDate: Date | null) => {
-                  onChangeDeliveryDate(newDate);
-                }}
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Date"
+                  sx={{ m: 1, width: '30%' }}
+                  format="YYYY-MM-DD"
+                  value={dayjs(copiedDeliveryInfo?.delivery_date)}
+                  slotProps={{
+                    textField: {
+                      required: true,
+                      helperText: 'Delivery Date',
+                      fullWidth: true,
+                    },
+                  }}
+                  onChange={(newDate: Dayjs | null) => {
+                    onChangeDeliveryDate(newDate);
+                  }}
+                />
+              </LocalizationProvider>
             </Stack>
 
             <Stack direction="row">
@@ -295,7 +294,7 @@ export function DeliveryInfoModal({
               type="submit"
               sx={{ width: 100 }}
               onClick={() => {
-                submitDeliveryInfo(copiedDeliveryInfo);
+                copiedDeliveryInfo && void submitDeliveryInfo(copiedDeliveryInfo);
               }}
               loading={submitLoading}
             >

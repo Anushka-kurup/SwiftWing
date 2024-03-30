@@ -33,7 +33,7 @@ export function DeliveryProofSubmissionModal({
   deliveryInfo: Delivery | null;
   modalOpen: boolean;
   onClickModal?: VoidFunction;
-  fetchDeliveriesByDate: (unformattedDate: Dayjs) => Promise<void>;
+  fetchDeliveriesByDate: (unformattedDate: Dayjs | null) => Promise<void>;
   date: Dayjs | null;
   driverId: string;
 }): React.JSX.Element {
@@ -183,7 +183,7 @@ function DragDropFileUpload({
 
   const getProofLink = React.useCallback(async () => {
     const link = await getOriginalProofLink();
-    setProofLink(link['url']);
+    setProofLink(link);
   }, [getOriginalProofLink]);
 
   React.useEffect(() => {

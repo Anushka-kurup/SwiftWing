@@ -27,17 +27,17 @@ export function GuestGuard({ children }: GuestGuardProps): React.JSX.Element | n
       return;
     }
 
-    if (user?.role == "admin") {
+    if (user?.role === "admin") {
       logger.debug('[GuestGuard]: User is logged in, redirecting to status page');
-      router.replace(paths.dashboard.status);
+      router.replace(paths.dashboard.overview);
       return;
     }
-    else if (user?.role == "driver") {
+    else if (user?.role === "driver") {
       logger.debug('[GuestGuard]: User is logged in, redirecting to driver page');
       router.replace(paths.dashboard.drivers);
       return;
     }
-    else if (user?.role == "client") {
+    else if (user?.role === "client") {
       logger.debug('[GuestGuard]: User is logged in, redirecting to overview');
       router.replace(paths.dashboard.overview);
       return;

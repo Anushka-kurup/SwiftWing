@@ -1,36 +1,35 @@
 import * as React from 'react';
+import { useContext } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
-import CheckIcon from '@mui/icons-material/Check';
-import { Alert } from '@mui/material';
-
 import { Stack } from '@mui/system';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimeField } from '@mui/x-date-pickers/TimeField';
-import dayjs, { Dayjs } from 'dayjs';
-import { createOrderShipping, getLatLong } from './api';
-import { useContext } from 'react';
+import dayjs, { type Dayjs } from 'dayjs';
+
 import { UserContext, UserContextValue } from '@/contexts/user-context';
 
-import { type Delivery } from '@/types/types';
+import { createOrderShipping, getLatLong } from './api';
 
-import { Dict } from 'typescript';
-// ...
 export interface Order {
   sender_id: string;
   order_id: string;
   warehouse: string;
   destination: string;
-  package_dimension: Dict<string, any>;
+  package_dimension: {
+    S: string;
+    L: string;
+    M: string;
+    Pallet: string;
+  };
   package_weight: number;
   special_handling_instruction: string;
   latitude: number;
   longitude: number;
-  recipient: Dict<string, any>;
+  recipient: { phone_no: string; recipeint_name: string };
   created_date: Date;
   delivery_date?: Date;
   delivery_timestamp?: Date | null;
@@ -39,12 +38,11 @@ export interface Order {
 export function DeliveryInfoModal({
   deliveryInfoModalOpen,
   onClickDeliveryInfo,
-  sender_id
+  sender_id,
 }: {
   deliveryInfoModalOpen: boolean;
   onClickDeliveryInfo: () => void;
-  sender_id: string
-  
+  sender_id: string;
 }): React.JSX.Element {
   const [address, setAddress] = React.useState('');
   const [postalCode, setPostalCode] = React.useState('');
@@ -58,11 +56,11 @@ export function DeliveryInfoModal({
   const [specialInstructions, setSpecialInstructions] = React.useState('');
 
   const userContext = useContext(UserContext);
-  const {user, error, isLoading} = userContext as UserContextValue;
+  const { user, error, isLoading } = userContext as UserContextValue;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const full_address = address + " " + postalCode;
+    const full_address = address + ' ' + postalCode;
     const { latitude, longitude } = await getLatLong(postalCode);
     const package_weight = Math.floor(Math.random() * 15) + 1;
     const order: Order = {
@@ -71,26 +69,26 @@ export function DeliveryInfoModal({
       warehouse: '313@Somerset, 313 Orchard Road, Singapore 238895',
       destination: full_address,
       package_dimension: {
-        'S': s,
-        'L': l,
-        'M': m,
-        'Pallet': pallet
+        S: s,
+        L: l,
+        M: m,
+        Pallet: pallet,
       },
       package_weight: package_weight,
       special_handling_instruction: specialInstructions,
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
       recipient: {
-        'recipeint_name': recipientName,
-        'phone_no': phoneNumber
+        recipeint_name: recipientName,
+        phone_no: phoneNumber,
       },
       created_date: new Date(),
       delivery_date: date ? date.toDate() : undefined,
-      delivery_timestamp: null
+      delivery_timestamp: null,
     };
     const result = await createOrderShipping(order);
     console.log(result);
-    if (result){
+    if (result) {
       setAddress('');
       setPostalCode('');
       setDate(dayjs());
@@ -125,30 +123,30 @@ export function DeliveryInfoModal({
           </Stack>
 
           <Stack direction="row">
-              <TextField
-                sx={{ m: 1 }}
-                required
-                fullWidth
-                label="Postal Code"
-                placeholder="Insert Postal Code Here"
-                helperText="Postal Code"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-              />
-              <DatePicker
-                sx={{ m: 1 }}
-                format="YYYY-MM-DD"
-                defaultValue={date}
-                slotProps={{
-                  textField: {
-                    required: true,
-                    helperText: 'Delivery Date',
-                    fullWidth: true,
-                  },
-                }}
-                label="Date"
-                onChange={(date) => setDate(date)}
-              />
+            <TextField
+              sx={{ m: 1 }}
+              required
+              fullWidth
+              label="Postal Code"
+              placeholder="Insert Postal Code Here"
+              helperText="Postal Code"
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+            />
+            <DatePicker
+              sx={{ m: 1 }}
+              format="YYYY-MM-DD"
+              defaultValue={date}
+              slotProps={{
+                textField: {
+                  required: true,
+                  helperText: 'Delivery Date',
+                  fullWidth: true,
+                },
+              }}
+              label="Date"
+              onChange={(date) => setDate(date)}
+            />
           </Stack>
 
           <Stack direction="row">
@@ -177,10 +175,42 @@ export function DeliveryInfoModal({
           <Divider variant="middle" sx={{ marginTop: 3, marginBottom: 3 }} />
 
           <Stack direction="row" justifyContent="space-between">
-            <TextField sx={{ m: 1 }} label="S" type="number" placeholder="Insert Number" helperText="Item S" value={s} onChange={(e) => setS(e.target.value)}/>
-            <TextField sx={{ m: 1 }} label="M" type="number" placeholder="Insert Number" helperText="Items M" value={m} onChange={(e) => setM(e.target.value)}/>
-            <TextField sx={{ m: 1 }} label="L" type="number" placeholder="Insert Number" helperText="Items L" value={l} onChange={(e) => setL(e.target.value)}/>
-            <TextField sx={{ m: 1 }} label="Pallet" type="number" placeholder="Insert Number" helperText="Pallets" value={pallet} onChange={(e) => setPallet(e.target.value)}/>
+            <TextField
+              sx={{ m: 1 }}
+              label="S"
+              type="number"
+              placeholder="Insert Number"
+              helperText="Item S"
+              value={s}
+              onChange={(e) => setS(e.target.value)}
+            />
+            <TextField
+              sx={{ m: 1 }}
+              label="M"
+              type="number"
+              placeholder="Insert Number"
+              helperText="Items M"
+              value={m}
+              onChange={(e) => setM(e.target.value)}
+            />
+            <TextField
+              sx={{ m: 1 }}
+              label="L"
+              type="number"
+              placeholder="Insert Number"
+              helperText="Items L"
+              value={l}
+              onChange={(e) => setL(e.target.value)}
+            />
+            <TextField
+              sx={{ m: 1 }}
+              label="Pallet"
+              type="number"
+              placeholder="Insert Number"
+              helperText="Pallets"
+              value={pallet}
+              onChange={(e) => setPallet(e.target.value)}
+            />
           </Stack>
 
           <Stack direction="row" justifyContent="space-between">

@@ -57,9 +57,9 @@ class AuthClient {
           'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
       },
       body: JSON.stringify({
-        "email": email,
-        "password": password,
-        "role": role
+        email,
+        password,
+        role
       })});
       const data = await response.json();
       console.log(data);

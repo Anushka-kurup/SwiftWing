@@ -10,7 +10,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { type Dayjs } from 'dayjs';
 
 import type { Delivery } from '@/types/types';
-import { UserContext, type UserContextValue } from '@/contexts/user-context';
+import { UserContext } from '@/contexts/user-context';
 import { DeliveryProofSubmissionModal } from '@/components/dashboard/drivers/delivery-proof-submission-modal';
 import { getDeliveriesByDateAndDriver } from '@/components/dashboard/status/api';
 import { StatusBoard } from '@/components/dashboard/status/status-board';
@@ -25,7 +25,7 @@ export default function Page(): React.JSX.Element {
   const [submissionModalOpen, setSubmissionInfoModalOpen] = React.useState<boolean>(false);
 
   const userContext = useContext(UserContext);
-  const { user } = userContext as UserContextValue;
+  const { user } = userContext!;
 
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
@@ -33,15 +33,15 @@ export default function Page(): React.JSX.Element {
     setSubmissionInfoModalOpen(!submissionModalOpen);
   };
 
-  const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {
+  const fetchDeliveriesByDate = React.useCallback(async (unformattedDate: Dayjs | null): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
     const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate, user?.id ?? '');
     setDeliveries(deliveryData);
-  };
+  }, [user?.id]);
 
   React.useEffect(() => {
     void fetchDeliveriesByDate(date);
-  }, [date, submissionModalOpen]);
+  }, [date, submissionModalOpen, fetchDeliveriesByDate, user?.id]);
 
   return (
     <Stack spacing={3}>

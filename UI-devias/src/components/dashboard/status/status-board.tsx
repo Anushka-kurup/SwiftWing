@@ -24,7 +24,7 @@ interface StatusBoardProps {
   rowsPerPage?: number;
   setPage?: React.Dispatch<React.SetStateAction<number>>;
   setRowsPerPage?: React.Dispatch<React.SetStateAction<number>>;
-  onClickModal?: React.MouseEventHandler;
+  onClickModal?: () => void;
   setDeliveryModalInfo?: React.Dispatch<React.SetStateAction<Delivery | null>>;
 }
 
@@ -45,8 +45,12 @@ export function StatusBoard({
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    if (setRowsPerPage) {
+      setRowsPerPage(parseInt(event.target.value, 10));
+    }
+    if (setPage) {
+      setPage(0);
+    }
   };
 
   const rowIds = React.useMemo(() => {
@@ -61,7 +65,7 @@ export function StatusBoard({
   const onClickTableRow = (delivery: Delivery): void => {
     if (setDeliveryModalInfo) {
       setDeliveryModalInfo(delivery);
-      onClickModal();
+      onClickModal && onClickModal();
     }
   };
 
@@ -92,7 +96,7 @@ export function StatusBoard({
     } else if (status.toLowerCase() === 'on_hold') {
       return 'On Hold';
     }
-    return '';
+    return 'Unknown';
   };
 
   return (
@@ -175,8 +179,8 @@ export function StatusBoard({
                       }}
                     >
                       <Chip
-                        sx={{ bgcolor: statusBackgroundColor(row.shipping_status), color: 'white' }}
-                        label={statusLabel(row.shipping_status)}
+                        sx={{ bgcolor: statusBackgroundColor(row?.shipping_status ?? ''), color: 'white' }}
+                        label={statusLabel(row?.shipping_status ?? '')}
                       />
                     </TableCell>
                   </TableRow>

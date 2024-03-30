@@ -3,7 +3,6 @@
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Unstable_Grid2';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -11,10 +10,9 @@ import { Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useContext } from 'react';
-import { UserContext, UserContextValue } from '@/contexts/user-context';
+import { UserContext } from '@/contexts/user-context';
 
 import { type Delivery } from '@/types/types';
-import { getDeliveriesByDate, getDrivers } from '@/components/dashboard/status/api';
 import { DeliveryInfoModal } from '@/components/dashboard/delivery-info-modal';
 import { StatusBoard } from '@/components/dashboard/status-board';
 import { getDeliveriesByDateAndSender } from '@/components/dashboard/api';
@@ -24,7 +22,6 @@ export default function Page(): React.JSX.Element | null {
   const [page, setPage] = React.useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
   const [date, setDate] = React.useState<Dayjs>(dayjs());
-  const [drivers, setDrivers] = React.useState<any[]>([]);
   const [deliveries, setDeliveries] = React.useState<Delivery[]>([]);
 
   const [deliveryInfoModalOpen, setDeliveryInfoModalOpen] = React.useState<boolean>(false);
@@ -32,7 +29,7 @@ export default function Page(): React.JSX.Element | null {
   const paginatedDeliveries = applyPagination(deliveries, page, rowsPerPage);
 
   const userContext = useContext(UserContext);
-  const {user, error, isLoading} = userContext as UserContextValue;
+  const {user} = userContext!;
   if (user?.role !== 'client') {
     return null;
   }
@@ -41,16 +38,16 @@ export default function Page(): React.JSX.Element | null {
     setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
   };
 
-  const id_string = user.id;
+  const IdString = user.id;
 
-  const fetchDeliveriesAndOrderByDate = async (unformattedDate: Dayjs, id_string: string): Promise<void> => {
+  const fetchDeliveriesAndOrderByDate = async (unformattedDate: Dayjs, userId: string): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD');
-    const deliveryData: Delivery[] = await getDeliveriesByDateAndSender(id_string, formattedDate, formattedDate);
+    const deliveryData: Delivery[] = await getDeliveriesByDateAndSender(userId, formattedDate, formattedDate);
     setDeliveries(deliveryData);
   };
 
   React.useEffect(() => {
-    void fetchDeliveriesAndOrderByDate(date, id_string);
+    void fetchDeliveriesAndOrderByDate(date, IdString);
   }, [date]);
 
   return (
@@ -84,7 +81,7 @@ export default function Page(): React.JSX.Element | null {
         </Stack>
       </Stack>
       <Stack>
-        <Stack direction="row" spacing={1} justifyContent="flex-end" marginRight={4} alignItems={'center'}>
+        <Stack direction="row" spacing={1} justifyContent="flex-end" marginRight={4} alignItems="center">
           <Typography>Create Delivery Request</Typography>
           <Fab color="primary" aria-label="add" size="small" onClick={onClickCreateDelivery}>
             <AddIcon />

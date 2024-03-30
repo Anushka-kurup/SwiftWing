@@ -23,7 +23,7 @@ export default function Page(): React.JSX.Element {
   const [page, setPage] = React.useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = React.useState<number>(5);
   const [date, setDate] = React.useState<Dayjs | null>(dayjs());
-  const [drivers, setDrivers] = React.useState<any[]>([]);
+  const [drivers, setDrivers] = React.useState<Driver[]>([]);
   const [deliveries, setDeliveries] = React.useState<Delivery[]>([]);
 
   const [awaitingAssignmentDeliveries, setAwaitingAssignmentDeliveries] = React.useState<number>(0);
@@ -38,15 +38,15 @@ export default function Page(): React.JSX.Element {
 
   const fetchDrivers = async (): Promise<void> => {
     const data = await getDrivers();
-    setDrivers(data as Driver[]);
+    setDrivers(data);
   };
 
-  const fetchDeliveriesByDate = async (unformattedDate: Dayjs | null): Promise<void> => {
+  const fetchDeliveriesByDate = React.useCallback(async (unformattedDate: Dayjs | null): Promise<void> => {
     const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
     const deliveryData: Delivery[] = await getDeliveriesByDate(formattedDate, formattedDate);
     setDeliveries(deliveryData);
     countDeliveriesByStatus(deliveryData);
-  };
+  }, []);
 
   function countDeliveriesByStatus(deliveryList: Delivery[]): void {
     let awaitingAssignment = 0;
@@ -86,8 +86,15 @@ export default function Page(): React.JSX.Element {
 
   React.useEffect(() => {
     void fetchDrivers();
-    void fetchDeliveriesByDate(date);
-  }, [date]);
+
+    if (date) {
+      void fetchDeliveriesByDate(date);
+    }
+  }, [date, fetchDeliveriesByDate]);
+
+  const onClickDeliveryInfoModal = (): void => {
+    setDeliveryInfoModalOpen(!deliveryInfoModalOpen);
+  };
 
   return (
     <Stack spacing={3}>
