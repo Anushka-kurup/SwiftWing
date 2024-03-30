@@ -94,7 +94,7 @@ export default function Page(): React.JSX.Element {
       <DeliveryInfoModal
         deliveryModalInfo={deliveryModalInfo}
         deliveryInfoModalOpen={deliveryInfoModalOpen}
-        onClickDeliveryInfoModal={() => DeliveryInfoModal}
+        onClickDeliveryInfoModal={onClickDeliveryInfoModal}
         fetchDeliveriesByDate={fetchDeliveriesByDate}
         date={date as Dayjs}
       />
@@ -166,7 +166,7 @@ export default function Page(): React.JSX.Element {
           rowsPerPage={rowsPerPage}
           setPage={setPage}
           setRowsPerPage={setRowsPerPage}
-          onClickModal={() => DeliveryInfoModal} // Fix: Change the type of onClickModal prop
+          onClickModal={onClickDeliveryInfoModal}
           setDeliveryModalInfo={setDeliveryModalInfo}
         />
       </Stack>

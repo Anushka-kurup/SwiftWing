@@ -59,7 +59,7 @@ export function StatusBoard({
   const onClickTableRow = (delivery: Delivery): void => {
     if (setDeliveryModalInfo) {
       setDeliveryModalInfo(delivery);
-      onClickModal;
+      onClickModal();
     }
   };
 
