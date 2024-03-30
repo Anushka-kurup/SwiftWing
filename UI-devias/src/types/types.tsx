@@ -25,3 +25,5 @@ export interface Driver {
   name: string;
   user_id: string;
 }
+
+export type Route = Record<string, string>;

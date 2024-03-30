@@ -10,7 +10,7 @@ import { Stack } from '@mui/system';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { type Dayjs } from 'dayjs';
 
-import { UserContext, UserContextValue } from '@/contexts/user-context';
+import { UserContext } from '@/contexts/user-context';
 
 import { createOrderShipping, getLatLong } from './api';
 
@@ -38,11 +38,9 @@ export interface Order {
 export function DeliveryInfoModal({
   deliveryInfoModalOpen,
   onClickDeliveryInfo,
-  sender_id,
 }: {
   deliveryInfoModalOpen: boolean;
   onClickDeliveryInfo: () => void;
-  sender_id: string;
 }): React.JSX.Element {
   const [address, setAddress] = React.useState('');
   const [postalCode, setPostalCode] = React.useState('');
@@ -56,25 +54,25 @@ export function DeliveryInfoModal({
   const [specialInstructions, setSpecialInstructions] = React.useState('');
 
   const userContext = useContext(UserContext);
-  const { user, error, isLoading } = userContext as UserContextValue;
+  const { user } = userContext!;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const full_address = address + ' ' + postalCode;
+    const fullAddress = `${address} ${postalCode}`;
     const { latitude, longitude } = await getLatLong(postalCode);
-    const package_weight = Math.floor(Math.random() * 15) + 1;
+    const packageWeight = Math.floor(Math.random() * 15) + 1;
     const order: Order = {
       sender_id: user?.id ?? '',
       order_id: '',
       warehouse: '313@Somerset, 313 Orchard Road, Singapore 238895',
-      destination: full_address,
+      destination: fullAddress,
       package_dimension: {
         S: s,
         L: l,
         M: m,
         Pallet: pallet,
       },
-      package_weight: package_weight,
+      package_weight: packageWeight,
       special_handling_instruction: specialInstructions,
       latitude: parseFloat(latitude),
       longitude: parseFloat(longitude),
@@ -87,7 +85,6 @@ export function DeliveryInfoModal({
       delivery_timestamp: null,
     };
     const result = await createOrderShipping(order);
-    console.log(result);
     if (result) {
       setAddress('');
       setPostalCode('');
@@ -118,7 +115,7 @@ export function DeliveryInfoModal({
               placeholder="Insert Address Here"
               helperText="Customer Address"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e) => { setAddress(e.target.value); }}
             />
           </Stack>
 
@@ -131,7 +128,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Postal Code Here"
               helperText="Postal Code"
               value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
+              onChange={(e) => {
+                setPostalCode(e.target.value);
+              }}
             />
             <DatePicker
               sx={{ m: 1 }}
@@ -145,7 +144,9 @@ export function DeliveryInfoModal({
                 },
               }}
               label="Date"
-              onChange={(date) => setDate(date)}
+              onChange={(newDate) => {
+                setDate(newDate);
+              }}
             />
           </Stack>
 
@@ -158,7 +159,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Recipient Name Here"
               helperText="Recipient Name"
               value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
+              onChange={(e) => {
+                setRecipientName(e.target.value);
+              }}
             />
             <TextField
               sx={{ m: 1 }}
@@ -168,7 +171,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Phone Number Here"
               helperText="Customer's Phone Number"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e) => {
+                setPhoneNumber(e.target.value);
+              }}
             />
           </Stack>
 
@@ -182,7 +187,7 @@ export function DeliveryInfoModal({
               placeholder="Insert Number"
               helperText="Item S"
               value={s}
-              onChange={(e) => setS(e.target.value)}
+              onChange={(e) => { setS(e.target.value); }}
             />
             <TextField
               sx={{ m: 1 }}
@@ -191,7 +196,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Number"
               helperText="Items M"
               value={m}
-              onChange={(e) => setM(e.target.value)}
+              onChange={(e) => {
+                setM(e.target.value);
+              }}
             />
             <TextField
               sx={{ m: 1 }}
@@ -200,7 +207,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Number"
               helperText="Items L"
               value={l}
-              onChange={(e) => setL(e.target.value)}
+              onChange={(e) => {
+                setL(e.target.value);
+              }}
             />
             <TextField
               sx={{ m: 1 }}
@@ -209,7 +218,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Number"
               helperText="Pallets"
               value={pallet}
-              onChange={(e) => setPallet(e.target.value)}
+              onChange={(e) => {
+                setPallet(e.target.value);
+              }}
             />
           </Stack>
 
@@ -223,7 +234,9 @@ export function DeliveryInfoModal({
               placeholder="Insert Any Special Instructions from the Customer"
               helperText="Customer Instructions"
               value={specialInstructions}
-              onChange={(e) => setSpecialInstructions(e.target.value)}
+              onChange={(e) => {
+                setSpecialInstructions(e.target.value);
+              }}
             />
           </Stack>
         </Stack>

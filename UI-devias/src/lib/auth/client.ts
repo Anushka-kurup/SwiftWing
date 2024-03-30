@@ -63,7 +63,7 @@ class AuthClient {
       })});
       const data = await response.json();
       console.log(data);
-      if (data.detail == "Authentication failed") {
+      if (data.detail === "Authentication failed") {
         return { error: 'Invalid credentials'}
       }
       const token = data.access_token;
@@ -102,13 +102,13 @@ class AuthClient {
       })
       const data = await response.json();
       console.log(data);
-      const user_provided = {
+      const userProvided = {
         id: data.user_id,
         email: data.user,
         role: data.role,
         name: data.first_name + ' ' + data.last_name
       } satisfies User;
-      return {data: user_provided};
+      return {data: userProvided};
 
       } catch (error) {
         return { data: null }

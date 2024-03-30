@@ -1,4 +1,4 @@
-import { type Driver } from './types';
+import type { Driver, Route } from './types';
 
 export interface RequestOptionsWithoutBody {
   method: string;
@@ -31,5 +31,3 @@ export interface RouteAPIReturn {
   delivery_date: string;
   delivery_map: Route;
 }
-
-export type Route = Record<string, string>;
