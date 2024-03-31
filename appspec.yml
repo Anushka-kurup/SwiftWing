@@ -7,11 +7,8 @@ files:
     destination: /var/www/html/backend 
 hooks:
   BeforeInstall:
-    - location: scripts/install_frontend_dependencies.sh
+    - location: scripts/install_dependencies.sh
       timeout: 300  
   ApplicationStart:
-    - location: scripts/start_backend.sh
-      timeout: 300
-  ValidateService:
-    - location: scripts/validate_backend.sh
+    - location: scripts/start_services.sh
       timeout: 300
