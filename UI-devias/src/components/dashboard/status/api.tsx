@@ -74,9 +74,8 @@ export async function getDeliveriesByDateAndDriver(
           if (driverRoute?.includes(order?.shipping_id ?? '')) {
             return order;
           }
-          return [];
         })
-        .filter((delivery) => delivery !== null && delivery !== undefined) as Delivery[];
+        .filter((delivery) => delivery !== null && delivery !== undefined ) as Delivery[];
       return deliveries;
     }
   } catch (error) {
