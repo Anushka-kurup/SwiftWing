@@ -286,3 +286,25 @@ export async function updateDeliveryTimeStamp(delivery: Delivery, date: string):
   }
   return false;
 }
+
+//Send email to customer
+export async function sendEmailToCustomer(delivery: Delivery, message: string): Promise<boolean> {
+  // if (!delivery.recipient.email) {
+  //   return false;
+  // }
+  const requestOptions = createRequestOptions('POST', {
+    message: message,
+    //email: delivery.recipient.email,
+    email: 'hojuayen@gmail.com'
+  });
+  const route = `${api}/optimize/sendEmail`;
+
+  try {
+    const response = await fetch(route, requestOptions);
+    const result: unknown = await response.json();
+    return result as boolean;
+  } catch (error) {
+    console.error('Error complete delivery:', error);
+  }
+  return false;
+}

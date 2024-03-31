@@ -7,7 +7,7 @@ export interface Delivery {
   latitude: number;
   longitude: number;
   package_weight: number;
-  recipient: { phone_no: string; recipeint_name: string };
+  recipient: { phone_no: string; recipeint_name: string, email: string};
   sender_id: string;
   shipping_id?: string;
   shipping_status?: 'Awaiting Assignment' | 'In_Progress' | 'Delivered' | 'Failed' | 'On_Hold';

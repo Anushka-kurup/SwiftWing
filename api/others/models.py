@@ -28,6 +28,10 @@ class Cluster(BaseModel):
             "num_drivers": self.num_drivers,
             "coords_names": self.coords_names
         }
+        
+class SnsMessage(BaseModel):
+    email: str
+    message: str
 
 
 

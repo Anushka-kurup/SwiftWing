@@ -1,4 +1,6 @@
 from typing import Dict
+
+import boto3
 from .models import Route
 from auth.routes import verify_operator
 from fastapi import HTTPException
@@ -6,6 +8,7 @@ import geopy.distance
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 from sklearn.cluster import KMeans
+from botocore.exceptions import ClientError
 
 class RouteService:
     def __init__(self):
@@ -186,6 +189,56 @@ class ClusterService:
                     cluster.append(delivery_ids[j])
             returned.append(cluster)
         return returned
+    
+    
+class SnsService:
+    """Encapsulates Amazon SNS topic and subscription functions."""
+
+    def __init__(self):
+        """
+        :param sns_resource: A Boto3 Amazon SNS resource.
+        """
+        self.sns_resource = boto3.resource("sns", region_name="us-east-1")
+        
+    def create_topic(self, name):
+        """
+        Create a new SNS topic.
+
+        :param name: The name of the new topic.
+        :return: The ARN of the new topic.
+        """
+        topic = self.sns_resource.create_topic(Name=name)
+        return topic.arn
+
+    def subscribe_email(self, topic_arn, email):
+        """
+        Subscribe an email endpoint to an SNS topic.
+
+        :param topic_arn: The ARN of the SNS topic.
+        :param email: The email address to subscribe.
+        """
+        self.sns_resource.Topic(topic_arn).subscribe(Protocol='email', Endpoint=email)
+
+    def publish_to_topic(self, topic_arn, message):
+        """
+        Publish a message to an SNS topic.
+
+        :param topic_arn: The ARN of the SNS topic.
+        :param message: The message to publish.
+        """
+        topic = self.sns_resource.Topic(topic_arn)
+        response = topic.publish(
+            Message=message,
+        )
+        return response
+        
+    
+
+
+    
+
+
+
 
         
     

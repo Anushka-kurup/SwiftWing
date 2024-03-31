@@ -17,6 +17,7 @@ import {
   completeDelivery,
   completeOrder,
   getProof,
+  sendEmailToCustomer,
   updateDeliveryTimeStamp,
   updateOrder,
   uploadProof,
@@ -75,6 +76,9 @@ export function DeliveryProofSubmissionModal({
           updateDeliveryTimeStampResult && (await updateOrder({ ...deliveryInfo, delivery_timestamp: nowTimeStamp }));
 
         void (updateOrderTimeStampResult && fetchDeliveriesByDate(date));
+
+        //Email notification
+        const emailNotification = await sendEmailToCustomer(deliveryInfo,"your package has been delivered!")
       }
     }
     setSubmitBtnLoading(false);
@@ -96,6 +100,8 @@ export function DeliveryProofSubmissionModal({
   const onClickFailed = async (): Promise<void> => {
     if (deliveryInfo) {
       await completeDelivery(deliveryInfo, driverId, 'Failed');
+      //Email notification
+      const emailNotification = await sendEmailToCustomer(deliveryInfo,"Delivery Failed today. Please contact us for more information.")
 
       // Close modal
       if (onClickModal) {
