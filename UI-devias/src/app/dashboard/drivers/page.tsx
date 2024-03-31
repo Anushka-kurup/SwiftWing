@@ -33,19 +33,15 @@ export default function Page(): React.JSX.Element {
     setSubmissionInfoModalOpen(!submissionModalOpen);
   };
 
+  const fetchDeliveriesByDate = React.useCallback(async (unformattedDate: Dayjs | null): Promise<void> => {
+    const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? '';
+    const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate, user?.id ?? '');
+    setDeliveries(deliveryData);
+  }, [user?.id]);
+
   React.useEffect(() => {
-    const fetchDeliveriesByDate = React.useCallback(async (unformattedDate: Dayjs | null): Promise<void> => {
-      const formattedDate = unformattedDate?.format('YYYY-MM-DD') ?? ``;
-      const deliveryData: Delivery[] = await getDeliveriesByDateAndDriver(formattedDate, formattedDate, user?.id ?? '');
-      setDeliveries(deliveryData);
-    }, [user?.id, date]);
-    fetchDeliveriesByDate(date);
-  }, [date, user?.id]);
-
-
-  // React.useEffect(() => {
-  //   void fetchDeliveriesByDate(date);
-  // }, [date, submissionModalOpen, fetchDeliveriesByDate, user?.id]);
+    void fetchDeliveriesByDate(date);
+  }, [date, submissionModalOpen, fetchDeliveriesByDate, user?.id]);
 
   return (
     <Stack spacing={3}>
