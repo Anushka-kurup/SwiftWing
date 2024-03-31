@@ -63,12 +63,12 @@ export default function Page(): React.JSX.Element {
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
           },
         });
-        const data = (await response.json()) as RouteAPIReturn;
+        const data = (await response.json()) 
         console.log(data);
         setRoute([]); // Clear the route array before setting new values
         setDeliveryUser([]); // Clear the deliveryUser array before setting new values
         Object.keys(data['delivery_map']).forEach((key) => {
-          const deliveries = data['delivery_map'][key];
+          const deliveries = data['delivery_map'][key] as any;
           setRoute((prev) => [...prev, deliveries]);
           setDeliveryUser((prev) => [...prev, key]);
         });
@@ -171,6 +171,11 @@ export default function Page(): React.JSX.Element {
     ]
   ]
   */
+ useEffect(() => {
+  if (Object.keys(deliveryMap).length > 0) {
+    setIsLoading(false);
+  }
+ }, [deliveryMap]);
   useEffect(() => {
     if (
       !isloadingdeliveries &&
@@ -191,9 +196,12 @@ export default function Page(): React.JSX.Element {
         if (user === '00-unassigned') {
           driverName = 'unassigned';
         } else {
-          driverName = drivers.find((driver) => driver.user_id === user).name;
+          const driver = drivers.find((driver) => driver.user_id === user);
+          if (driver) {
+            driverName = driver.name;
+          }
         }
-        const driverDeliveries = route[i];
+        const driverDeliveries = route[i] as any;
         const deliveriesAssigned = Array();
         driverDeliveries.forEach((shippingId: any) => {
           const delivery = deliveries.find((delivery) => delivery.shipping_id === shippingId);
@@ -202,9 +210,7 @@ export default function Page(): React.JSX.Element {
         setDeliveryMap((prev) => [...prev, deliveriesAssigned]);
       }
     }
-    if (Object.keys(deliveryMap).length > 0) {
-      setIsLoading(false);
-    }
+    
     console.log('running');
     console.log(deliveryMap);
     console.log(route);
@@ -295,6 +301,27 @@ export default function Page(): React.JSX.Element {
         </Grid>
       ) : (
         <Box sx={{ display: 'flex' }}>
+          <Grid xs={12}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={direction} onChange={handleChange}>
+                <Tab label="Clusters" value="clustering" />
+                <Tab label="Route Optimization" value="optimize" />
+              </Tabs>
+            </Box>
+          </Grid>
+          <Grid xs={12}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['DatePicker', 'DatePicker']}>
+                <DatePicker
+                  label="Date Select"
+                  value={date}
+                  onChange={(newValue) => {
+                    setDate(newValue);
+                  }}
+                />
+              </DemoContainer>
+            </LocalizationProvider>
+          </Grid>
           <CircularProgress />
         </Box>
       )}

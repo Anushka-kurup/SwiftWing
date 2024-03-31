@@ -81,6 +81,7 @@ export async function getDeliveriesByDateAndDriver(
     }
   } catch (error) {
     console.error('Error get deliveries:', error);
+    return [];
   }
   return [];
 }
