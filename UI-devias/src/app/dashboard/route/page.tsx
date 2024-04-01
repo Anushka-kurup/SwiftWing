@@ -55,7 +55,7 @@ export default function Page(): React.JSX.Element {
       //convert date to string
       const dateString = date?.format('YYYY-MM-DD');
       try {
-        const response = await fetch(`http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000/delivery/get_delivery/?delivery_date=${dateString}`, {
+        const response = await fetch(`http://backend:5000/delivery/get_delivery/?delivery_date=${dateString}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ export default function Page(): React.JSX.Element {
     // Example:
     const fetchDrivers = async () => {
       try {
-        const response = await fetch('http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000/auth/get_all_drivers', {
+        const response = await fetch('http://backend:5000/auth/get_all_drivers', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ export default function Page(): React.JSX.Element {
   function handleAssignDrivers(shippingId: string, driverId: string): void {
     const assignDrivers = async () => {
       try {
-        const response = await fetch('http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000/shipping/update_shipping_driver/', {
+        const response = await fetch('http://backend:5000/shipping/update_shipping_driver/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

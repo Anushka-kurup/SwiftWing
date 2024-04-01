@@ -49,7 +49,7 @@ class AuthClient {
     const { email, password, role } = params;
     // Make API request
     try {
-      const response = await fetch('http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000/auth/login',
+      const response = await fetch('http://backend:5000/auth/login',
       {method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ class AuthClient {
     }
     // Make API request
     try {
-      const response: Response = await fetch('http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000/auth/user',
+      const response: Response = await fetch('http://backend:5000/auth/user',
       {
         method: 'GET',
         headers: {

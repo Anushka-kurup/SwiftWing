@@ -3,7 +3,7 @@ import type { Delivery } from '@/types/types';
 
 import type { Order } from './delivery-info-modal';
 
-const api = 'http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000';
+const api = 'http://backend:5000';
 
 function createRequestOptions(method: string, body: unknown): RequestOptionsWithBody | RequestOptionsWithoutBody {
   const headers = {
