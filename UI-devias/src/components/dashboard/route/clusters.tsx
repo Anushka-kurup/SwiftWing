@@ -53,7 +53,7 @@ export function Clusters(props: any): JSX.Element {
     console.log(payload);
 
     // Call API
-    await fetch('http://backend:5000/optimize/cluster', {
+    await fetch('http://730335660517.dkr.ecr.us-east-1.amazonaws.com/swiftwing-backend:5000/optimize/cluster', {
       method: 'POST',
       headers: {
       'Content-Type': 'application/json',
