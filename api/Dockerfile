@@ -7,6 +7,9 @@ WORKDIR /api
 # Copy the requirements.txt file into the container at /api
 COPY requirements.txt .
 
+# Copy the environment file into the container at /api
+COPY .env .
+
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
