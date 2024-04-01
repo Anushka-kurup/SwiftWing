@@ -3,7 +3,7 @@ import type { Delivery } from '@/types/types';
 
 import type { Order } from './delivery-info-modal';
 
-const api = 'http://localhost:5000';
+const api = 'http://backend:5000';
 
 function createRequestOptions(method: string, body: unknown): RequestOptionsWithBody | RequestOptionsWithoutBody {
   const headers = {

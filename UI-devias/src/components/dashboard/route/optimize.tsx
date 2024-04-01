@@ -38,7 +38,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                 "num_drivers": 1,
                 "round_trip": false,
             };
-            await fetch('http://127.0.0.1:5000/optimize/optimizeroute', { 
+            await fetch('http://backend:5000/optimize/optimizeroute', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
             "delivery_map": outputMap,
         };
         console.log(payload);
-        await fetch('http://127.0.0.1:5000/delivery/update_delivery/', { 
+        await fetch('http://backend:5000/delivery/update_delivery/', { 
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export function Optimize(props: OptimizeProps): JSX.Element {
                         "driver_id": driver,
                     };
                     console.log(payload);
-                    await fetch('http://127.0.0.1:5000/shipping/update_shipping_status_and_driver/',{
+                    await fetch('http://backend:5000/shipping/update_shipping_status_and_driver/',{
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
