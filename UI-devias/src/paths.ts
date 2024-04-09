@@ -9,6 +9,7 @@ export const paths = {
     settings: '/dashboard/settings',
     route: '/dashboard/route',
     drivers: '/dashboard/drivers',
+    test: '/test',
   },
   errors: { notFound: '/errors/not-found' },
 } as const;

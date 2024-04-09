@@ -10,10 +10,7 @@ services:
       environment:
         - AWS_ACCESS_KEY_ID=AKIA2UC3FZHSQNT3NJNY
         - AWS_SECRET_ACCESS_KEY=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
-        - AWS_REGION=us-east-1
-      networks:
-        - app-network
-        
+        - AWS_REGION=us-east-1        
   frontend:
       build:
         context: ./UI-devias  
@@ -21,10 +18,5 @@ services:
         - "3000:3000"  
       depends_on:
         - backend  
-      networks:
-        - app-network
 
-networks:
-  app-network:
-    driver: bridge
 

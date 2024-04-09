@@ -4,7 +4,6 @@ FROM node:latest
 # Set the working directory in the container
 WORKDIR /UI-devias
 
-
 # Copy package.json file
 COPY package.json .
 
