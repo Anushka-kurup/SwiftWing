@@ -71,7 +71,6 @@ SwiftWing was deployed on AWS using the following architecture:
 
 ### Architecture Diagram
 
-<h3>Architecture Diagram</h3>
 <img src="UI-devias/public/assets/cme_cloud_soln-cloud%20solution.jpg" alt="Cloud Architecture Diagram" width="942" />
 
 
